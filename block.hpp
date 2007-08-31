@@ -39,6 +39,8 @@ public:
 
 	bool set_parameter(const Variable& p);
 
+	typedef boost::ptr_vector< Block > store_t;
+
 	virtual ~Block();
 protected:
 
@@ -61,8 +63,6 @@ protected:
 	InPort::store_t ports_in_;
 	
 	OutPort::store_t ports_out_;
-
-	typedef boost::ptr_vector< Block > store_t;
 
 	typedef std::pair< void *, type_t > param_t;
 	std::vector< param_t > params_;
