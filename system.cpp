@@ -1,18 +1,70 @@
 #include "system.hpp"
+#include "exceptions.hpp"
+#include "signal.hpp"
+#include "port.hpp"
+#include "symtab.hpp"
 
-System::System()
+#include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+
+#include <iostream>
+
+/*
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/construct.hpp>
+#include <boost/lambda/casts.hpp>
+#include <boost/any.hpp>
+
+#include <boost/statechart/event.hpp>
+#include <boost/statechart/transition.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/simple_state.hpp>
+
+namespace sc = boost::statechart;
+*/
+
+struct System::SystemImpl
+{
+	SystemImpl();
+
+	uint32_t create_signal_buffer(type_t type, uint32_t size);
+
+	Block::store_t blocks_;
+
+	Signal::store_t signal_buffers_;
+
+	Symtab symtab_;
+
+	uint32_t signal_buffer_count_;
+
+	double simulation_time;
+};
+
+
+System::SystemImpl::SystemImpl()
 {
 	signal_buffer_count_ = 0;
 	simulation_time = 0.0;
 }
 
 
+System::System()
+{
+	d = new SystemImpl;
+}
+
+System::~ System()
+{
+	delete d;
+}
+
+
 void System::add_block(Block* b, const std::string& name_sys)
 {
 	Block::store_t::const_iterator it =
-		std::find_if(blocks_.begin(), blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name_sys);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name_sys);
 
-	if(it != blocks_.end())
+	if(it != d->blocks_.end())
 	{
 		delete b;
 		throw duplicate_block_name_error(name_sys);
@@ -40,7 +92,7 @@ void System::add_block(Block* b, const std::string& name_sys)
 
 	}
 
-	blocks_.push_back(b);
+	d->blocks_.push_back(b);
 }
 
 
@@ -56,9 +108,9 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if source block given in "block_source" exists */
 	source_block_it =
-		std::find_if(blocks_.begin(), blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_source);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_source);
 
-	if (source_block_it == blocks_.end())
+	if (source_block_it == d->blocks_.end())
 	{
 		throw non_existant_block_error(block_source);
 	}
@@ -74,9 +126,9 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if sink block given in "block_sink" exists */
 	sink_block_it =
-		std::find_if(blocks_.begin(), blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_sink);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_sink);
 
-	if (sink_block_it == blocks_.end())
+	if (sink_block_it == d->blocks_.end())
 	{
 		throw non_existant_block_error(block_sink);
 	}
@@ -97,44 +149,44 @@ void System::connect_ports(const std::string & block_source,
 	}
 
 	/* make the send() method of the source port call the right method of the sink port */
-	source_port_it->connect(*sink_port_it, signal_buffer_count_);
+	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
 	
-	uint32_t curr_sig_buffer = create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
+	uint32_t curr_sig_buffer = d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 	
 	switch (source_port_it->get_type())
 	{
 		case integer:
 			source_port_it->get_buffer_ptr =
 				boost::bind(&IntegerSignal::get_data,
-				dynamic_cast < IntegerSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case real:
 			source_port_it->get_buffer_ptr =
 				boost::bind(&RealSignal::get_data,
-				dynamic_cast < RealSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case complex:
 			source_port_it->get_buffer_ptr =
 				boost::bind(&ComplexSignal::get_data,
-				dynamic_cast < ComplexSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
 				boost::bind(&ComplexSignal::get_data,
-				dynamic_cast < ComplexSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case string:
 			source_port_it->get_buffer_ptr =
 				boost::bind(&StringSignal::get_data,
-				dynamic_cast < StringSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case logical:
 			source_port_it->get_buffer_ptr =
 				boost::bind(&BitSignal::get_data,
-				dynamic_cast < BitSignal* >(&signal_buffers_[curr_sig_buffer]));
+				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		default:
@@ -146,7 +198,7 @@ void System::connect_ports(const std::string & block_source,
 }
 
 
-uint32_t System::create_signal_buffer(type_t type, uint32_t size)
+uint32_t System::SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 {
 	switch (type)
 	{
@@ -170,15 +222,12 @@ uint32_t System::create_signal_buffer(type_t type, uint32_t size)
 	
 	return signal_buffer_count_++;
 }
-System::~ System()
-{
-	
-}
+
 
 void System::wakeup_block(const std::string & name, uint32_t times=1)
 {
 	Block::store_t::iterator block_it =
-		std::find_if(blocks_.begin(), blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name);
 
 	for(uint32_t i=0; i<times; i++)
 		block_it->wakeup();
