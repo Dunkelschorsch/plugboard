@@ -159,10 +159,18 @@ void System::connect_ports(const std::string & block_source,
 			source_port_it->get_buffer_ptr =
 				boost::bind(&IntegerSignal::get_data,
 				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
+
+			sink_port_it->get_buffer_ptr =
+				boost::bind(&IntegerSignal::get_data,
+				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case real:
 			source_port_it->get_buffer_ptr =
+				boost::bind(&RealSignal::get_data,
+				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
+
+			sink_port_it->get_buffer_ptr =
 				boost::bind(&RealSignal::get_data,
 				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
@@ -181,10 +189,18 @@ void System::connect_ports(const std::string & block_source,
 			source_port_it->get_buffer_ptr =
 				boost::bind(&StringSignal::get_data,
 				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
+
+			sink_port_it->get_buffer_ptr =
+				boost::bind(&StringSignal::get_data,
+				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case logical:
 			source_port_it->get_buffer_ptr =
+				boost::bind(&BitSignal::get_data,
+				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
+
+			sink_port_it->get_buffer_ptr =
 				boost::bind(&BitSignal::get_data,
 				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
