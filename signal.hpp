@@ -17,6 +17,7 @@ public:
 
 protected:
 	Signal() { }
+
 	std::vector< uint8_t > dimensions_;
 
 	real_t Ts_;
@@ -57,7 +58,7 @@ class IntegerSignal : public Signal, public SignalStore< integer_t >
 {
 public:
 	IntegerSignal(uint32_t size) : SignalStore< integer_t >(size) {};
-	
+
 	virtual ~IntegerSignal() {};
 };
 

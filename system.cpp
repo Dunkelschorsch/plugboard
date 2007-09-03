@@ -3,12 +3,17 @@
 #include "signal.hpp"
 #include "port.hpp"
 #include "symtab.hpp"
+#include "factory.hpp"
+
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/construct.hpp>
+#include <boost/lambda/casts.hpp>
 
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <iostream>
 
 using boost::bind;
-
 /*
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
@@ -31,6 +36,8 @@ struct SystemImpl
 
 	inline uint32_t create_signal_buffer(type_t type, uint32_t size);
 
+	inline void register_basic_types();
+
 	Block::store_t blocks_;
 
 	Signal::store_t signal_buffers_;
@@ -38,6 +45,14 @@ struct SystemImpl
 	Symtab symtab_;
 
 	uint32_t signal_buffer_count_;
+
+	typedef Factory< void*, type_t, boost::function< Signal*(size_t) > > signal_factory_t;
+
+	typedef Factory< void*, type_t, boost::function< void*() > > get_buffer_factory_t;
+
+	get_buffer_factory_t get_buffer_factory_;
+
+	signal_factory_t signal_factory_;
 
 	double simulation_time;
 };
@@ -47,6 +62,7 @@ SystemImpl::SystemImpl()
 {
 	signal_buffer_count_ = 0;
 	simulation_time = 0.0;
+	register_basic_types();
 }
 
 
@@ -67,6 +83,15 @@ System::~System()
 	delete d_ptr;
 }
 
+
+void SystemImpl::register_basic_types()
+{
+	signal_factory_.Register(integer, boost::bind< IntegerSignal* >(boost::lambda::new_ptr< IntegerSignal >(), _1));
+	signal_factory_.Register(real, boost::bind< RealSignal* >(boost::lambda::new_ptr< RealSignal >(), _1));
+	signal_factory_.Register(complex, boost::bind< ComplexSignal* >(boost::lambda::new_ptr< ComplexSignal >(), _1));
+	signal_factory_.Register(string, boost::bind< StringSignal* >(boost::lambda::new_ptr< StringSignal >(), _1));
+	signal_factory_.Register(logical, boost::bind< BitSignal* >(boost::lambda::new_ptr< BitSignal >(), _1));
+}
 
 void System::add_block(Block* b, const std::string& name_sys)
 {
@@ -165,7 +190,12 @@ void System::connect_ports(const std::string & block_source,
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
 	
 	uint32_t curr_sig_buffer = d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-	
+/*
+	boost::function< void*() > rr;
+
+	bind(&IntegerSignal::get_data,
+		(boost::lambda::ll_dynamic_cast< IntegerSignal* >(_1) ) )(); //(&d->signal_buffers_[curr_sig_buffer]);
+*/
 	switch (source_port_it->get_type())
 	{
 		case integer:
@@ -229,26 +259,8 @@ void System::connect_ports(const std::string & block_source,
 
 uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 {
-	switch (type)
-	{
-		case real:
-			signal_buffers_.push_back(new RealSignal(size));
-			break;
-		case integer:
-			signal_buffers_.push_back(new IntegerSignal(size));
-			break;
-		case complex:
-			signal_buffers_.push_back(new ComplexSignal(size));
-			break;
-		case string:
-			signal_buffers_.push_back(new StringSignal(size));
-			break;
-		default:
-			/* apparently something just went boink on us */
-			std::cerr << "Trying to connect a port of unknown type!" << std::endl;
-			break;
-	}
 	
+	signal_buffers_.push_back(signal_factory_.CreationFunction(type)(size));
 	return signal_buffer_count_++;
 }
 
