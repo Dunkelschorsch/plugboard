@@ -1,4 +1,6 @@
 #include "block_loader.hpp"
+#include "exceptions.hpp"
+
 #include <glibmm.h>
 
 #include <iostream>

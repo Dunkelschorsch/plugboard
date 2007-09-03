@@ -9,7 +9,6 @@ namespace fs = boost::filesystem;
 #include <map>
 #include <stdint.h>
 
-#include "exceptions.hpp"
 #include "block.hpp"
 
 /** The BlockLoader class
