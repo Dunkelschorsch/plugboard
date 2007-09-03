@@ -6,4 +6,4 @@ class Message
 	virtual ~Message() { }
 };
 
-#endif
+#endif // _MESSAGE_HPP
