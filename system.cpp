@@ -5,8 +5,6 @@
 #include "symtab.hpp"
 
 #include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <iostream>
 
 /*
@@ -23,11 +21,13 @@
 namespace sc = boost::statechart;
 */
 
-struct System::SystemImpl
+struct SystemImpl
 {
 	SystemImpl();
 
-	uint32_t create_signal_buffer(type_t type, uint32_t size);
+	virtual ~SystemImpl() { };
+
+	inline uint32_t create_signal_buffer(type_t type, uint32_t size);
 
 	Block::store_t blocks_;
 
@@ -41,26 +41,35 @@ struct System::SystemImpl
 };
 
 
-System::SystemImpl::SystemImpl()
+SystemImpl::SystemImpl()
 {
 	signal_buffer_count_ = 0;
 	simulation_time = 0.0;
 }
 
 
-System::System()
+System::System() : d_ptr(new SystemImpl)
 {
-	d = new SystemImpl;
+
 }
 
-System::~ System()
+
+System::System(SystemImpl &dd) : d_ptr(&dd)
 {
-	delete d;
+
+}
+
+
+System::~System()
+{
+	delete d_ptr;
 }
 
 
 void System::add_block(Block* b, const std::string& name_sys)
 {
+	H_D(System)
+
 	Block::store_t::const_iterator it =
 		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name_sys);
 
@@ -73,7 +82,7 @@ void System::add_block(Block* b, const std::string& name_sys)
 	if (!b->is_configured())
 	{
 		/* maybe the block does not need to be configured */
-		if (!(b->params_.size() == 0))
+		if (!(b->get_params().size() == 0))
 		{
 			delete b;
 			throw block_not_configured_error(name_sys);
@@ -101,6 +110,8 @@ void System::connect_ports(const std::string & block_source,
 			   const std::string & block_sink,
                            const std::string & port_sink)
 {
+	H_D(System)
+
 	Block::store_t::iterator source_block_it, sink_block_it;
 
 	OutPort::store_t::iterator source_port_it;
@@ -117,9 +128,9 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if source port given in "port_source" exists */
 	source_port_it =
-		std::find_if(source_block_it->ports_out_.begin(), source_block_it->ports_out_.end(), boost::bind(&OutPort::get_name, _1) == port_source);
+		std::find_if(source_block_it->get_outport_list().begin(), source_block_it->get_outport_list().end(), boost::bind(&OutPort::get_name, _1) == port_source);
 
-	if (source_port_it == source_block_it->ports_out_.end())
+	if (source_port_it == source_block_it->get_outport_list().end())
 	{
 		throw non_existant_port_error(port_source);
 	}
@@ -135,9 +146,9 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if sink port given in "port_sink" exists */
 	sink_port_it =
-		std::find_if(sink_block_it->ports_in_.begin(), sink_block_it->ports_in_.end(), boost::bind(&InPort::get_name, _1) == port_sink);
+		std::find_if(sink_block_it->get_inport_list().begin(), sink_block_it->get_inport_list().end(), boost::bind(&InPort::get_name, _1) == port_sink);
 
-	if (sink_port_it == sink_block_it->ports_in_.end())
+	if (sink_port_it == sink_block_it->get_inport_list().end())
 	{
 		throw non_existant_port_error(port_sink);
 	}
@@ -214,7 +225,7 @@ void System::connect_ports(const std::string & block_source,
 }
 
 
-uint32_t System::SystemImpl::create_signal_buffer(type_t type, uint32_t size)
+uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 {
 	switch (type)
 	{
@@ -242,6 +253,8 @@ uint32_t System::SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 
 void System::wakeup_block(const std::string & name, uint32_t times=1)
 {
+	H_D(System)
+
 	Block::store_t::iterator block_it =
 		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name);
 

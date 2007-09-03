@@ -4,15 +4,16 @@
 #include "block.hpp"
 #include "variable.hpp"
 
+#include "macros.hpp"
 
 /** The System class
  */
+struct SystemImpl;
 class System
 {
 public:
-
 	System();
-	~System();
+	virtual ~System();
 
 	void add_block(Block* b, const std::string& name_sys);
 
@@ -23,9 +24,15 @@ public:
 
 	void wakeup_block(const std::string& name, uint32_t times);
 
+protected:
+	SystemImpl * const d_ptr;
+	System(SystemImpl &dd);
+
 private:
-	struct SystemImpl;
-	SystemImpl *d;
+	friend class SystemImpl;
+
+	inline SystemImpl *d_func() { return d_ptr; }
+	inline const SystemImpl *d_func() const { return d_ptr; }
 };
 
 
