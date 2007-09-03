@@ -26,7 +26,11 @@ friend class System;
 
 public:
 	Block();
+	
+	typedef std::pair< void *, type_t > param_t;
 
+	typedef boost::ptr_vector< Block > store_t;
+	
 	virtual void wakeup() = 0;
 
 	std::string get_name() const;
@@ -39,7 +43,12 @@ public:
 
 	bool set_parameter(const Variable& p);
 
-	typedef boost::ptr_vector< Block > store_t;
+	InPort::store_t & get_inport_list();
+
+	OutPort::store_t & get_outport_list();
+
+	std::vector< param_t > get_params();
+
 
 	virtual ~Block();
 protected:
@@ -64,7 +73,6 @@ protected:
 	
 	OutPort::store_t ports_out_;
 
-	typedef std::pair< void *, type_t > param_t;
 	std::vector< param_t > params_;
 
 private:

@@ -173,3 +173,18 @@ bool Block::setup_input_ports()
 {
 	return false;
 }
+
+InPort::store_t & Block::get_inport_list()
+{
+	return ports_in_;
+}
+
+OutPort::store_t & Block::get_outport_list()
+{
+	return ports_out_;
+}
+
+std::vector< Block::param_t > Block::get_params()
+{
+	return params_;
+}
