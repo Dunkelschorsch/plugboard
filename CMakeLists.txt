@@ -1,6 +1,6 @@
 project (HUMP)
 
-add_executable (main main.cpp symtab.cpp variable.cpp system.cpp block_loader.cpp block.cpp port.cpp signal.cpp)
+add_executable (main main.cpp symtab.cpp variable.cpp system.cpp block_loader.cpp block.cpp port.cpp)
 
 include_directories (${HUMP_SOURCE_DIR})
 
