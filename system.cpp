@@ -7,6 +7,8 @@
 #include <boost/bind.hpp>
 #include <iostream>
 
+using boost::bind;
+
 /*
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
@@ -71,7 +73,7 @@ void System::add_block(Block* b, const std::string& name_sys)
 	H_D(System)
 
 	Block::store_t::const_iterator it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name_sys);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == name_sys);
 
 	if(it != d->blocks_.end())
 	{
@@ -119,7 +121,7 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if source block given in "block_source" exists */
 	source_block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_source);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == block_source);
 
 	if (source_block_it == d->blocks_.end())
 	{
@@ -128,7 +130,7 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if source port given in "port_source" exists */
 	source_port_it =
-		std::find_if(source_block_it->get_outport_list().begin(), source_block_it->get_outport_list().end(), boost::bind(&OutPort::get_name, _1) == port_source);
+		std::find_if(source_block_it->get_outport_list().begin(), source_block_it->get_outport_list().end(), bind(&OutPort::get_name, _1) == port_source);
 
 	if (source_port_it == source_block_it->get_outport_list().end())
 	{
@@ -137,7 +139,7 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if sink block given in "block_sink" exists */
 	sink_block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == block_sink);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == block_sink);
 
 	if (sink_block_it == d->blocks_.end())
 	{
@@ -146,7 +148,7 @@ void System::connect_ports(const std::string & block_source,
 
 	/* check if sink port given in "port_sink" exists */
 	sink_port_it =
-		std::find_if(sink_block_it->get_inport_list().begin(), sink_block_it->get_inport_list().end(), boost::bind(&InPort::get_name, _1) == port_sink);
+		std::find_if(sink_block_it->get_inport_list().begin(), sink_block_it->get_inport_list().end(), bind(&InPort::get_name, _1) == port_sink);
 
 	if (sink_port_it == sink_block_it->get_inport_list().end())
 	{
@@ -168,51 +170,51 @@ void System::connect_ports(const std::string & block_source,
 	{
 		case integer:
 			source_port_it->get_buffer_ptr =
-				boost::bind(&IntegerSignal::get_data,
+				bind(&IntegerSignal::get_data,
 				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
-				boost::bind(&IntegerSignal::get_data,
+				bind(&IntegerSignal::get_data,
 				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case real:
 			source_port_it->get_buffer_ptr =
-				boost::bind(&RealSignal::get_data,
+				bind(&RealSignal::get_data,
 				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
-				boost::bind(&RealSignal::get_data,
+				bind(&RealSignal::get_data,
 				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case complex:
 			source_port_it->get_buffer_ptr =
-				boost::bind(&ComplexSignal::get_data,
+				bind(&ComplexSignal::get_data,
 				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
-				boost::bind(&ComplexSignal::get_data,
+				bind(&ComplexSignal::get_data,
 				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case string:
 			source_port_it->get_buffer_ptr =
-				boost::bind(&StringSignal::get_data,
+				bind(&StringSignal::get_data,
 				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
-				boost::bind(&StringSignal::get_data,
+				bind(&StringSignal::get_data,
 				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
 		case logical:
 			source_port_it->get_buffer_ptr =
-				boost::bind(&BitSignal::get_data,
+				bind(&BitSignal::get_data,
 				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 
 			sink_port_it->get_buffer_ptr =
-				boost::bind(&BitSignal::get_data,
+				bind(&BitSignal::get_data,
 				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
 			break;
 
@@ -256,7 +258,7 @@ void System::wakeup_block(const std::string & name, uint32_t times=1)
 	H_D(System)
 
 	Block::store_t::iterator block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), boost::bind(&Block::get_name_sys, _1) == name);
+		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == name);
 
 	for(uint32_t i=0; i<times; i++)
 		block_it->wakeup();
