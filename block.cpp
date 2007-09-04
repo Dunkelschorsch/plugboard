@@ -11,6 +11,8 @@ Block::Block()
 {
 	configured_ = false;
 	param_curr_ = 0;
+	num_output_ports_ = 0;
+	num_input_ports_ = 0;
 }
 
 std::string Block::get_name() const
@@ -33,6 +35,7 @@ bool Block::is_configured() const
 {
 	return configured_;
 }
+
 
 
 bool Block::set_parameter(const Variable& pp)
@@ -118,7 +121,8 @@ OutPort* Block::add_port(const OutPort& p)
 		throw duplicate_port_name_error(get_name() + "::" + p.get_name());
 	}
 	ports_out_.push_back(p);
-	
+
+	num_output_ports_++;
 	return &(*(ports_out_.end()-1));
 }
 
@@ -134,6 +138,7 @@ InPort* Block::add_port(const InPort& p)
 	}
 	ports_in_.push_back(p);
 
+	num_input_ports_++;
 	return &(*(ports_in_.end()-1));
 }
 
@@ -164,25 +169,49 @@ void Block::add_parameter(void* var, type_t t)
 	params_.push_back(std::make_pair(var, t));
 }
 
+
+
 bool Block::setup_output_ports()
 {
 	return false;
 }
+
+
 
 bool Block::setup_input_ports()
 {
 	return false;
 }
 
+
+
+uint16_t Block::get_num_input_ports() const
+{
+	return num_input_ports_;
+}
+
+
+
+uint16_t Block::get_num_output_ports() const
+{
+	return num_output_ports_;
+}
+
+
+
 InPort::store_t & Block::get_inport_list()
 {
 	return ports_in_;
 }
 
+
+
 OutPort::store_t & Block::get_outport_list()
 {
 	return ports_out_;
 }
+
+
 
 std::vector< Block::param_t > Block::get_params()
 {

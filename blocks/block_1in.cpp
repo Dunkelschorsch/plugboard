@@ -3,19 +3,19 @@
 #include "port.hpp"
 
 #define HAS_INPUTS
-#define HAS_OUTPUTS
+#undef  HAS_OUTPUTS
 
-static const std::string BLOCK_NAME = "CHANGE ME!";
+static const std::string BLOCK_NAME = "1in";
 
-/* please replace all occurences of '$NAME' with BLOCK_NAME */
+/* please replace all occurences of '1in' with BLOCK_NAME */
 
-class Block_$NAME : public Block
+class Block_1in : public Block
 {
 public:
 
-	Block_$NAME();
+	Block_1in();
 
-	~Block_$NAME();
+	~Block_1in();
 
 	void wakeup();
 
@@ -32,21 +32,23 @@ private:
 #endif
 
 /* member variable declarations go here */
-
+	InPort *sig_in_;
 };
 
 
 #ifdef HAS_INPUTS
-bool Block_$NAME::setup_input_ports()
+bool Block_1in::setup_input_ports()
 {
 /* calls to "add_port(InPort &) go here */
+	sig_in_ = add_port(InPort("in1", empty, 0, 0));
+
 	return true;
 }
 #endif
 
 
 #ifdef HAS_OUTPUTS
-bool Block_$NAME::setup_output_ports()
+bool Block_1in::setup_output_ports()
 {
 /* calls to "add_port(OutPort &) go here */
 	return true;
@@ -54,29 +56,29 @@ bool Block_$NAME::setup_output_ports()
 #endif
 
 
-void Block_$NAME::configure_parameters()
+void Block_1in::configure_parameters()
 {
 /* calls to "add_parameter()" go here */
 }
 
 
-void Block_$NAME::wakeup()
+void Block_1in::wakeup()
 {
 
 }
 
 
-Block_$NAME::Block_$NAME()
+Block_1in::Block_1in()
 {
 	name_ = BLOCK_NAME;
-	set_description("your description here");
+	set_description("This is a block for testing purposes. It has 1 input.");
 	configure_parameters();
 }
 
 
-Block_$NAME::~Block_$NAME()
+Block_1in::~Block_1in()
 {
 
 }
 
-DEFINE_ACCESS_FUNCTIONS($NAME)
+DEFINE_ACCESS_FUNCTIONS(1in)

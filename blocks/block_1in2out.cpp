@@ -2,20 +2,20 @@
 #include "types.hpp"
 #include "port.hpp"
 
+#include <iostream>
+
 #define HAS_INPUTS
 #define HAS_OUTPUTS
 
-static const std::string BLOCK_NAME = "CHANGE ME!";
+static const std::string BLOCK_NAME = "1in2out";
 
-/* please replace all occurences of '$NAME' with BLOCK_NAME */
-
-class Block_$NAME : public Block
+class Block_1in2out : public Block
 {
 public:
 
-	Block_$NAME();
+	Block_1in2out();
 
-	~Block_$NAME();
+	~Block_1in2out();
 
 	void wakeup();
 
@@ -32,51 +32,57 @@ private:
 #endif
 
 /* member variable declarations go here */
-
+	OutPort *sig_out1_, *sig_out2_;
+	InPort *sig_in1_;
 };
 
 
 #ifdef HAS_INPUTS
-bool Block_$NAME::setup_input_ports()
+bool Block_1in2out::setup_input_ports()
 {
 /* calls to "add_port(InPort &) go here */
+	sig_in1_ = add_port(InPort("in1", empty, 0, 0));
+
 	return true;
 }
 #endif
 
 
 #ifdef HAS_OUTPUTS
-bool Block_$NAME::setup_output_ports()
+bool Block_1in2out::setup_output_ports()
 {
 /* calls to "add_port(OutPort &) go here */
+	sig_out1_ = add_port(OutPort("out1", integer, 1.0, 2));
+	sig_out2_ = add_port(OutPort("out2", integer, 1.0, 2));
+
 	return true;
 }
 #endif
 
 
-void Block_$NAME::configure_parameters()
+void Block_1in2out::configure_parameters()
 {
 /* calls to "add_parameter()" go here */
 }
 
 
-void Block_$NAME::wakeup()
+void Block_1in2out::wakeup()
 {
 
 }
 
 
-Block_$NAME::Block_$NAME()
+Block_1in2out::Block_1in2out()
 {
 	name_ = BLOCK_NAME;
-	set_description("your description here");
+	set_description("This is a block for testing purposes. It has 1 inputs and 2 outputs.");
 	configure_parameters();
 }
 
 
-Block_$NAME::~Block_$NAME()
+Block_1in2out::~Block_1in2out()
 {
 
 }
 
-DEFINE_ACCESS_FUNCTIONS($NAME)
+DEFINE_ACCESS_FUNCTIONS(1in2out)

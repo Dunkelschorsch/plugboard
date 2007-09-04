@@ -79,6 +79,7 @@ void Block_stdout_sink::wakeup()
 	z = get_data_ptr< complex_t >(sig_in_);
 
 	std::for_each(z, z+sig_in_->get_frame_size(), std::cout << boost::lambda::_1 << " ");
+	std::cout << std::endl;
 }
 
 
@@ -87,16 +88,4 @@ Block_stdout_sink::~Block_stdout_sink()
 
 }
 
-
-extern "C"
-Block* create()
-{
-	return new Block_stdout_sink;
-}
-
-
-extern "C"
-const string_t name()
-{
-	return BLOCK_NAME;
-}
+DEFINE_ACCESS_FUNCTIONS(stdout_sink)

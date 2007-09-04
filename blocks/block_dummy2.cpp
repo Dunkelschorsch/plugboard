@@ -78,15 +78,4 @@ Block_Dummy2::~Block_Dummy2()
 
 }
 
-
-extern "C"
-Block* create()
-{
-	return new Block_Dummy2;
-}
-
-extern "C"
-const string_t name()
-{
-	return BLOCK_NAME;
-}
+DEFINE_ACCESS_FUNCTIONS(Dummy2)

@@ -37,15 +37,4 @@ Block_Dummy3::~Block_Dummy3()
 	std::cout << "Dummy3 dtor called" << std::endl;
 }
 
-
-extern "C"
-Block* create()
-{
-	return new Block_Dummy3;
-}
-
-extern "C"
-const std::string name()
-{
-	return BLOCK_NAME;
-}
+DEFINE_ACCESS_FUNCTIONS(Dummy3)

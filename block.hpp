@@ -7,6 +7,18 @@
 #include "variable.hpp"
 #include "port.hpp"
 
+#define DEFINE_ACCESS_FUNCTIONS(NAME)\
+extern "C"\
+Block* create()\
+{\
+return new Block_##NAME;\
+}\
+extern "C"\
+const string_t name()\
+{\
+	return #NAME;\
+}
+
 /*
 #include <boost/statechart/event.hpp>
 #include <boost/statechart/transition.hpp>
@@ -47,8 +59,11 @@ public:
 
 	OutPort::store_t & get_outport_list();
 
-	std::vector< param_t > get_params();
+	uint16_t get_num_input_ports() const;
 
+	uint16_t get_num_output_ports() const;
+
+	std::vector< param_t > get_params();
 
 	virtual ~Block();
 protected:
@@ -85,6 +100,10 @@ private:
 	std::string get_name_sys();
 
 	std::string name_sys_;
+
+	uint16_t num_output_ports_;
+
+	uint16_t num_input_ports_;
 };
 
 
