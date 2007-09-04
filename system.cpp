@@ -7,75 +7,69 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
-#include <boost/lambda/casts.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <iostream>
 
+
 using boost::bind;
-/*
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/lambda/casts.hpp>
-#include <boost/any.hpp>
+using boost::function;
+using boost::lambda::new_ptr;
 
-#include <boost/statechart/event.hpp>
-#include <boost/statechart/transition.hpp>
-#include <boost/statechart/state_machine.hpp>
-#include <boost/statechart/simple_state.hpp>
 
-namespace sc = boost::statechart;
-*/
 
 struct SystemImpl
 {
 	SystemImpl();
 
-	virtual ~SystemImpl() { };
-
 	inline uint32_t create_signal_buffer(type_t type, uint32_t size);
 
 	inline void register_basic_types();
+
+	inline void set_buffer_ptrs(OutPort& out, InPort& in, Signal* s);
 
 	Block::store_t blocks_;
 
 	Signal::store_t signal_buffers_;
 
-	Symtab symtab_;
-
 	uint32_t signal_buffer_count_;
 
-	typedef Factory< void*, type_t, boost::function< Signal*(size_t) > > signal_factory_t;
-
-	typedef Factory< void*, type_t, boost::function< void*() > > get_buffer_factory_t;
-
-	get_buffer_factory_t get_buffer_factory_;
+	typedef Factory< void*, type_t, function< Signal*(size_t) > > signal_factory_t;
 
 	signal_factory_t signal_factory_;
 
+	typedef Factory< void*, type_t, function< void*(Signal*) > > get_buffer_factory_t;
+
+	get_buffer_factory_t get_buffer_factory_;
+
 	double simulation_time;
+
+	Symtab symtab_;
 };
+
 
 
 SystemImpl::SystemImpl()
 {
 	signal_buffer_count_ = 0;
 	simulation_time = 0.0;
+
 	register_basic_types();
 }
 
 
+
 System::System() : d_ptr(new SystemImpl)
 {
-
 }
+
 
 
 System::System(SystemImpl &dd) : d_ptr(&dd)
 {
-
 }
+
 
 
 System::~System()
@@ -84,14 +78,6 @@ System::~System()
 }
 
 
-void SystemImpl::register_basic_types()
-{
-	signal_factory_.Register(integer, boost::bind< IntegerSignal* >(boost::lambda::new_ptr< IntegerSignal >(), _1));
-	signal_factory_.Register(real, boost::bind< RealSignal* >(boost::lambda::new_ptr< RealSignal >(), _1));
-	signal_factory_.Register(complex, boost::bind< ComplexSignal* >(boost::lambda::new_ptr< ComplexSignal >(), _1));
-	signal_factory_.Register(string, boost::bind< StringSignal* >(boost::lambda::new_ptr< StringSignal >(), _1));
-	signal_factory_.Register(logical, boost::bind< BitSignal* >(boost::lambda::new_ptr< BitSignal >(), _1));
-}
 
 void System::add_block(Block* b, const std::string& name_sys)
 {
@@ -130,6 +116,7 @@ void System::add_block(Block* b, const std::string& name_sys)
 
 	d->blocks_.push_back(b);
 }
+
 
 
 void System::connect_ports(const std::string & block_source,
@@ -189,80 +176,12 @@ void System::connect_ports(const std::string & block_source,
 	/* make the send() method of the source port call the right method of the sink port */
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
 	
-	uint32_t curr_sig_buffer = d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-/*
-	boost::function< void*() > rr;
+	uint32_t curr_sig_buffer =
+		d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 
-	bind(&IntegerSignal::get_data,
-		(boost::lambda::ll_dynamic_cast< IntegerSignal* >(_1) ) )(); //(&d->signal_buffers_[curr_sig_buffer]);
-*/
-	switch (source_port_it->get_type())
-	{
-		case integer:
-			source_port_it->get_buffer_ptr =
-				bind(&IntegerSignal::get_data,
-				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-
-			sink_port_it->get_buffer_ptr =
-				bind(&IntegerSignal::get_data,
-				dynamic_cast < IntegerSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-			break;
-
-		case real:
-			source_port_it->get_buffer_ptr =
-				bind(&RealSignal::get_data,
-				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-
-			sink_port_it->get_buffer_ptr =
-				bind(&RealSignal::get_data,
-				dynamic_cast < RealSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-			break;
-
-		case complex:
-			source_port_it->get_buffer_ptr =
-				bind(&ComplexSignal::get_data,
-				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-
-			sink_port_it->get_buffer_ptr =
-				bind(&ComplexSignal::get_data,
-				dynamic_cast < ComplexSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-			break;
-
-		case string:
-			source_port_it->get_buffer_ptr =
-				bind(&StringSignal::get_data,
-				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-
-			sink_port_it->get_buffer_ptr =
-				bind(&StringSignal::get_data,
-				dynamic_cast < StringSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-			break;
-
-		case logical:
-			source_port_it->get_buffer_ptr =
-				bind(&BitSignal::get_data,
-				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-
-			sink_port_it->get_buffer_ptr =
-				bind(&BitSignal::get_data,
-				dynamic_cast < BitSignal* >(&d->signal_buffers_[curr_sig_buffer]));
-			break;
-
-		default:
-			/* apparently something just went boink on us */
-			std::cerr << "Trying to connect a port of unknown type!" << std::endl;
-			break;
-	}
-	
+	d->set_buffer_ptrs(*source_port_it, *sink_port_it, &d->signal_buffers_[curr_sig_buffer]);
 }
 
-
-uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
-{
-	
-	signal_buffers_.push_back(signal_factory_.CreationFunction(type)(size));
-	return signal_buffer_count_++;
-}
 
 
 void System::wakeup_block(const std::string & name, uint32_t times=1)
@@ -274,5 +193,59 @@ void System::wakeup_block(const std::string & name, uint32_t times=1)
 
 	for(uint32_t i=0; i<times; i++)
 		block_it->wakeup();
+}
 
+
+
+namespace
+{
+	template< class T >
+	void* get_buffer(Signal *s)
+	{
+		return dynamic_cast < T* >(s)->get_data();
+	}
+}
+
+
+
+void SystemImpl::register_basic_types()
+{
+	/* IntegerSignal and integer_t */
+	get_buffer_factory_.Register(integer, bind(&get_buffer< IntegerSignal >, _1));
+	signal_factory_.Register(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1));
+
+	/* RealSignal and real_t */
+	get_buffer_factory_.Register(real, bind(&get_buffer< RealSignal >, _1));
+	signal_factory_.Register(real, bind< RealSignal* >(new_ptr< RealSignal >(), _1));
+
+	/* ComplexSignal and complex_t */
+	get_buffer_factory_.Register(complex, bind(&get_buffer< ComplexSignal >, _1));
+	signal_factory_.Register(complex, bind< ComplexSignal* >(new_ptr< ComplexSignal >(), _1));
+
+	/* StringSignal and string_t */
+	get_buffer_factory_.Register(string, bind(&get_buffer< StringSignal >, _1));
+	signal_factory_.Register(string, bind< StringSignal* >(new_ptr< StringSignal >(), _1));
+
+	/* BitSignal and logical_t */
+	get_buffer_factory_.Register(logical, bind(&get_buffer< BitSignal >, _1));
+	signal_factory_.Register(logical, bind< BitSignal* >(new_ptr< BitSignal >(), _1));
+}
+
+
+
+uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
+{
+	signal_buffers_.push_back(signal_factory_.CreationFunction(type)(size));
+	return signal_buffer_count_++;
+}
+
+
+
+void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
+{
+	function < void*(Signal*) > f;
+
+	f = get_buffer_factory_.CreationFunction(out.get_type()) ;
+	out.get_buffer_ptr = bind(f, s);
+	in.get_buffer_ptr = bind(f, s);
 }
