@@ -17,7 +17,14 @@ typedef enum
 	real,
 	complex,
 	string,
-	logical
+	logical,
+	/* atm unsused: */
+	uint8,
+	uint16,
+	uint32,
+	int8,
+	int16,
+	int32,
 } type_t;
 
 /** \var typedef int32_t integer_t
@@ -48,16 +55,18 @@ typedef bool logical_t;
 
 typedef void* empty_t;
 
-typedef std::vector< empty_t > empty_vec_t;
+#define vector_t std::vector
 
-typedef std::vector< real_t > real_vec_t;
+typedef vector_t< empty_t > empty_vec_t;
 
-typedef std::vector< integer_t > int_vec_t;
+typedef vector_t< real_t > real_vec_t;
 
-typedef std::vector< complex_t > complex_vec_t;
+typedef vector_t< integer_t > int_vec_t;
 
-typedef std::vector< logical_t > bit_vec_t;
+typedef vector_t< complex_t > complex_vec_t;
 
-typedef std::vector< string_t > string_vec_t;
+typedef vector_t< logical_t > bit_vec_t;
+
+typedef vector_t< string_t > string_vec_t;
 
 #endif // _TYPES_HPP
