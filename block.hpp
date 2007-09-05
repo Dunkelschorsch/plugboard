@@ -35,6 +35,7 @@ namespace sc = boost::statechart;
 class Block
 {
 friend class System;
+friend class SystemImpl;
 
 public:
 	Block();
