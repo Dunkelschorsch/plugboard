@@ -1,11 +1,13 @@
 #include "block.hpp"
 #include "port.hpp"
 #include "variable.hpp"
+#include "exceptions.hpp"
 
 #include <boost/any.hpp>
 #include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <iostream>
+
+
 
 Block::Block()
 {

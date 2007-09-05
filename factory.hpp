@@ -2,7 +2,7 @@
 #define _FACTORY_HPP
 
 #include <map>
-#include <boost/bind.hpp>
+
 
 template
 <

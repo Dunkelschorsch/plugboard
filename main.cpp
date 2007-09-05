@@ -1,7 +1,8 @@
 #include "block_loader.hpp"
+#include "block.hpp"
 #include "system.hpp"
 #include "variable.hpp"
-
+#include "exceptions.hpp"
 #include <iostream>
 
 /*

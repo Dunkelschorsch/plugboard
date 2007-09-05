@@ -1,10 +1,11 @@
 #ifndef _SYSTEM_HPP
 #define _SYSTEM_HPP
 
-#include "block.hpp"
-#include "variable.hpp"
-
 #include "macros.hpp"
+class Block;
+class Variable;
+
+#include <string>
 
 /** The System class
  */

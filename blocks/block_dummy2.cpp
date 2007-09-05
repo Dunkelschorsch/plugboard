@@ -1,7 +1,5 @@
 #include "block.hpp"
 #include "types.hpp"
-#include "port.hpp"
-
 #include <iostream>
 
 static const std::string BLOCK_NAME = "Dummy2";

@@ -2,12 +2,11 @@
 #define _PORT_HPP
 
 #include "types.hpp"
-#include "message.hpp"
+class Message;
 
 #include <deque>
-
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+
 
 
 class BasePort

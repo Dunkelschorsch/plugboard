@@ -1,10 +1,14 @@
 #include "block_loader.hpp"
+#include "block.hpp"
 #include "exceptions.hpp"
 
-#include <glibmm.h>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
+#include <glibmm.h>
 #include <iostream>
 
+namespace fs = boost::filesystem;
 
 uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 {
