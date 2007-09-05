@@ -47,6 +47,8 @@ public:
 
 	std::string get_name() const;
 
+	std::string get_name_sys() const;
+
 	std::string get_description() const;
 
 	bool is_configured() const;
@@ -97,8 +99,6 @@ private:
 
 	void set_name_sys(const std::string& name_sys) __attribute__ ((visibility("hidden")));
 
-	std::string get_name_sys();
-
 	std::string name_sys_;
 
 	uint16_t num_output_ports_;
@@ -106,7 +106,7 @@ private:
 	uint16_t num_input_ports_;
 };
 
-
+namespace {
 template< class T >
 inline const T* get_data_ptr(const InPort *p)
 {
@@ -117,5 +117,6 @@ template< class T >
 inline T* get_data_ptr(const OutPort *p)
 {
 	return static_cast< T* >(p->get_buffer_ptr());
+}
 }
 #endif //_BLOCK_HPP

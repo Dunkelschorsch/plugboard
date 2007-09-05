@@ -155,7 +155,7 @@ void Block::set_name_sys(const std::string & name_sys)
 }
 
 
-std::string Block::get_name_sys()
+std::string Block::get_name_sys() const
 {
 	return name_sys_;
 }
