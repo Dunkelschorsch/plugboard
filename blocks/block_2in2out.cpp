@@ -1,7 +1,6 @@
 #include "block.hpp"
 #include "types.hpp"
 #include "port.hpp"
-
 #include <iostream>
 
 #define HAS_INPUTS
@@ -69,7 +68,7 @@ void Block_2in2out::configure_parameters()
 
 void Block_2in2out::wakeup()
 {
-
+	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 }
 
 

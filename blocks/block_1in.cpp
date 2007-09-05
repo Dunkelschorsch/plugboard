@@ -1,6 +1,7 @@
 #include "block.hpp"
 #include "types.hpp"
 #include "port.hpp"
+#include <iostream>
 
 #define HAS_INPUTS
 #undef  HAS_OUTPUTS
@@ -64,7 +65,7 @@ void Block_1in::configure_parameters()
 
 void Block_1in::wakeup()
 {
-
+	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 }
 
 
