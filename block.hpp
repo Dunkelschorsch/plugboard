@@ -1,8 +1,6 @@
 #ifndef _BLOCK_HPP
 #define _BLOCK_HPP
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include "exceptions.hpp"
 #include "variable.hpp"
 #include "port.hpp"
@@ -42,7 +40,7 @@ public:
 	
 	typedef std::pair< void *, type_t > param_t;
 
-	typedef boost::ptr_vector< Block > store_t;
+	typedef std::vector < Block* > store_t;
 	
 	virtual void wakeup() = 0;
 

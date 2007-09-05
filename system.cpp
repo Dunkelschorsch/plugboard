@@ -32,9 +32,7 @@ struct SystemImpl
 
 	inline void set_buffer_ptrs(OutPort& out, InPort& in, Signal* s);
 
-	void add_block_test(Block *b, const std::string& name_sys);
-
-	Block::store_t blocks_;
+	void add_block_impl(Block *b, const std::string& name_sys);
 
 	Signal::store_t signal_buffers_;
 
@@ -52,7 +50,9 @@ struct SystemImpl
 
 	Symtab symtab_;
 
-	std::vector< std::vector < Block* > > blocks_test_;
+	typedef std::vector< Block::store_t > block_list_t;
+
+	block_list_t blocks_;
 
 	std::vector< std::string > block_names_;
 };
@@ -71,8 +71,18 @@ SystemImpl::SystemImpl()
 
 SystemImpl::~SystemImpl()
 {
-	std::for_each(blocks_test_.front().begin(), blocks_test_.front().end(),
-		boost::lambda::bind(delete_ptr(), boost::lambda::_1));
+	for
+	(
+		block_list_t::iterator it = blocks_.begin();
+		it != blocks_.end();
+		it++
+	)
+	std::for_each
+	(
+		it->begin(),
+		it->end(),
+		boost::lambda::bind(delete_ptr(), boost::lambda::_1)
+	);
 }
 
 
@@ -99,16 +109,29 @@ System::~System()
 void System::add_block(Block *b, const std::string& name_sys)
 {
 	H_D(System)
+	d->add_block_impl(b, name_sys);
+}
 
-	Block::store_t::const_iterator it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == name_sys);
 
-	if(it != d->blocks_.end())
+
+void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
+{
+	/* determine if the given block name already exists */
+	std::vector< std::string >::const_iterator it =
+		std::find_if
+		(
+			block_names_.begin(),
+			block_names_.end(),
+			boost::lambda::_1 == name_sys
+		);
+
+	if(it != block_names_.end())
 	{
 		delete b;
 		throw duplicate_block_name_error(name_sys);
 	}
-	
+
+	/* if we make it here, we can set up and add the blocks to the system */
 	if (!b->is_configured())
 	{
 		/* maybe the block does not need to be configured */
@@ -119,6 +142,7 @@ void System::add_block(Block *b, const std::string& name_sys)
 		}
 	}
 
+	/* give it its unique name */
 	b->set_name_sys(name_sys);
 
 	if(!b->setup_input_ports())
@@ -131,36 +155,17 @@ void System::add_block(Block *b, const std::string& name_sys)
 
 	}
 
-	//d->blocks_.push_back(b);
-	
-	d->add_block_test(b, name_sys);
+	/* create a new vector that contains the Block-pointer b as its only element 
+	   and append it to the block list */
+	blocks_.push_back(Block::store_t(1, b));
 
-}
-
-
-
-void SystemImpl::add_block_test(Block *b, const std::string& name_sys)
-{
-	using boost::lambda::_1;
-	std::vector< std::string >::const_iterator it =
-		std::find_if(block_names_.begin(), block_names_.end(), _1 == name_sys);
-
-	if(it != block_names_.end())
-	{
-		delete b;
-		throw duplicate_block_name_error(name_sys+"hump");
-	}
-
-
-	std::vector< Block* > b_temp;
-	b_temp.push_back(b);
-
-	blocks_test_.push_back(b_temp);
 #ifndef NDEBUG
-	std::cout << blocks_test_.size()-1 << ": "
-		<< blocks_test_.back().front()->get_name_sys() <<  " type: "
-		<< blocks_test_.back().front()->get_name() << std::endl;
+	std::cerr << blocks_.size()-1 << ": "
+		<< blocks_.back().front()->get_name_sys() <<  " type: "
+		<< blocks_.back().front()->get_name() << std::endl;
 #endif
+
+	/* add the block's name to prevent further usage */
 	block_names_.push_back(name_sys);
 }
 
@@ -173,105 +178,129 @@ void System::connect_ports(const std::string & block_source,
 {
 	H_D(System)
 
+#ifndef NDEBUG
+	std::cerr << "connect " << block_source << " --> " << block_sink << std::endl;
+#endif
 
-
-	/* try to retrieve a block */
-	std::cout << "connect " << block_source << " --> " << block_sink << std::endl;
-
-	uint32_t source_block_list_num, sink_block_list_num;
-
-	for(uint32_t i=0; i<d->blocks_test_.size(); i++)
-	{
-		std::vector < Block* >::iterator source_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
-			bind(&Block::get_name_sys, _1) == block_source);
-
-		std::vector < Block* >::iterator sink_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
-			bind(&Block::get_name_sys, _1) == block_sink);
-
-		
-		if(source_it != d->blocks_test_[i].end())
-		{
-			source_block_list_num = i;
-		}
-		if(sink_it != d->blocks_test_[i].end())
-		{
-			sink_block_list_num = i;
-
-		}
-	}
-	std::cout << "found source block in vector no. " << source_block_list_num << std::endl;
-	std::cout << "found sink block in vector no. " << sink_block_list_num << std::endl;
-
-	d->blocks_test_[source_block_list_num].insert(d->blocks_test_[source_block_list_num].end(), d->blocks_test_[sink_block_list_num].begin(), d->blocks_test_[sink_block_list_num].end());
-
-
-	std::cout << "deleting: " << std::endl;
-	
-	for(std::vector< Block* >::iterator it = d->blocks_test_.at(sink_block_list_num).begin(); it != d->blocks_test_.at(sink_block_list_num).end(); it++)
-	{
-		std::cout << (*it)->get_name_sys() << " ";
-		//delete(*it);
-		
-	}
-	std::cout << std::endl;
-
-	d->blocks_test_.erase(d->blocks_test_.begin()+sink_block_list_num);
-	
-	std::cout << "size: " << d->blocks_test_.size() << std::endl;
-
-	if(d->blocks_test_.size() == 1)
-		std::for_each(d->blocks_test_.front().begin(), d->blocks_test_.front().end(),
-			bind(&Block::wakeup, _1));
-
-	return ;
-
-
-	Block::store_t::iterator source_block_it, sink_block_it;
+	int32_t source_block_list_num = -1, sink_block_list_num = -1;
 
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
 
-	/* check if source block given in "block_source" exists */
-	source_block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == block_source);
-
-	if (source_block_it == d->blocks_.end())
+	/* no, i will NOT try to replace this with a single standard algorithm invocation ... */
+	for(uint32_t i=0; i<d->blocks_.size(); i++)
 	{
+		/* check if source block given in "block_source" exists */
+		Block::store_t::iterator source_block_it =
+			std::find_if
+			(
+				d->blocks_[i].begin(),
+				d->blocks_[i].end(),
+				bind(&Block::get_name_sys, _1) == block_source
+			);
+
+		if(source_block_it != d->blocks_[i].end())
+ 		{
+			/* so we found our block. now let's see if the given port name was valid */
+			source_port_it =
+				std::find_if
+				(
+					(*source_block_it)->get_outport_list().begin(),
+					(*source_block_it)->get_outport_list().end(),
+					bind(&OutPort::get_name, _1) == port_source
+				);
+
+			/* unfortunately the given port name was invalid */
+			if (source_port_it == (*source_block_it)->get_outport_list().end())
+			{
+				throw non_existant_port_error(port_source);
+			}
+
+			if (source_port_it->send != 0)
+			{
+				/* the ports exists, but has already been connected */
+				std::cerr << "already connected!" << std::endl;
+				return;
+			}
+			/* the ports exists. all is fine. remember where the block is stored */
+			source_block_list_num = i;
+		} 
+
+		/* check if sink block given in "block_sink" exists */
+		Block::store_t::iterator sink_block_it =
+			std::find_if
+			(
+				d->blocks_[i].begin(),
+				d->blocks_[i].end(),
+				bind(&Block::get_name_sys, _1) == block_sink
+			);
+
+		
+		if(sink_block_it != d->blocks_[i].end())
+		{
+			/* so we found our block. now let's see if the given port name was valid */
+			sink_port_it =
+				std::find_if
+				(
+					(*sink_block_it)->get_inport_list().begin(),
+					(*sink_block_it)->get_inport_list().end(),
+					bind(&InPort::get_name, _1) == port_sink
+				);
+
+			/* unfortunately the given port name was invalid */
+			if (sink_port_it == (*sink_block_it)->get_inport_list().end())
+			{
+				throw non_existant_port_error(port_sink);
+			}
+
+			/* the ports exists. all is fine. remember where the block is stored */
+			sink_block_list_num = i;
+		}
+	} // <- that is from a for-loop
+
+	if (source_block_list_num == -1)
+	{
+		/* apparently the source block does not exist */
 		throw non_existant_block_error(block_source);
 	}
 
-	/* check if source port given in "port_source" exists */
-	source_port_it =
-		std::find_if(source_block_it->get_outport_list().begin(), source_block_it->get_outport_list().end(), bind(&OutPort::get_name, _1) == port_source);
-
-	if (source_port_it == source_block_it->get_outport_list().end())
+	if (sink_block_list_num == -1)
 	{
-		throw non_existant_port_error(port_source);
-	}
-
-	/* check if sink block given in "block_sink" exists */
-	sink_block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == block_sink);
-
-	if (sink_block_it == d->blocks_.end())
-	{
+		/* apparently the sink block does not exist */
 		throw non_existant_block_error(block_sink);
 	}
 
-	/* check if sink port given in "port_sink" exists */
-	sink_port_it =
-		std::find_if(sink_block_it->get_inport_list().begin(), sink_block_it->get_inport_list().end(), bind(&InPort::get_name, _1) == port_sink);
 
-	if (sink_port_it == sink_block_it->get_inport_list().end())
-	{
-		throw non_existant_port_error(port_sink);
-	}
+#ifndef NDEBUG
+	std::cerr << "found source block in vector no. " << source_block_list_num << std::endl;
+	std::cerr << "found sink block in vector no. " << sink_block_list_num << std::endl;
+#endif
 
-	if (source_port_it->send != 0)
-	{
-		std::cout << "already connected!" << std::endl;
-		return;
-	}
+	/* copy the sink block and all successive blocks in this vector to the end of the source blocks vector */
+	d->blocks_[source_block_list_num].insert
+	(
+		d->blocks_[source_block_list_num].end(),
+		d->blocks_[sink_block_list_num].begin(),
+		d->blocks_[sink_block_list_num].end()
+	);
+
+#ifndef NDEBUG
+	std::cerr << "deleting: " << std::endl;
+	std::for_each
+	(
+		d->blocks_.at(sink_block_list_num).begin(),
+		d->blocks_.at(sink_block_list_num).end(),
+		std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
+	);
+	std::cerr << std::endl;
+#endif
+	/* delete the just copied blocks from their old location */
+	d->blocks_.erase(d->blocks_.begin() + sink_block_list_num);
+
+#ifndef NDEBUG
+	std::cerr << "size of block-list-list: " << d->blocks_.size() << std::endl;
+#endif
+
 
 	/* make the send() method of the source port call the right method of the sink port */
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
@@ -280,23 +309,29 @@ void System::connect_ports(const std::string & block_source,
 		d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 
 	d->set_buffer_ptrs(*source_port_it, *sink_port_it, &d->signal_buffers_[curr_sig_buffer]);
+
 }
 
 
 
-void System::wakeup_block(const std::string & name, uint32_t times=1)
+void System::wakeup_sys(uint32_t times)
 {
 	H_D(System)
 
-	Block::store_t::iterator block_it =
-		std::find_if(d->blocks_.begin(), d->blocks_.end(), bind(&Block::get_name_sys, _1) == name);
-
-	for(uint32_t i=0; i<times; i++)
-		block_it->wakeup();
+	if(d->blocks_.size() == 1)
+	{
+		std::for_each
+		(
+			d->blocks_.front().begin(),
+			d->blocks_.front().end(),
+			bind(&Block::wakeup, _1)
+		);
+	}
 }
 
 
 
+/* sometimes you have to get by without anonymous functions ... */
 namespace
 {
 	template< class T >
