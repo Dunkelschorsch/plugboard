@@ -7,6 +7,7 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -16,12 +17,14 @@
 using boost::bind;
 using boost::function;
 using boost::lambda::new_ptr;
-
+using boost::lambda::delete_ptr;
 
 
 struct SystemImpl
 {
 	SystemImpl();
+
+	~SystemImpl();
 
 	inline uint32_t create_signal_buffer(type_t type, uint32_t size);
 
@@ -62,6 +65,14 @@ SystemImpl::SystemImpl()
 	simulation_time = 0.0;
 
 	register_basic_types();
+}
+
+
+
+SystemImpl::~SystemImpl()
+{
+	std::for_each(blocks_test_.front().begin(), blocks_test_.front().end(),
+		boost::lambda::bind(delete_ptr(), boost::lambda::_1));
 }
 
 
@@ -181,17 +192,6 @@ void System::connect_ports(const std::string & block_source,
 		if(source_it != d->blocks_test_[i].end())
 		{
 			source_block_list_num = i;
-			/* move a block from one vector to the other */
-			#if 0
-			
-			d->blocks_test_[0].push_back(*it);
-			
-			d->blocks_test_.pop_back();
-			std::cout << d->blocks_test_.size() << std::endl;
-
-			d->blocks_test_[0][0]->wakeup();
-			d->blocks_test_[0][1]->wakeup();
-			#endif
 		}
 		if(sink_it != d->blocks_test_[i].end())
 		{
@@ -210,15 +210,13 @@ void System::connect_ports(const std::string & block_source,
 	for(std::vector< Block* >::iterator it = d->blocks_test_.at(sink_block_list_num).begin(); it != d->blocks_test_.at(sink_block_list_num).end(); it++)
 	{
 		std::cout << (*it)->get_name_sys() << " ";
+		//delete(*it);
 		
 	}
 	std::cout << std::endl;
-	//d->blocks_test_.at(sink_block_list_num).clear();
+
 	d->blocks_test_.erase(d->blocks_test_.begin()+sink_block_list_num);
-
-	//std::for_each(d->blocks_test_[source_block_list_num].begin(), d->blocks_test_[source_block_list_num].end(),
-	//	bind(&Block::wakeup, _1));
-
+	
 	std::cout << "size: " << d->blocks_test_.size() << std::endl;
 
 	if(d->blocks_test_.size() == 1)
@@ -226,6 +224,7 @@ void System::connect_ports(const std::string & block_source,
 			bind(&Block::wakeup, _1));
 
 	return ;
+
 
 	Block::store_t::iterator source_block_it, sink_block_it;
 
