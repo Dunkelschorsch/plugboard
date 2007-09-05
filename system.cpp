@@ -120,7 +120,7 @@ void System::add_block(Block *b, const std::string& name_sys)
 
 	}
 
-	d->blocks_.push_back(b);
+	//d->blocks_.push_back(b);
 	
 	d->add_block_test(b, name_sys);
 
@@ -130,25 +130,25 @@ void System::add_block(Block *b, const std::string& name_sys)
 
 void SystemImpl::add_block_test(Block *b, const std::string& name_sys)
 {
-	{
-		using boost::lambda::_1;
-		std::vector< std::string >::const_iterator it =
-			std::find_if(block_names_.begin(), block_names_.end(), _1 == name_sys);
+	using boost::lambda::_1;
+	std::vector< std::string >::const_iterator it =
+		std::find_if(block_names_.begin(), block_names_.end(), _1 == name_sys);
 
-		if(it != block_names_.end())
-		{
-			delete b;
-			throw duplicate_block_name_error(name_sys+"hump");
-		}
+	if(it != block_names_.end())
+	{
+		delete b;
+		throw duplicate_block_name_error(name_sys+"hump");
 	}
+
 
 	std::vector< Block* > b_temp;
 	b_temp.push_back(b);
 
 	blocks_test_.push_back(b_temp);
 #ifndef NDEBUG
-	std::cout << blocks_test_.size() << ": "
-		<< blocks_test_[blocks_test_.size()-1][0]->get_name_sys() <<  " type: " << blocks_test_[blocks_test_.size()-1][0]->get_name() << std::endl;
+	std::cout << blocks_test_.size()-1 << ": "
+		<< blocks_test_.back().front()->get_name_sys() <<  " type: "
+		<< blocks_test_.back().front()->get_name() << std::endl;
 #endif
 	block_names_.push_back(name_sys);
 }
@@ -161,6 +161,71 @@ void System::connect_ports(const std::string & block_source,
                            const std::string & port_sink)
 {
 	H_D(System)
+
+
+
+	/* try to retrieve a block */
+	std::cout << "connect " << block_source << " --> " << block_sink << std::endl;
+
+	uint32_t source_block_list_num, sink_block_list_num;
+
+	for(uint32_t i=0; i<d->blocks_test_.size(); i++)
+	{
+		std::vector < Block* >::iterator source_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
+			bind(&Block::get_name_sys, _1) == block_source);
+
+		std::vector < Block* >::iterator sink_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
+			bind(&Block::get_name_sys, _1) == block_sink);
+
+		
+		if(source_it != d->blocks_test_[i].end())
+		{
+			source_block_list_num = i;
+			/* move a block from one vector to the other */
+			#if 0
+			
+			d->blocks_test_[0].push_back(*it);
+			
+			d->blocks_test_.pop_back();
+			std::cout << d->blocks_test_.size() << std::endl;
+
+			d->blocks_test_[0][0]->wakeup();
+			d->blocks_test_[0][1]->wakeup();
+			#endif
+		}
+		if(sink_it != d->blocks_test_[i].end())
+		{
+			sink_block_list_num = i;
+
+		}
+	}
+	std::cout << "found source block in vector no. " << source_block_list_num << std::endl;
+	std::cout << "found sink block in vector no. " << sink_block_list_num << std::endl;
+
+	d->blocks_test_[source_block_list_num].insert(d->blocks_test_[source_block_list_num].end(), d->blocks_test_[sink_block_list_num].begin(), d->blocks_test_[sink_block_list_num].end());
+
+
+	std::cout << "deleting: " << std::endl;
+	
+	for(std::vector< Block* >::iterator it = d->blocks_test_.at(sink_block_list_num).begin(); it != d->blocks_test_.at(sink_block_list_num).end(); it++)
+	{
+		std::cout << (*it)->get_name_sys() << " ";
+		
+	}
+	std::cout << std::endl;
+	//d->blocks_test_.at(sink_block_list_num).clear();
+	d->blocks_test_.erase(d->blocks_test_.begin()+sink_block_list_num);
+
+	//std::for_each(d->blocks_test_[source_block_list_num].begin(), d->blocks_test_[source_block_list_num].end(),
+	//	bind(&Block::wakeup, _1));
+
+	std::cout << "size: " << d->blocks_test_.size() << std::endl;
+
+	if(d->blocks_test_.size() == 1)
+		std::for_each(d->blocks_test_.front().begin(), d->blocks_test_.front().end(),
+			bind(&Block::wakeup, _1));
+
+	return ;
 
 	Block::store_t::iterator source_block_it, sink_block_it;
 
@@ -208,51 +273,6 @@ void System::connect_ports(const std::string & block_source,
 		std::cout << "already connected!" << std::endl;
 		return;
 	}
-
-
-
-	/* try to retrieve a block */
-	std::cout << "connect " << block_source << " --> " << block_sink << std::endl;
-
-	uint32_t source_block_list_num, sink_block_list_num;
-
-	for(uint32_t i=0; i<d->blocks_test_.size(); i++)
-	{
-		std::vector < Block* >::iterator source_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
-			bind(&Block::get_name_sys, _1) == block_source);
-
-		std::vector < Block* >::iterator sink_it = std::find_if(d->blocks_test_[i].begin(), d->blocks_test_[i].end(),
-			bind(&Block::get_name_sys, _1) == block_sink);
-
-		
-		if(source_it != d->blocks_test_[i].end())
-		{
-			source_block_list_num = i;
-			/* move a block from one vector to the other */
-			/*d->blocks_test_[0].push_back(*it);
-			
-			d->blocks_test_.pop_back();
-			std::cout << d->blocks_test_.size() << std::endl;
-
-			d->blocks_test_[0][0]->wakeup();
-			d->blocks_test_[0][1]->wakeup();
-			*/
-		}
-		if(sink_it != d->blocks_test_[i].end())
-		{
-			sink_block_list_num = i;
-
-		}
-	}
-	std::cout << "found source block in vector no. " << source_block_list_num << std::endl;
-	std::cout << "found sink block in vector no. " << sink_block_list_num << std::endl;
-
-	d->blocks_test_[source_block_list_num].insert(d->blocks_test_[source_block_list_num].end(), d->blocks_test_[sink_block_list_num].begin(), d->blocks_test_[sink_block_list_num].end());
-
-	
-	std::for_each(d->blocks_test_[source_block_list_num].begin(), d->blocks_test_[source_block_list_num].end(),
-		bind(&Block::wakeup, _1));
-
 
 	/* make the send() method of the source port call the right method of the sink port */
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
