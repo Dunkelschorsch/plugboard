@@ -77,7 +77,7 @@ Block_1out::Block_1out()
 
 Block_1out::~Block_1out()
 {
-
+	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
 }
 
 DEFINE_ACCESS_FUNCTIONS(1out)

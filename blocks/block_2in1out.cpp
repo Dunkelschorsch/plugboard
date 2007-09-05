@@ -81,7 +81,7 @@ Block_2in1out::Block_2in1out()
 
 Block_2in1out::~Block_2in1out()
 {
-
+	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
 }
 
 DEFINE_ACCESS_FUNCTIONS(2in1out)
