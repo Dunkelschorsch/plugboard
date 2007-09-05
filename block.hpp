@@ -1,9 +1,9 @@
 #ifndef _BLOCK_HPP
 #define _BLOCK_HPP
 
-#include "exceptions.hpp"
-#include "variable.hpp"
 #include "port.hpp"
+class Variable;
+
 
 #define DEFINE_ACCESS_FUNCTIONS(NAME)\
 extern "C"\
@@ -17,13 +17,6 @@ const string_t name()\
 	return #NAME;\
 }
 
-/*
-#include <boost/statechart/event.hpp>
-#include <boost/statechart/transition.hpp>
-#include <boost/statechart/state_machine.hpp>
-#include <boost/statechart/simple_state.hpp>
-namespace sc = boost::statechart;
-*/
 
 /** \brief The Block class
  *

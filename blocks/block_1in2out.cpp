@@ -1,6 +1,5 @@
 #include "block.hpp"
 #include "types.hpp"
-#include "port.hpp"
 #include <iostream>
 
 #define HAS_INPUTS

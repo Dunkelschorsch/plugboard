@@ -1,15 +1,11 @@
 #ifndef _VARIABLE_HPP
 #define _VARIABLE_HPP
 
-#include <complex>
-#include <vector>
-#include <string>
-#include <cassert>
-#include <stdint.h>
+#include "types.hpp"
 
 #include <boost/any.hpp>
 
-#include "types.hpp"
+
 
 /** The Variable class.
  *

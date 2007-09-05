@@ -1,6 +1,8 @@
 #include "system.hpp"
 #include "exceptions.hpp"
 #include "signal.hpp"
+#include "block.hpp"
+#include "variable.hpp"
 #include "port.hpp"
 #include "symtab.hpp"
 #include "factory.hpp"
@@ -8,7 +10,6 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/bind.hpp>
-
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <iostream>
@@ -30,7 +31,7 @@ struct SystemImpl
 
 	inline void register_basic_types();
 
-	inline void set_buffer_ptrs(OutPort& out, InPort& in, Signal* s);
+	inline void set_buffer_ptrs(OutPort& out, InPort& in, Signal *s);
 
 	void add_block_impl(Block *b, const std::string& name_sys);
 

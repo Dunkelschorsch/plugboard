@@ -1,9 +1,6 @@
 #include "block.hpp"
 #include "types.hpp"
-#include "port.hpp"
-
 #include <iostream>
-
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 using namespace boost::lambda;
@@ -78,7 +75,7 @@ void Block_stdout_sink::wakeup()
 
 	z = get_data_ptr< complex_t >(sig_in_);
 
-	std::for_each(z, z+sig_in_->get_frame_size(), std::cout << boost::lambda::_1 << " ");
+	std::for_each(z, z+sig_in_->get_frame_size(), std::cout << _1 << " ");
 	std::cout << std::endl;
 }
 

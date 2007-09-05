@@ -1,6 +1,7 @@
 #include "variable.hpp"
 #include "types.hpp"
 
+#include <cassert>
 
 Variable::Variable() : dims_(std::vector< uint16_t >()), type_(empty), values_(std::vector< boost::any >()) { };
 

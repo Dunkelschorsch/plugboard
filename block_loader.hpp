@@ -1,15 +1,10 @@
 #ifndef _BLOCK_LOADER_HPP
 #define _BLOCK_LOADER_HPP
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-
-namespace fs = boost::filesystem;
-
-#include <map>
 #include <stdint.h>
+#include <map>
 
-#include "block.hpp"
+class Block;
 
 /** The BlockLoader class
  */

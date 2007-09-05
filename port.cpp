@@ -1,6 +1,8 @@
 #include "port.hpp"
-#include <iostream>
+#include "message.hpp"
 
+#include <iostream>
+#include <boost/bind.hpp>
 
 BasePort::BasePort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
 	name_(name), type_(type), Ts_(Ts), frame_size_(frame_size)
