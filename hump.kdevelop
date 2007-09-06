@@ -3,23 +3,23 @@
   <general>
     <author>Armin Schmidt</author>
     <email>aschmidt@lnt.de</email>
-    <version>0</version>
+    <version>$VERSION$</version>
     <projectmanagement>KDevCustomProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
     <ignoreparts/>
     <projectname>hump</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
-    <versioncontrol></versioncontrol>
+    <description/>
+    <defaultencoding/>
+    <versioncontrol/>
   </general>
   <kdevcustomproject>
     <run>
       <mainprogram>/home/aschmidt/hump/main</mainprogram>
       <directoryradio>executable</directoryradio>
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
+      <programargs/>
+      <globaldebugarguments/>
       <globalcwd>/home/aschmidt/hump</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
@@ -32,16 +32,16 @@
     </run>
     <build>
       <buildtool>make</buildtool>
-      <builddir></builddir>
+      <builddir/>
     </build>
     <make>
       <abortonerror>true</abortonerror>
       <numberofjobs>1</numberofjobs>
       <prio>0</prio>
       <dontact>false</dontact>
-      <makebin></makebin>
-      <defaulttarget></defaulttarget>
-      <makeoptions></makeoptions>
+      <makebin/>
+      <defaulttarget/>
+      <makeoptions/>
       <selectedenvironment>default</selectedenvironment>
       <environments>
         <default/>
@@ -50,11 +50,11 @@
   </kdevcustomproject>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
+      <dbgshell/>
       <gdbpath>/usr/bin/gdb</gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -188,18 +188,19 @@
   </cppsupportpart>
   <kdevdocumentation>
     <projectdoc>
-      <docsystem></docsystem>
-      <docurl></docurl>
-      <usermanualurl></usermanualurl>
+      <docsystem/>
+      <docurl/>
+      <usermanualurl/>
     </projectdoc>
   </kdevdocumentation>
   <ctagspart>
-    <customArguments></customArguments>
+    <customArguments/>
     <customTagfilePath>/home/aschmidt/hump/tags</customTagfilePath>
     <activeTagsFiles/>
   </ctagspart>
   <kdevfileview>
     <groups>
+      <group pattern="CMakeLists.txt" name="CMake" />
       <group pattern="*.hpp" name="C++ Header Files" />
       <group pattern="*.cpp" name="C++ Source Files" />
       <hidenonprojectfiles>false</hidenonprojectfiles>
