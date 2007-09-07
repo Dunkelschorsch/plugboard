@@ -1,14 +1,65 @@
 #include "block_loader.hpp"
-#include "block.hpp"
-#include "exceptions.hpp"
+#include "factory.hpp"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-
-#include <glibmm.h>
 #include <iostream>
+#include <map>
+#include <ltdl.h>
+
 
 namespace fs = boost::filesystem;
+
+
+struct BlockLoader::BlockLoaderImpl
+{
+	BlockLoaderImpl();
+	~BlockLoaderImpl();
+
+	typedef Block* (*create_block_func_t) (void);
+	typedef const std::string (*get_block_name_func_t) (void);
+	typedef Factory< Block, std::string > block_factory_t;
+
+	block_factory_t f_;
+};
+
+
+
+BlockLoader::BlockLoaderImpl::BlockLoaderImpl() : f_()
+{
+	uint32_t dl_errors = lt_dlinit();
+	for(uint32_t i=0; i<dl_errors; i++)
+	{
+		std::cerr << lt_dlerror() << std::endl;
+	}
+	if(dl_errors > 0)
+	{
+		exit(1);
+	}
+}
+
+
+
+BlockLoader::BlockLoaderImpl::~BlockLoaderImpl()
+{
+	lt_dlexit();
+}
+
+
+
+BlockLoader::BlockLoader()
+{
+	d = new BlockLoaderImpl;
+}
+
+
+
+BlockLoader::~BlockLoader()
+{
+	delete d;
+}
+
+
 
 uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 {
@@ -29,7 +80,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 				block_count += load_dir((block_path/block_iter->leaf()).native_directory_string());
 			}
 			else
-			{	
+			{
 				continue;
 			}
 		}
@@ -40,49 +91,42 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 			continue;
 		}
 
-		Glib::Module module(block_file_curr, ~Glib::MODULE_BIND_LAZY);
+		lt_dlhandle module = lt_dlopen(block_file_curr.c_str());
 		
-		if(module)
+		if(module != NULL)
 		{
-			std::cout << "loading module file '" << block_file_curr << "' ... ";
-			create_block_func_t create = 0;
-			get_block_name_func_t name = 0;
-			bool found = false;
-	
-			found  = module.get_symbol("create", reinterpret_cast<void*&>(create));
-			found &= module.get_symbol("name", reinterpret_cast<void*&>(name));
+			std::cerr << "Loading module file '" << block_file_curr << "' ... ";
+			BlockLoader::BlockLoaderImpl::create_block_func_t create = 0;
+			BlockLoader::BlockLoaderImpl::get_block_name_func_t name = 0;
 
-			if (found)
+			reinterpret_cast< void*& >(create) = lt_dlsym(module, "create");
+			reinterpret_cast< void*& >(name) = lt_dlsym(module, "name");
+
+			if (create && name)
 			{
 				const std::string block_id = name();
-				block_factory_t::const_iterator name_cur = f_.find(block_id);
-				if (name_cur != f_.end())
+
+				if (!d->f_.Register(block_id, create))
 				{
 					std::cerr << "already exists." << std::endl;
 					continue;
 				}
 
-				std::cout << "ok" << " (id=" << block_id << ")" << std::endl;
-
+				std::cerr << "ok" << " (id=" << block_id << ")" << std::endl;
 				++block_count;
-				f_[block_id] = create;
-				module.make_resident();
 			}
 		} else
 		{
-			std::cerr << Glib::Module::get_last_error() << " ... ignoring" << std::endl;
+			std::cerr << lt_dlerror() << " ... ignoring" << std::endl;
 		}
 	}
 	return block_count;
 }
 
 
+
 Block* BlockLoader::new_block(const std::string& name)
 {
-	block_factory_t::const_iterator name_cur = f_.find(name);
-	if (name_cur == f_.end())
-	{
-		throw non_existant_block_error(name);
-	}
-	return f_[name]();
+	return d->f_.CreateObject(name);
 }
+

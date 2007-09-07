@@ -1,31 +1,25 @@
 #ifndef _BLOCK_LOADER_HPP
 #define _BLOCK_LOADER_HPP
 
-#include <stdint.h>
-#include <map>
-
 class Block;
+#include <stdint.h>
+#include <string>
 
-/** The BlockLoader class
- */
+
 class BlockLoader
 {
-typedef Block* (*create_block_func_t) (void);
-
-typedef const std::string (*get_block_name_func_t) (void);
-
-typedef std::map< std::string, create_block_func_t > block_factory_t;
+struct BlockLoaderImpl;
 
 public:
-	BlockLoader() : f_() { };
+	BlockLoader();
+	~BlockLoader();
 
-	uint32_t load_dir(const std::string& dir, const bool recursive = false);
+	uint32_t load_dir(const std::string &dir, const bool recursive = false);
 
-	Block* new_block(const std::string& name);
+	Block* new_block(const std::string &name);
 
 private:
-
-	block_factory_t f_;
+	BlockLoaderImpl *d;
 };
 
 #endif //_BLOCK_LOADER_HPP
