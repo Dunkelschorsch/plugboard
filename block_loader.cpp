@@ -1,5 +1,6 @@
 #include "block_loader.hpp"
 #include "factory.hpp"
+#include "exceptions.hpp"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -18,7 +19,13 @@ struct BlockLoader::BlockLoaderImpl
 
 	typedef Block* (*create_block_func_t) (void);
 	typedef const std::string (*get_block_name_func_t) (void);
-	typedef Factory< Block, std::string > block_factory_t;
+	typedef Factory
+		<
+			Block,
+			std::string,
+			create_block_func_t,
+			BlockFactoryError
+		> block_factory_t;
 
 	block_factory_t f_;
 };
