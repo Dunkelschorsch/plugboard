@@ -10,6 +10,39 @@ struct non_existant_block_error : public std::runtime_error
 	inline const char *which() { return what(); }
 };
 
+
+template < class IdentifierType, class ProductType >
+class BlockFactoryError
+{
+public:
+	class Exception : public std::exception
+	{
+	public:
+		Exception(const IdentifierType& unknownId) : unknownId_(unknownId) { }
+
+		virtual const char* what()
+		{
+			return "Unknown block name passed.";
+		}
+
+		const IdentifierType GetId()
+		{
+			return unknownId_;
+		};
+
+		~Exception() throw() { };
+	private:
+		IdentifierType unknownId_;
+	};
+
+protected:
+	ProductType* OnUnknownType(const IdentifierType& id)
+	{
+		throw Exception(id);
+	}
+};
+
+
 struct non_existant_port_error : public std::runtime_error
 {
 	non_existant_port_error(const std::string& arg) : std::runtime_error(arg) {}
