@@ -26,14 +26,10 @@ public:
 	void wakeup_sys(uint32_t times = 1);
 
 protected:
-	SystemImpl * const d_ptr;
-	System(SystemImpl &dd);
+	H_DECLARE_PROTECTED(System);
 
 private:
-	friend class SystemImpl;
-
-	inline SystemImpl *d_func() { return d_ptr; }
-	inline const SystemImpl *d_func() const { return d_ptr; }
+	H_DECLARE_PRIVATE(System);
 };
 
 
