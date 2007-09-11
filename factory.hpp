@@ -9,6 +9,8 @@ template < class IdentifierType, class ProductType >
 class DefaultFactoryError
 {
 public:
+	virtual ~DefaultFactoryError() { }
+
 	class Exception : public std::exception
 	{
 	public:
@@ -48,6 +50,8 @@ template
 class Factory : public FactoryErrorPolicy< IdentifierType, AbstractProduct >
 {
 public:
+	Factory() : f_() { }
+
 	bool Register(const IdentifierType& id, ProductCreator creator)
 	{
 		return f_.insert(std::make_pair(id, creator)).second;

@@ -1,6 +1,7 @@
 #include "block_loader.hpp"
 #include "block.hpp"
 #include "system.hpp"
+#include "variable.hpp"
 #include <iostream>
 
 
@@ -11,6 +12,12 @@ int main(int argc, char **argv)
 	System s;
 
 	bl.load_dir("blocks");
+
+	Block* b = bl.new_block("Dummy2");
+
+	b->set_parameter(33.0);
+	b->set_parameter(10);
+	//s.add_block(b, "dummy");
 
 #define COMPLICATED 1
 #define SIMPLE 0
@@ -36,16 +43,16 @@ int main(int argc, char **argv)
 #if COMPLICATED
 	s.connect_ports("gen", "out1", "fo1", "in1"); // 1
 
-	s.connect_ports("fo1", "out1", "cb1", "in1"); // 3
+	s.connect_ports("fo1", "out1", "cb1", "in1"); // 2
 	s.connect_ports("fo1", "out2", "cb1", "in2"); // 3
+	s.connect_ports("br2", "out1", "fo2", "in2"); // 7
+	s.connect_ports("cb1", "out1", "br1", "in1"); // 4
+	s.connect_ports("cb1", "out2", "br2", "in1"); // 5
 
-	s.connect_ports("cb1", "out1", "br1", "in1"); // 2
-	s.connect_ports("cb1", "out2", "br2", "in1"); // 4
+	s.connect_ports("br1", "out1", "fo2", "in1"); // 6
+	
 
-	s.connect_ports("br1", "out1", "fo2", "in1"); // 5
-	s.connect_ports("br2", "out1", "fo2", "in2"); // 6
-
-	s.connect_ports("fo2", "out1", "con", "in1"); // 6
+	s.connect_ports("fo2", "out1", "con", "in1"); // 8
 #endif
 	s.wakeup_sys(2);
 

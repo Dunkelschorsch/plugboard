@@ -9,12 +9,19 @@
 
 
 
-Block::Block()
+Block::Block() :
+	parameter_factory_(),
+	params_(),
+	param_curr_(0),
+	configured_(false),
+	name_(),
+	description_(),
+	ports_in_(),
+	ports_out_(),
+	name_sys_(),
+	num_output_ports_(0),
+	num_input_ports_(0)
 {
-	configured_ = false;
-	param_curr_ = 0;
-	num_output_ports_ = 0;
-	num_input_ports_ = 0;
 	register_parameter_types();
 }
 

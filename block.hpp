@@ -33,7 +33,8 @@ friend class SystemImpl;
 
 public:
 	Block();
-	
+	virtual ~Block();
+
 	typedef std::pair< void *, type_t > param_t;
 
 	typedef std::vector < Block* > store_t;
@@ -52,6 +53,8 @@ public:
 
 	bool set_parameter(const Variable& p);
 
+	std::vector< param_t > get_params();
+
 	InPort::store_t & get_inport_list();
 
 	OutPort::store_t & get_outport_list();
@@ -60,17 +63,17 @@ public:
 
 	uint16_t get_num_output_ports() const;
 
-	std::vector< param_t > get_params();
-
 	template < typename T >
 	void copy_parameter(void*, Variable&);
 
-	virtual ~Block();
 protected:
-
 	InPort* add_port(const InPort& p);
 
 	OutPort* add_port(const OutPort& p);
+
+	void register_parameter_types();
+
+	virtual void configure_parameters() = 0;
 
 	void add_parameter(void *var, type_t t);
 
@@ -78,23 +81,19 @@ protected:
 
 	parameter_factory_t parameter_factory_;
 
-	void register_parameter_types();
-
-	virtual void configure_parameters() = 0;
-
-	std::string name_;
-
-	std::string description_;
+	std::vector< param_t > params_;	
 
 	uint16_t param_curr_;
 
 	bool configured_;
+	
+	std::string name_;
+
+	std::string description_;
 
 	InPort::store_t ports_in_;
 	
 	OutPort::store_t ports_out_;
-
-	std::vector< param_t > params_;
 
 private:
 	virtual bool setup_input_ports();

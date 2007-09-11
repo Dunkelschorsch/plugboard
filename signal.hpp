@@ -16,7 +16,7 @@ public:
 	typedef boost::ptr_vector< Signal > store_t;
 
 protected:
-	Signal() { }
+	Signal() : Ts_(0), dimensions_() { }
 
 	std::vector< uint8_t > dimensions_;
 
@@ -30,12 +30,24 @@ class SignalStore
 public:
 	typedef T element_t;
 
-	SignalStore(uint32_t size)
+	SignalStore(uint32_t size) : size_(size), data_array_()
 	{
-		data_array_ = new T[size];
+		data_array_ = new T[size_];
 	}
 	
-	~SignalStore()
+	SignalStore(SignalStore &other)
+	{
+		size_ = other.size_;
+		std::copy(other.data_array_, other.data_array_ + other.size_, data_array_);
+	}
+
+	/* maybe that's wrong, but it's never used anyway */
+	SignalStore& operator=(const SignalStore& other)
+	{
+		return SignalStore(other);
+	}
+
+	virtual ~SignalStore()
 	{
 		delete[] data_array_;
 	}
@@ -51,6 +63,7 @@ public:
 	}
 
 	element_t* data_array_;
+	uint32_t size_;
 };
 
 

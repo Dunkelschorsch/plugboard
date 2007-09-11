@@ -29,7 +29,7 @@ struct SystemImpl
 
 	inline uint32_t create_signal_buffer(type_t type, uint32_t size);
 
-	inline void register_basic_types();
+	void register_basic_types();
 
 	inline void set_buffer_ptrs(OutPort& out, InPort& in, Signal *s);
 
@@ -47,7 +47,7 @@ struct SystemImpl
 
 	get_buffer_factory_t get_buffer_factory_;
 
-	double simulation_time;
+	double simulation_time_;
 
 	Symtab symtab_;
 
@@ -60,11 +60,16 @@ struct SystemImpl
 
 
 
-SystemImpl::SystemImpl()
+SystemImpl::SystemImpl() :
+	signal_buffers_(),
+	signal_buffer_count_(0),
+	signal_factory_(),
+	get_buffer_factory_(),
+	simulation_time_(0.0),
+	symtab_(),
+	blocks_(),
+	block_names_()
 {
-	signal_buffer_count_ = 0;
-	simulation_time = 0.0;
-
 	register_basic_types();
 }
 
@@ -364,7 +369,7 @@ void System::connect_ports(const std::string & block_source,
 
 void System::wakeup_sys(uint32_t times)
 {
-	H_D(System)
+	H_D(System);
 
 	if(d->blocks_.size() == 1)
 	{

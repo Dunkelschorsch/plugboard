@@ -5,7 +5,7 @@
 #include <boost/bind.hpp>
 
 BasePort::BasePort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
-	name_(name), type_(type), Ts_(Ts), frame_size_(frame_size)
+	get_buffer_ptr(0), name_(name), type_(type), Ts_(Ts), frame_size_(frame_size), signal_buffer_id_(0)
 {
 
 }
@@ -55,7 +55,7 @@ BasePort::~BasePort()
 
 
 OutPort::OutPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
-	BasePort(name, type, Ts, frame_size)
+	BasePort(name, type, Ts, frame_size), send(0)
 {
 
 }
