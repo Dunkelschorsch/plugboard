@@ -67,6 +67,22 @@ void Block_1in2out::configure_parameters()
 void Block_1in2out::wakeup()
 {
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	
+	integer_t *v_out1, *v_out2;
+	const integer_t *v_in;
+	
+	v_in = get_data_ptr< integer_t >(sig_in1_);
+	v_out1 = get_data_ptr< integer_t >(sig_out1_);
+	v_out2 = get_data_ptr< integer_t >(sig_out2_);
+
+	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
+	{
+		v_out1[i] = v_in[i];
+		v_out2[i] = v_in[i];
+	}
+	
+	sig_out1_->send();
+	sig_out2_->send();
 }
 
 

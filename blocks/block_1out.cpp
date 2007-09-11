@@ -30,7 +30,7 @@ private:
 #endif
 
 /* member variable declarations go here */
-	OutPort *sig_out1_;
+	OutPort *sig_out_;
 };
 
 
@@ -47,7 +47,7 @@ bool Block_1out::setup_input_ports()
 bool Block_1out::setup_output_ports()
 {
 /* calls to "add_port(OutPort &) go here */
-	sig_out1_ = add_port(OutPort("out1", integer, 1.0, 2));
+	sig_out_ = add_port(OutPort("out1", integer, 1.0, 2));
 
 	return true;
 }
@@ -63,6 +63,14 @@ void Block_1out::configure_parameters()
 void Block_1out::wakeup()
 {
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	
+	integer_t *v;
+	
+	v = get_data_ptr< integer_t >(sig_out_);
+
+	std::fill(v, v+sig_out_->get_frame_size(), 1);
+
+	sig_out_->send();
 }
 
 

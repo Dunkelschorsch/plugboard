@@ -66,6 +66,19 @@ void Block_1in1out::configure_parameters()
 void Block_1in1out::wakeup()
 {
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	
+	integer_t *v_out;
+	const integer_t *v_in;
+	
+	v_in = get_data_ptr< integer_t >(sig_in1_);
+	v_out = get_data_ptr< integer_t >(sig_out1_);
+
+	for(uint16_t i=0; i<sig_out1_->get_frame_size(); i++)
+	{
+		v_out[i] = 1+v_in[i];
+	}
+	
+	sig_out1_->send();
 }
 
 

@@ -39,7 +39,7 @@ private:
 #ifdef HAS_INPUTS
 bool Block_1in::setup_input_ports()
 {
-/* calls to "add_port(InPort &) go here */
+	/* calls to "add_port(InPort &) go here */
 	sig_in_ = add_port(InPort("in1", empty, 0, 0));
 
 	return true;
@@ -50,7 +50,7 @@ bool Block_1in::setup_input_ports()
 #ifdef HAS_OUTPUTS
 bool Block_1in::setup_output_ports()
 {
-/* calls to "add_port(OutPort &) go here */
+	/* calls to "add_port(OutPort &) go here */
 	return true;
 }
 #endif
@@ -58,13 +58,22 @@ bool Block_1in::setup_output_ports()
 
 void Block_1in::configure_parameters()
 {
-/* calls to "add_parameter()" go here */
+	/* calls to "add_parameter()" go here */
 }
 
 
 void Block_1in::wakeup()
 {
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	
+	const integer_t *v_in;
+	v_in = get_data_ptr< integer_t >(sig_in_);
+
+	for(uint16_t i=0; i<sig_in_->get_frame_size(); i++)
+	{
+		std::cout << v_in[i] << " ";
+	}
+	std::cout << std::endl;
 }
 
 
