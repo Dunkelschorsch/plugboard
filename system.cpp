@@ -43,7 +43,7 @@ struct SystemImpl
 
 	signal_factory_t signal_factory_;
 
-	typedef Factory< void*, type_t, function< void*(Signal*) > > get_buffer_factory_t;
+	typedef Factory< void*, type_t, void* (*)(Signal*) > get_buffer_factory_t;
 
 	get_buffer_factory_t get_buffer_factory_;
 
@@ -397,23 +397,23 @@ namespace
 void SystemImpl::register_basic_types()
 {
 	/* IntegerSignal and integer_t */
-	get_buffer_factory_.Register(integer, bind(&get_buffer< IntegerSignal >, _1));
+	get_buffer_factory_.Register(integer, &get_buffer< IntegerSignal >);
 	signal_factory_.Register(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1));
 
 	/* RealSignal and real_t */
-	get_buffer_factory_.Register(real, bind(&get_buffer< RealSignal >, _1));
+	get_buffer_factory_.Register(real, &get_buffer< RealSignal >);
 	signal_factory_.Register(real, bind< RealSignal* >(new_ptr< RealSignal >(), _1));
 
 	/* ComplexSignal and complex_t */
-	get_buffer_factory_.Register(complex, bind(&get_buffer< ComplexSignal >, _1));
+	get_buffer_factory_.Register(complex, &get_buffer< ComplexSignal >);
 	signal_factory_.Register(complex, bind< ComplexSignal* >(new_ptr< ComplexSignal >(), _1));
 
 	/* StringSignal and string_t */
-	get_buffer_factory_.Register(string, bind(&get_buffer< StringSignal >, _1));
+	get_buffer_factory_.Register(string, &get_buffer< StringSignal >);
 	signal_factory_.Register(string, bind< StringSignal* >(new_ptr< StringSignal >(), _1));
 
 	/* BitSignal and logical_t */
-	get_buffer_factory_.Register(logical, bind(&get_buffer< BitSignal >, _1));
+	get_buffer_factory_.Register(logical, &get_buffer< BitSignal >);
 	signal_factory_.Register(logical, bind< BitSignal* >(new_ptr< BitSignal >(), _1));
 }
 
@@ -429,9 +429,9 @@ uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 
 void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 {
-	function < void*(Signal*) > f;
+	void* (*f) (Signal*);
+	f = get_buffer_factory_.CreationFunction(out.get_type());
 
-	f = get_buffer_factory_.CreationFunction(out.get_type()) ;
 	out.get_buffer_ptr = bind(f, s);
 	in.get_buffer_ptr = bind(f, s);
 }
