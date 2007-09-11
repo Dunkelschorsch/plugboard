@@ -368,12 +368,15 @@ void System::wakeup_sys(uint32_t times)
 
 	if(d->blocks_.size() == 1)
 	{
-		std::for_each
-		(
-			d->blocks_.front().begin(),
-			d->blocks_.front().end(),
-			bind(&Block::wakeup, _1)
-		);
+		for(uint32_t i=0; i<times; i++)
+		{
+			std::for_each
+			(
+				d->blocks_.front().begin(),
+				d->blocks_.front().end(),
+				bind(&Block::wakeup, _1)
+			);
+		}
 	}
 }
 
