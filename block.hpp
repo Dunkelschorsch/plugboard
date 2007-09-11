@@ -2,7 +2,11 @@
 #define _BLOCK_HPP
 
 #include "port.hpp"
+#include "factory.hpp"
 class Variable;
+
+#include <boost/function.hpp>
+
 
 
 #define DEFINE_ACCESS_FUNCTIONS(NAME)\
@@ -58,6 +62,9 @@ public:
 
 	std::vector< param_t > get_params();
 
+	template < typename T >
+	void copy_parameter(void*, Variable&);
+
 	virtual ~Block();
 protected:
 
@@ -66,6 +73,12 @@ protected:
 	OutPort* add_port(const OutPort& p);
 
 	void add_parameter(void *var, type_t t);
+
+	typedef Factory< void*, type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
+
+	parameter_factory_t parameter_factory_;
+
+	void register_parameter_types();
 
 	virtual void configure_parameters() = 0;
 

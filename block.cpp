@@ -15,22 +15,50 @@ Block::Block()
 	param_curr_ = 0;
 	num_output_ports_ = 0;
 	num_input_ports_ = 0;
+	register_parameter_types();
 }
+
+
+
+void Block::register_parameter_types()
+{
+	// integer_t
+	parameter_factory_.Register(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2));
+
+	// real_t
+	parameter_factory_.Register(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2));
+
+	// complex_t
+	parameter_factory_.Register(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2));
+
+	// string_t
+	parameter_factory_.Register(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2));
+
+	// logical_t
+	parameter_factory_.Register(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2));
+}
+
+
 
 std::string Block::get_name() const
 {
 	return name_;
 }
 
+
+
 std::string Block::get_description() const
 {
 	return description_;
 }
 
+
+
 void Block::set_description(const std::string& description)
 {
 	description_ = description;
 }
+
 
 
 bool Block::is_configured() const
@@ -40,14 +68,20 @@ bool Block::is_configured() const
 
 
 
+template < typename T >
+void Block::copy_parameter(void *out, Variable& p)
+{
+	for(Variable::iterator it = p.begin(); it != p.end(); it++)
+	{
+		reinterpret_cast< std::vector < T >* >(out)->push_back(boost::any_cast< T >(*it));
+	}
+	param_curr_++;
+}
+
+
+
 bool Block::set_parameter(const Variable& pp)
 {
-	int_vec_t     *tmp_i_vec;
-	real_vec_t    *tmp_d_vec;
-	string_vec_t  *tmp_s_vec;
-	complex_vec_t *tmp_c_vec;
-
-
 	/* FIXME This is evil! Implement a const_iterator instead! */
 	Variable p = const_cast< Variable& >(pp);
 
@@ -57,57 +91,15 @@ bool Block::set_parameter(const Variable& pp)
 		return false;
 	}
 
+	boost::function< void(void*, Variable&) > f = parameter_factory_.CreationFunction(p.type());
+
 	if (params_[param_curr_].second == p.type())
 	{
-		switch (p.type())
-		{
-		case integer:
-			tmp_i_vec = reinterpret_cast< std::vector< integer_t >* >(params_[param_curr_].first);
-			for(Variable::iterator it = p.begin(); it != p.end(); it++)
-			{
-				tmp_i_vec->push_back(boost::any_cast< integer_t >(*it));
-			}
-			param_curr_++;
-			break;
-
-		case real:
-			tmp_d_vec = reinterpret_cast< std::vector< real_t >* >(params_[param_curr_].first);
-			for(Variable::iterator it = p.begin(); it != p.end(); it++)
-			{
-				tmp_d_vec->push_back(boost::any_cast< real_t >(*it));
-			}
-			param_curr_++;
-			break;
-
-		case string:
-			tmp_s_vec = reinterpret_cast< std::vector< string_t >* >(params_[param_curr_].first);
-			for(Variable::iterator it = p.begin(); it != p.end(); it++)
-			{
-				tmp_s_vec->push_back(boost::any_cast< string_t >(*it));
-			}
-			param_curr_++;
-			break;
-
-		case complex:
-			tmp_c_vec = reinterpret_cast< std::vector< complex_t >* >(params_[param_curr_].first);
-			for(Variable::iterator it = p.begin(); it != p.end(); it++)
-			{
-				tmp_c_vec->push_back(boost::any_cast< complex_t >(*it));
-			}
-			param_curr_++;
-			break;
-
-		default:
-			return false;
-		}
-
+		f(params_[param_curr_].first, p);
 		if (params_.size() == param_curr_)
 		{
 			configured_ = true;
 		}
-	} else
-	{
-		return false;
 	}
 	return true;
 }
