@@ -183,10 +183,14 @@ void System::connect_ports(const std::string & block_source,
 	std::cerr << "connect " << block_source << " --> " << block_sink << std::endl;
 #endif
 
-	int32_t source_block_list_num = -1, sink_block_list_num = -1;
+	int32_t source_block_list_num = -1,
+		sink_block_list_num = -1;
 
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
+
+	Block::store_t::iterator source_block_pos;
+	Block::store_t::iterator sink_block_pos;
 
 	/* no, i will NOT try to replace this with a single standard algorithm invocation ... */
 	for(uint32_t i=0; i<d->blocks_.size(); i++)
@@ -225,6 +229,7 @@ void System::connect_ports(const std::string & block_source,
 			}
 			/* the ports exists. all is fine. remember where the block is stored */
 			source_block_list_num = i;
+			source_block_pos = source_block_it;
 		} 
 
 		/* check if sink block given in "block_sink" exists */
@@ -235,7 +240,6 @@ void System::connect_ports(const std::string & block_source,
 				d->blocks_[i].end(),
 				bind(&Block::get_name_sys, _1) == block_sink
 			);
-
 		
 		if(sink_block_it != d->blocks_[i].end())
 		{
@@ -256,6 +260,7 @@ void System::connect_ports(const std::string & block_source,
 
 			/* the ports exists. all is fine. remember where the block is stored */
 			sink_block_list_num = i;
+			sink_block_pos = sink_block_it;
 		}
 	} // <- that is from a for-loop
 
@@ -277,31 +282,73 @@ void System::connect_ports(const std::string & block_source,
 	std::cerr << "found sink block in vector no. " << sink_block_list_num << std::endl;
 #endif
 
-	/* copy the sink block and all successive blocks in this vector to the end of the source blocks vector */
-	d->blocks_[source_block_list_num].insert
-	(
-		d->blocks_[source_block_list_num].end(),
-		d->blocks_[sink_block_list_num].begin(),
-		d->blocks_[sink_block_list_num].end()
-	);
-
+	if (sink_block_list_num != source_block_list_num)
+	{
+		if ((d->blocks_[source_block_list_num].back())->get_num_output_ports() > 1)
+		{
+			d->blocks_[source_block_list_num].insert
+			(
+				source_block_pos+1,
+				d->blocks_[sink_block_list_num].begin(),
+				d->blocks_[sink_block_list_num].end()
+			);
 #ifndef NDEBUG
-	std::cerr << "deleting: " << std::endl;
-	std::for_each
-	(
-		d->blocks_.at(sink_block_list_num).begin(),
-		d->blocks_.at(sink_block_list_num).end(),
-		std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
-	);
-	std::cerr << std::endl;
+			std::cerr << "deleting: " << std::endl;
+			std::for_each
+			(
+				d->blocks_.at(sink_block_list_num).begin(),
+				d->blocks_.at(sink_block_list_num).end(),
+				std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
+			);
+			std::cerr << std::endl;
 #endif
-	/* delete the just copied blocks from their old location */
-	d->blocks_.erase(d->blocks_.begin() + sink_block_list_num);
+			d->blocks_.erase(d->blocks_.begin() + sink_block_list_num);
+		} else
+		{
+			d->blocks_[sink_block_list_num].insert
+			(
+				sink_block_pos,
+				d->blocks_[source_block_list_num].begin(),
+				d->blocks_[source_block_list_num].end()
+			);
+#ifndef NDEBUG
+			std::cerr << "deleting: " << std::endl;
+			std::for_each
+			(
+				d->blocks_.at(source_block_list_num).begin(),
+				d->blocks_.at(source_block_list_num).end(),
+				std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
+			);
+			std::cerr << std::endl;
+#endif
+			d->blocks_.erase(d->blocks_.begin() + source_block_list_num);
+		}
+	} else
+	{
+		if (*source_block_pos > *sink_block_pos)
+		/* long story... i will coment on that later. */
+		{
+ 			d->blocks_[source_block_list_num].insert
+			(
+				source_block_pos+1,
+				*sink_block_pos
+			);
+
+			d->blocks_[source_block_list_num].erase
+			(
+				std::find_if
+				(
+					d->blocks_[source_block_list_num].begin(),
+					d->blocks_[source_block_list_num].end(),
+					block_sink == boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1)
+				)
+			);
+		}
+	}
 
 #ifndef NDEBUG
 	std::cerr << "size of block-list-list: " << d->blocks_.size() << std::endl;
 #endif
-
 
 	/* make the send() method of the source port call the right method of the sink port */
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
