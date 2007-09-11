@@ -102,7 +102,7 @@ namespace {
 template< class T >
 inline const T* get_data_ptr(const InPort *p)
 {
-	return static_cast< T* >(p->get_buffer_ptr());
+	return static_cast< const T* >(p->get_buffer_ptr());
 }
 
 template< class T >
