@@ -25,7 +25,6 @@ const string_t name()\
 
 class Block
 {
-friend class System;
 friend class SystemImpl;
 
 public:
