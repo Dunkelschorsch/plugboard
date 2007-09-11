@@ -2,7 +2,7 @@
 #define _BLOCK_LOADER_HPP
 
 class Block;
-#include <stdint.h>
+#include "types.hpp"
 #include <string>
 
 

@@ -1,14 +1,22 @@
 #ifndef _TYPES_HPP
 #define _TYPES_HPP
 
-#include <stdint.h>
 #include <complex>
 #include <vector>
+#include <boost/cstdint.hpp>
+
 
 /** \file types.hpp
 
    \brief A documented file
 */
+
+using boost::uint8_t;
+using boost::uint16_t;
+using boost::uint32_t;
+using boost::int8_t;
+using boost::int16_t;
+using boost::int32_t;
 
 typedef enum
 {
