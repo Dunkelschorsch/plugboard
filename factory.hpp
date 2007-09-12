@@ -57,14 +57,6 @@ public:
 		return f_.insert(std::make_pair(id, creator)).second;
 	}
 
-	ProductCreator & CreationFunction(const IdentifierType& id)
-	{
-		typename factory_map_t::iterator it = f_.find(id);
-		if(it != f_.end())
-		{
-			return (it->second);
-		}
-	}
 
 	AbstractProduct * CreateObject(const IdentifierType& id)
 	{
