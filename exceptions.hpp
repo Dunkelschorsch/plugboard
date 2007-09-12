@@ -4,74 +4,115 @@
 #include <stdexcept>
 
 
-template < class IdentifierType, class ProductType >
-class BlockFactoryError
+template < class IdentifierType >
+class HumpException : public std::exception
 {
 public:
-	class Exception : public std::exception
+	HumpException(const IdentifierType& unknownId) : unknownId_(unknownId) { }
+
+	const char* what()
 	{
-	public:
-		Exception(const IdentifierType& unknownId) : unknownId_(unknownId) { }
+		return "Hump exception thrown!";
+	}
 
-		virtual const char* what()
-		{
-			return "Unknown block name passed";
-		}
-
-		const IdentifierType GetId()
-		{
-			return unknownId_;
-		};
-
-		~Exception() throw() { };
-	private:
-		IdentifierType unknownId_;
+	const IdentifierType get_id()
+	{
+		return unknownId_;
 	};
 
-protected:
-	ProductType* OnUnknownType(const IdentifierType& id)
+	~HumpException() throw() { };
+private:
+	IdentifierType unknownId_;
+};
+
+
+
+class InvalidBlockNameException : public HumpException< std::string >
+{
+public:
+	InvalidBlockNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
 	{
-		throw Exception(id);
+		return "Invalid block name passed";
 	}
 };
 
 
-typedef BlockFactoryError< std::string, Block >::Exception UnknownBlockException;
 
-
-
-struct non_existant_port_error : public std::runtime_error
+class InvalidBlockIdException : public HumpException< std::string >
 {
-	non_existant_port_error(const std::string& arg) : std::runtime_error(arg) {}
+public:
+	InvalidBlockIdException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	inline const char *which() { return what(); }
+	const char* what()
+	{
+		return "Invalid block ID passed";
+	}
 };
 
 
 
-struct block_not_configured_error : public std::runtime_error
+class InvalidPortNameException : public HumpException< std::string >
 {
-	block_not_configured_error(const std::string& arg) : std::runtime_error(arg) {}
+public:
+	InvalidPortNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	inline const char *which() { return what(); }
+	const char* what()
+	{
+		return "Invalid port name passed";
+	}
 };
 
 
 
-struct duplicate_block_name_error : public std::runtime_error
+class BlockNotConfiguredException : public HumpException< std::string >
 {
-	duplicate_block_name_error(const std::string& arg) : std::runtime_error(arg) {}
+public:
+	BlockNotConfiguredException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	inline const char *which() { return what(); }
+	const char* what()
+	{
+		return "Block is not configured";
+	}
 };
 
 
 
-struct duplicate_port_name_error : public std::runtime_error
+class DuplicatePortNameException : public HumpException< std::string >
 {
-	duplicate_port_name_error(const std::string& arg) : std::runtime_error(arg) {}
+public:
+	DuplicatePortNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	inline const char *which() { return what(); }
+	const char* what()
+	{
+		return "Port name already exists";
+	}
+};
+
+
+
+class DuplicateBlockNameException : public HumpException< std::string >
+{
+public:
+	DuplicateBlockNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Block name already exists";
+	}
+};
+
+
+
+template < class IdentifierType, class ProductType >
+class BlockFactoryError
+{
+protected:
+	ProductType* OnUnknownType(const IdentifierType& id)
+	{
+		throw InvalidBlockIdException(id);
+	}
 };
 
 #endif

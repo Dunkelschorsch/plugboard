@@ -119,7 +119,7 @@ OutPort* Block::add_port(const OutPort& p)
 
 	if (it != ports_out_.end())
 	{
-		throw duplicate_port_name_error(get_name() + "::" + p.get_name());
+		throw DuplicatePortNameException(get_name() + "::" + p.get_name());
 	}
 	ports_out_.push_back(p);
 
@@ -135,7 +135,7 @@ InPort* Block::add_port(const InPort& p)
 
 	if (it != ports_in_.end())
 	{
-		throw duplicate_port_name_error(get_name() + "::" + p.get_name());
+		throw DuplicatePortNameException(get_name() + "::" + p.get_name());
 	}
 	ports_in_.push_back(p);
 

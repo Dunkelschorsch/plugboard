@@ -133,7 +133,7 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 	if(it != block_names_.end())
 	{
 		delete b;
-		throw duplicate_block_name_error(name_sys);
+		throw DuplicateBlockNameException(name_sys);
 	}
 
 	/* if we make it here, we can set up and add the blocks to the system */
@@ -143,7 +143,7 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 		if (!(b->get_params().size() == 0))
 		{
 			delete b;
-			throw block_not_configured_error(name_sys);
+			throw BlockNotConfiguredException(name_sys);
 		}
 	}
 
@@ -222,7 +222,7 @@ void System::connect_ports(const std::string & block_source,
 			/* unfortunately the given port name was invalid */
 			if (source_port_it == (*source_block_it)->get_outport_list().end())
 			{
-				throw non_existant_port_error(port_source);
+				throw InvalidPortNameException(port_source);
 			}
 
 			if (source_port_it->send != 0)
@@ -259,7 +259,7 @@ void System::connect_ports(const std::string & block_source,
 			/* unfortunately the given port name was invalid */
 			if (sink_port_it == (*sink_block_it)->get_inport_list().end())
 			{
-				throw non_existant_port_error(port_sink);
+				throw InvalidPortNameException(port_sink);
 			}
 
 			/* the ports exists. all is fine. remember where the block is stored */
@@ -271,13 +271,13 @@ void System::connect_ports(const std::string & block_source,
 	if (source_block_list_num == -1)
 	{
 		/* apparently the source block does not exist */
-		throw UnknownBlockException(block_source);
+		throw InvalidBlockNameException(block_source);
 	}
 
 	if (sink_block_list_num == -1)
 	{
 		/* apparently the sink block does not exist */
-		throw UnknownBlockException(block_sink);
+		throw InvalidBlockNameException(block_sink);
 	}
 
 
