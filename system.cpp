@@ -329,9 +329,12 @@ void System::connect_ports(const std::string & block_source,
 		}
 	} else
 	{
-		if (*source_block_pos > *sink_block_pos)
+		if (source_block_pos > sink_block_pos)
 		/* long story... i will coment on that later. */
 		{
+#ifndef NDEBUG
+			std::cerr << "swapping " << (*source_block_pos)->get_name_sys() << "<->" << (*sink_block_pos)->get_name_sys() << std::endl;
+#endif
  			d->blocks_[source_block_list_num].insert
 			(
 				source_block_pos+1,
