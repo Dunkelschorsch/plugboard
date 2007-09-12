@@ -20,7 +20,7 @@ public:
 		return unknownId_;
 	};
 
-	~HumpException() throw() { };
+	virtual ~HumpException() throw() { };
 private:
 	IdentifierType unknownId_;
 };
