@@ -2,8 +2,8 @@
 #include "block.hpp"
 #include "system.hpp"
 #include "variable.hpp"
+#include "exceptions.hpp"
 #include <iostream>
-
 
 
 int main(int argc, char **argv)
@@ -12,8 +12,14 @@ int main(int argc, char **argv)
 	System s;
 
 	bl.load_dir("blocks");
+	Block* b;
 
-	Block* b = bl.new_block("Dummy2");
+	try {
+		b = bl.new_block("Dummy20");
+	} catch (UnknownBlockException &e)
+	{
+		std::cout << e.GetId() << std::endl;
+	}
 
 	b->set_parameter(33.0);
 	b->set_parameter(10);

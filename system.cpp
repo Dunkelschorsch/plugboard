@@ -272,13 +272,13 @@ void System::connect_ports(const std::string & block_source,
 	if (source_block_list_num == -1)
 	{
 		/* apparently the source block does not exist */
-		throw non_existant_block_error(block_source);
+		throw UnknownBlockException(block_source);
 	}
 
 	if (sink_block_list_num == -1)
 	{
 		/* apparently the sink block does not exist */
-		throw non_existant_block_error(block_sink);
+		throw UnknownBlockException(block_sink);
 	}
 
 

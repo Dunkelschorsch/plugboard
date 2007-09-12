@@ -3,13 +3,6 @@
 
 #include <stdexcept>
 
-struct non_existant_block_error : public std::runtime_error
-{
-	non_existant_block_error(const std::string& arg) : std::runtime_error(arg) {}
-
-	inline const char *which() { return what(); }
-};
-
 
 template < class IdentifierType, class ProductType >
 class BlockFactoryError
@@ -22,7 +15,7 @@ public:
 
 		virtual const char* what()
 		{
-			return "Unknown block name passed.";
+			return "Unknown block name passed";
 		}
 
 		const IdentifierType GetId()
@@ -43,12 +36,18 @@ protected:
 };
 
 
+typedef BlockFactoryError< std::string, Block >::Exception UnknownBlockException;
+
+
+
 struct non_existant_port_error : public std::runtime_error
 {
 	non_existant_port_error(const std::string& arg) : std::runtime_error(arg) {}
 
 	inline const char *which() { return what(); }
 };
+
+
 
 struct block_not_configured_error : public std::runtime_error
 {
@@ -58,12 +57,14 @@ struct block_not_configured_error : public std::runtime_error
 };
 
 
+
 struct duplicate_block_name_error : public std::runtime_error
 {
 	duplicate_block_name_error(const std::string& arg) : std::runtime_error(arg) {}
 
 	inline const char *which() { return what(); }
 };
+
 
 
 struct duplicate_port_name_error : public std::runtime_error
