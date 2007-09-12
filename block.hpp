@@ -2,9 +2,9 @@
 #define _BLOCK_HPP
 
 #include "port.hpp"
-#include "factory.hpp"
 class Variable;
 
+#include <map>
 #include <boost/function.hpp>
 
 
@@ -77,7 +77,7 @@ protected:
 
 	void add_parameter(void *var, type_t t);
 
-	typedef Factory< void*, type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
+	typedef std::map< type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
 
 	parameter_factory_t parameter_factory_;
 

@@ -30,19 +30,19 @@ Block::Block() :
 void Block::register_parameter_types()
 {
 	// integer_t
-	parameter_factory_.Register(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2));
+	parameter_factory_.insert(std::make_pair(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2)));
 
 	// real_t
-	parameter_factory_.Register(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2));
+	parameter_factory_.insert(std::make_pair(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2)));
 
 	// complex_t
-	parameter_factory_.Register(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2));
+	parameter_factory_.insert(std::make_pair(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2)));
 
 	// string_t
-	parameter_factory_.Register(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2));
+	parameter_factory_.insert(std::make_pair(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2)));
 
 	// logical_t
-	parameter_factory_.Register(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2));
+	parameter_factory_.insert(std::make_pair(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2)));
 }
 
 
@@ -98,7 +98,7 @@ bool Block::set_parameter(const Variable& pp)
 		return false;
 	}
 
-	boost::function< void(void*, Variable&) > f = parameter_factory_.CreationFunction(p.type());
+	boost::function< void(void*, Variable&) > f = parameter_factory_[p.type()];
 
 	if (params_[param_curr_].second == p.type())
 	{
