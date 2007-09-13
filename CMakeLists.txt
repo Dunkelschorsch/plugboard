@@ -1,10 +1,19 @@
 project (HUMP)
 
-add_executable (main main.cpp symtab.cpp variable.cpp system.cpp block_loader.cpp block.cpp port.cpp)
+add_executable(
+	main
+	main.cpp
+	symtab.cpp
+	variable.cpp
+	system.cpp
+	block_loader.cpp
+	block.cpp
+	port_base.cpp
+	port_in.cpp
+	port_out.cpp
+)
 
 include_directories (${HUMP_SOURCE_DIR})
-
-# that would work in case of system-wide installed libs
 
 find_package(Boost)
 if (NOT Boost_FOUND)
