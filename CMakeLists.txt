@@ -17,27 +17,55 @@ include_directories (${HUMP_SOURCE_DIR})
 
 find_package(Boost)
 if (NOT Boost_FOUND)
-	message(error 'Cannot Find Boost!)
+	message(fatal_error 'Cannot Find Boost!)
 endif (NOT Boost_FOUND)
 
 include_directories (${Boost_INCLUDE_DIRS})
 link_directories (${Boost_LIBRARY_DIRS})
 
+SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
+
+# include(CheckIncludeFileCXX)
+
+# foreach(
+# 	curr_head
+# 	iostream
+# 	stdexcept
+# 	cassert
+# 	complex
+# 	string
+# 	vector
+# 	deque
+# 	map
+# 	ext/hash_map
+# 	algorithm
+# 	boost/cstdint.hpp
+# 	boost/any.hpp
+# 	boost/bind.hpp
+# 	boost/lambda/lambda.hpp
+# 	boost/lambda/construct.hpp
+# 	boost/lambda/bind.hpp
+# 	boost/ptr_container/ptr_vector.hpp
+# 	boost/function.hpp
+# 	boost/filesystem/path.hpp
+# 	boost/filesystem/operations.hpp
+# 	boost/tuple/tuple.hpp
+# )
+# 	CHECK_INCLUDE_FILE_CXX(${curr_head} ${curr_head}_FOUND)
+# 	if(NOT ${${curr_head}_FOUND})
+# 		message(FATAL_ERROR "error")
+# 	endif(NOT ${${curr_head}_FOUND})
+# endforeach(curr_head)
+
+
 #find and link against the boost::fileysytem library
 find_library(BOOST_FILESYSTEM boost_filesystem)
 if(NOT BOOST_FILESYSTEM)
-	message(error 'Could not find the boost::filesystem library!')
+	message(fatal_error 'Could not find the boost::filesystem library!')
 endif(NOT BOOST_FILESYSTEM)
 
 target_link_libraries(main ${BOOST_FILESYSTEM} ltdl)
 
-#find and link against the boost::signals library
-#find_library(BOOST_SIGNALS boost_signals)
-#if(NOT BOOST_SIGNALS)
-#	message(error 'Could not find the boost::signals library!')
-#endif(NOT BOOST_SIGNALS)
-
-#target_link_libraries(main ${BOOST_SIGNALS})
 
 add_library (block_common SHARED block.cpp)
 
