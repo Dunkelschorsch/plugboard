@@ -48,7 +48,7 @@ protected:
 
 	uint32_t signal_buffer_id_;
 
-	~BasePort();
+	virtual ~BasePort();
 };
 
 
