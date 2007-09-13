@@ -6,7 +6,7 @@ class Variable;
 
 #include <map>
 #include <boost/function.hpp>
-
+#include <boost/tuple/tuple.hpp>
 
 
 #define DEFINE_ACCESS_FUNCTIONS(NAME)\
@@ -35,7 +35,7 @@ public:
 	Block();
 	virtual ~Block();
 
-	typedef std::pair< void *, type_t > param_t;
+	typedef boost::tuple< void *, type_t, std::string > param_t;
 
 	typedef std::vector < Block* > store_t;
 
@@ -54,6 +54,8 @@ public:
 	void set_description(const std::string& description);
 
 	bool set_parameter(const Variable& p);
+
+	std::string get_parameter_description();
 
 	std::vector< param_t > get_params();
 
@@ -77,7 +79,7 @@ protected:
 
 	virtual void configure_parameters() = 0;
 
-	void add_parameter(void *var, type_t t);
+	void add_parameter(void *var, type_t t, std::string description);
 
 	typedef std::map< type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
 

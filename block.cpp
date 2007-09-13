@@ -100,9 +100,9 @@ bool Block::set_parameter(const Variable& pp)
 
 	boost::function< void(void*, Variable&) > f = parameter_factory_[p.type()];
 
-	if (params_[param_curr_].second == p.type())
+	if (params_[param_curr_].get<1>() == p.type())
 	{
-		f(params_[param_curr_].first, p);
+		f(params_[param_curr_].get<0>(), p);
 		if (params_.size() == param_curr_)
 		{
 			configured_ = true;
@@ -111,6 +111,12 @@ bool Block::set_parameter(const Variable& pp)
 	return true;
 }
 
+
+
+std::string Block::get_parameter_description()
+{
+	return params_[param_curr_].get<2>();
+}
 
 OutPort* Block::add_port(OutPort * p)
 {
@@ -169,9 +175,9 @@ std::string Block::get_name_sys() const
 /*!
     \fn Block::add_parameter()
  */
-void Block::add_parameter(void* var, type_t t)
+void Block::add_parameter(void* var, type_t t, std::string description)
 {
-	params_.push_back(std::make_pair(var, t));
+	params_.push_back(boost::make_tuple(var, t, description));
 }
 
 
