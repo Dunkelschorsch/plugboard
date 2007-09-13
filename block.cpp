@@ -27,34 +27,42 @@ Block::Block() :
 
 
 
-void Block::register_parameter_types()
+Block::~Block()
 {
-	// integer_t
-	parameter_factory_.insert(std::make_pair(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2)));
 
-	// real_t
-	parameter_factory_.insert(std::make_pair(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2)));
-
-	// complex_t
-	parameter_factory_.insert(std::make_pair(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2)));
-
-	// string_t
-	parameter_factory_.insert(std::make_pair(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2)));
-
-	// logical_t
-	parameter_factory_.insert(std::make_pair(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2)));
 }
 
 
 
-std::string Block::get_name() const
+void Block::initialize()
+{
+
+}
+
+
+
+const std::string& Block::get_name() const
 {
 	return name_;
 }
 
 
 
-std::string Block::get_description() const
+const std::string& Block::get_name_sys() const
+{
+	return name_sys_;
+}
+
+
+
+void Block::set_name_sys(const std::string & name_sys)
+{
+	name_sys_ = name_sys;
+}
+
+
+
+const std::string& Block::get_description() const
 {
 	return description_;
 }
@@ -83,6 +91,13 @@ void Block::copy_parameter(void *out, Variable& p)
 		reinterpret_cast< std::vector < T >* >(out)->push_back(boost::any_cast< T >(*it));
 	}
 	param_curr_++;
+}
+
+
+
+void Block::add_parameter(void* var, type_t t, std::string description)
+{
+	params_.push_back(boost::make_tuple(var, t, description));
 }
 
 
@@ -118,7 +133,9 @@ std::string Block::get_parameter_description()
 	return params_[param_curr_].get<2>();
 }
 
-OutPort* Block::add_port(OutPort * p)
+
+
+OutPort* Block::add_port(OutPort * const p)
 {
 	OutPort::store_t::iterator it =
 		std::find_if(ports_out_.begin(), ports_out_.end(), boost::bind(&BasePort::get_name, _1) == p->get_name());
@@ -136,7 +153,8 @@ OutPort* Block::add_port(OutPort * p)
 }
 
 
-InPort* Block::add_port(InPort * p)
+
+InPort* Block::add_port(InPort * const p)
 {
 	InPort::store_t::iterator it =
 		std::find_if(ports_in_.begin(), ports_in_.end(), boost::bind(&BasePort::get_name, _1) == p->get_name());
@@ -154,37 +172,23 @@ InPort* Block::add_port(InPort * p)
 }
 
 
-Block::~Block()
+
+void Block::register_parameter_types()
 {
+	// integer_t
+	parameter_factory_.insert(std::make_pair(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2)));
 
-}
+	// real_t
+	parameter_factory_.insert(std::make_pair(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2)));
 
+	// complex_t
+	parameter_factory_.insert(std::make_pair(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2)));
 
-void Block::set_name_sys(const std::string & name_sys)
-{
-	name_sys_ = name_sys;
-}
+	// string_t
+	parameter_factory_.insert(std::make_pair(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2)));
 
-
-std::string Block::get_name_sys() const
-{
-	return name_sys_;
-}
-
-
-/*!
-    \fn Block::add_parameter()
- */
-void Block::add_parameter(void* var, type_t t, std::string description)
-{
-	params_.push_back(boost::make_tuple(var, t, description));
-}
-
-
-
-void Block::initialize()
-{
-
+	// logical_t
+	parameter_factory_.insert(std::make_pair(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2)));
 }
 
 
@@ -231,7 +235,7 @@ OutPort::store_t & Block::get_outport_list()
 
 
 
-std::vector< Block::param_t > Block::get_params()
+const std::vector< Block::param_t >& Block::get_params() const
 {
 	return params_;
 }

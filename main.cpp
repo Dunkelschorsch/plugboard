@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	b->set_parameter(2.0);
 	std::cout << b->get_parameter_description() << std::endl;
 	b->set_parameter(2);
-	s.add_block(b, "d");
+	//s.add_block(b, "d");
 
 #define COMPLICATED 1
 #define SIMPLE 0

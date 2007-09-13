@@ -43,11 +43,11 @@ public:
 
 	virtual void wakeup() = 0;
 
-	std::string get_name() const;
+	const std::string& get_name() const;
 
-	std::string get_name_sys() const;
+	const std::string& get_name_sys() const;
 
-	std::string get_description() const;
+	const std::string& get_description() const;
 
 	bool is_configured() const;
 
@@ -57,7 +57,7 @@ public:
 
 	std::string get_parameter_description();
 
-	std::vector< param_t > get_params();
+	const std::vector< param_t >& get_params() const;
 
 	InPort::store_t & get_inport_list();
 
@@ -71,9 +71,8 @@ public:
 	void copy_parameter(void*, Variable&);
 
 protected:
-	InPort* add_port(InPort * p);
-
-	OutPort* add_port(OutPort * p);
+	InPort* add_port(InPort * const p);
+	OutPort* add_port(OutPort * const p);
 
 	void register_parameter_types();
 
@@ -90,13 +89,13 @@ protected:
 	uint16_t param_curr_;
 
 	bool configured_;
-	
+
 	std::string name_;
 
 	std::string description_;
 
 	InPort::store_t ports_in_;
-	
+
 	OutPort::store_t ports_out_;
 
 private:
