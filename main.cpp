@@ -15,11 +15,16 @@ int main(int argc, char **argv)
 	Block* b;
 
 	try {
-		b = bl.new_block("Dummy20");
+		b = bl.new_block("Dummy2");
 	} catch (InvalidBlockIdException &e)
 	{
 		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
 	}
+	std::cout << b->get_parameter_description() << std::endl;
+	b->set_parameter(2.0);
+	std::cout << b->get_parameter_description() << std::endl;
+	b->set_parameter(2);
+	s.add_block(b, "d");
 
 #define COMPLICATED 1
 #define SIMPLE 0
