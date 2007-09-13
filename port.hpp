@@ -42,7 +42,7 @@ protected:
 
 	uint32_t signal_buffer_id_;
 
-	virtual ~BasePort();
+	~BasePort();
 };
 
 
@@ -61,7 +61,7 @@ public:
 
 	boost::function< Message&() > send;
 
-	virtual ~OutPort();
+	~OutPort();
 
 	typedef std::deque< OutPort > store_t;
 };
@@ -75,7 +75,7 @@ public:
 
 	Message& receive(uint32_t buff_num);
 
-	virtual ~InPort();
+	~InPort();
 
 	typedef std::deque< InPort > store_t;
 };
