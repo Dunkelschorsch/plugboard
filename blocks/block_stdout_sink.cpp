@@ -54,7 +54,7 @@ void Block_stdout_sink::configure_parameters()
 #ifdef HAS_INPUTS
 bool Block_stdout_sink::setup_input_ports()
 {
-	sig_in_ = add_port(InPort("in", empty, 0, 0));
+	sig_in_ = add_port(new InPort("in", empty, 0, 0));
 	return true;
 }
 #endif

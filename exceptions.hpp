@@ -105,6 +105,45 @@ public:
 
 
 
+class SampleTimesMismatchException : public HumpException< std::string >
+{
+public:
+	SampleTimesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Sample times of ports do not match";
+	}
+};
+
+
+
+class SignalTypesMismatchException : public HumpException< std::string >
+{
+public:
+	SignalTypesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Signal types of ports do not match";
+	}
+};
+
+
+
+class FrameSizesMismatchException : public HumpException< std::string >
+{
+public:
+	FrameSizesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Frame sizes of ports do not match";
+	}
+};
+
+
+
 template < class IdentifierType, class ProductType >
 class BlockFactoryError
 {

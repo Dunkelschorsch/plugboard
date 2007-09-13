@@ -112,32 +112,36 @@ bool Block::set_parameter(const Variable& pp)
 }
 
 
-OutPort* Block::add_port(const OutPort& p)
+OutPort* Block::add_port(OutPort * p)
 {
 	OutPort::store_t::iterator it =
-		std::find_if(ports_out_.begin(), ports_out_.end(), boost::bind(&BasePort::get_name, _1) == p.get_name());
+		std::find_if(ports_out_.begin(), ports_out_.end(), boost::bind(&BasePort::get_name, _1) == p->get_name());
 
 	if (it != ports_out_.end())
 	{
-		throw DuplicatePortNameException(get_name() + "::" + p.get_name());
+		throw DuplicatePortNameException(get_name() + "::" + p->get_name());
 	}
-	ports_out_.push_back(p);
+	p->set_owner_block_name(get_name());
+	ports_out_.push_back(*p);
+	delete p;
 
 	num_output_ports_++;
 	return &(*(ports_out_.end()-1));
 }
 
 
-InPort* Block::add_port(const InPort& p)
+InPort* Block::add_port(InPort * p)
 {
 	InPort::store_t::iterator it =
-		std::find_if(ports_in_.begin(), ports_in_.end(), boost::bind(&BasePort::get_name, _1) == p.get_name());
+		std::find_if(ports_in_.begin(), ports_in_.end(), boost::bind(&BasePort::get_name, _1) == p->get_name());
 
 	if (it != ports_in_.end())
 	{
-		throw DuplicatePortNameException(get_name() + "::" + p.get_name());
+		throw DuplicatePortNameException(get_name() + "::" + p->get_name());
 	}
-	ports_in_.push_back(p);
+	p->set_owner_block_name(get_name());
+	ports_in_.push_back(*p);
+	delete p;
 
 	num_input_ports_++;
 	return &(*(ports_in_.end()-1));

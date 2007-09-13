@@ -67,9 +67,9 @@ public:
 	void copy_parameter(void*, Variable&);
 
 protected:
-	InPort* add_port(const InPort& p);
+	InPort* add_port(InPort * p);
 
-	OutPort* add_port(const OutPort& p);
+	OutPort* add_port(OutPort * p);
 
 	void register_parameter_types();
 

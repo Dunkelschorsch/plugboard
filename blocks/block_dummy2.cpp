@@ -41,7 +41,7 @@ bool Block_Dummy2::setup_output_ports()
 {
 	
 	std::cout << "Dummy2 setup_output_ports() called with Ts=" << Ts_[0] << std::endl;
-	sig_out_ = add_port(OutPort("humpOut1", complex, Ts_[0], framesize_[0]));
+	sig_out_ = add_port(new OutPort("humpOut1", complex, Ts_[0], framesize_[0]));
 
 	return true;
 }

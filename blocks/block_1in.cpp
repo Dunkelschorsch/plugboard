@@ -40,7 +40,7 @@ private:
 bool Block_1in::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
-	sig_in_ = add_port(InPort("in1", empty, 0, 0));
+	sig_in_ = add_port(new InPort("in1", empty, 0, 0));
 
 	return true;
 }

@@ -27,12 +27,18 @@ public:
 
 	bool operator==(const BasePort& other) const;
 
+	string_t get_owner_block_name() const;
+
+	void set_owner_block_name (const string_t& owner_name);
+
 	boost::function< void*() > get_buffer_ptr;
 
 protected:
 	BasePort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size);
 
 	string_t name_;
+
+	string_t owner_block_name_;
 
 	type_t type_;
 
