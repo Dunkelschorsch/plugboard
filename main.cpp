@@ -16,14 +16,10 @@ int main(int argc, char **argv)
 
 	try {
 		b = bl.new_block("Dummy20");
-	} catch (UnknownBlockException &e)
+	} catch (InvalidBlockIdException &e)
 	{
-		std::cout << e.GetId() << std::endl;
+		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
 	}
-
-	b->set_parameter(33.0);
-	b->set_parameter(10);
-	//s.add_block(b, "dummy");
 
 #define COMPLICATED 1
 #define SIMPLE 0
@@ -48,19 +44,17 @@ int main(int argc, char **argv)
 
 #if COMPLICATED
 	s.connect_ports("gen", "out1", "fo1", "in1"); // 1
-
-	s.connect_ports("fo1", "out1", "cb1", "in1"); // 2
-	s.connect_ports("fo1", "out2", "cb1", "in2"); // 3
-	s.connect_ports("br2", "out1", "fo2", "in2"); // 7
-	s.connect_ports("cb1", "out1", "br1", "in1"); // 4
-	s.connect_ports("cb1", "out2", "br2", "in1"); // 5
-
-	s.connect_ports("br1", "out1", "fo2", "in1"); // 6
-	
-
 	s.connect_ports("fo2", "out1", "con", "in1"); // 8
+	s.connect_ports("cb1", "out2", "br2", "in1"); // 5
+	s.connect_ports("fo1", "out1", "cb1", "in1"); // 2
+
+	s.connect_ports("cb1", "out1", "br1", "in1"); // 4
+	s.connect_ports("br2", "out1", "fo2", "in2"); // 7
+	s.connect_ports("br1", "out1", "fo2", "in1"); // 6
+	s.connect_ports("fo1", "out2", "cb1", "in2"); // 3
 #endif
-	s.wakeup_sys(2);
+	s.initialize();
+	s.wakeup_sys(1);
 
 	return EXIT_SUCCESS;
 }

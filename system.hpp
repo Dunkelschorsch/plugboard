@@ -23,6 +23,8 @@ public:
 	void connect_ports(const std::string& block_source, const std::string& port_source,
 		const std::string& block_sink, const std::string& port_sink);
 
+	void initialize();
+
 	void wakeup_sys(uint32_t times = 1);
 
 protected:

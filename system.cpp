@@ -369,6 +369,20 @@ void System::connect_ports(const std::string & block_source,
 
 
 
+void System::initialize()
+{
+	H_D(System);
+
+	std::for_each
+	(
+		d->blocks_.front().begin(),
+		d->blocks_.front().end(),
+		bind(&Block::initialize, _1)
+	);
+}
+
+
+
 void System::wakeup_sys(uint32_t times)
 {
 	H_D(System);

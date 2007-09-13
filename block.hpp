@@ -38,7 +38,9 @@ public:
 	typedef std::pair< void *, type_t > param_t;
 
 	typedef std::vector < Block* > store_t;
-	
+
+	virtual void initialize();
+
 	virtual void wakeup() = 0;
 
 	std::string get_name() const;

@@ -176,6 +176,13 @@ void Block::add_parameter(void* var, type_t t)
 
 
 
+void Block::initialize()
+{
+
+}
+
+
+
 bool Block::setup_output_ports()
 {
 	return false;
