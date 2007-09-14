@@ -409,7 +409,7 @@ namespace
 	template< class T >
 	void* get_buffer(Signal *s)
 	{
-		return dynamic_cast < T* >(s)->get_data();
+		return static_cast < T* >(s)->get_data();
 	}
 }
 
