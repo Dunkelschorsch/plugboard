@@ -1,12 +1,17 @@
-#include "variable.hpp"
+#include "variable_parser.hpp"
 #include "types.hpp"
 
 #include <cassert>
 
-Variable::Variable() : dims_(std::vector< uint16_t >()), type_(empty), values_(std::vector< boost::any >()) { };
+Variable::Variable() :
+	dims_(std::vector< uint16_t >()),
+	type_(empty),
+	values_(std::vector< boost::any >())
+{
 
+}
 
-Variable::Variable(std::vector< uint16_t > dimensions) : dims_(dimensions), type_(empty) { };
+// Variable::Variable(std::vector< uint16_t > dimensions) : dims_(dimensions), type_(empty) { };
 
 
 Variable::Variable(const
@@ -55,18 +60,18 @@ Variable::Variable(const complex_t& value)
  * \param value a constant integer_t reference to append
  *
  */
-void Variable::append_value(const
-                            integer_t& value)
-{
-	if (type() == empty)
-	{
-		type_ = integer;
-		dims_.push_back(0);
-	}
-	assert(type() == integer);
-	values_.push_back(value);
-	*(dims_.end()-1) += 1;
-}
+// void Variable::append_value(const
+//                             integer_t& value)
+// {
+// 	if (type() == empty)
+// 	{
+// 		type_ = integer;
+// 		dims_.push_back(0);
+// 	}
+// 	assert(type() == integer);
+// 	values_.push_back(value);
+// 	*(dims_.end()-1) += 1;
+// }
 
 
 /** \brief Appends a floating point number to an already existing Variable object
@@ -74,59 +79,53 @@ void Variable::append_value(const
  * \param value a constant real_t reference to append
  *
  */
-void Variable::append_value(real_t value)
-{
-	if (type() == empty)
-	{
-		type_ = real;
-		dims_.push_back(0);
-	}
-	assert(type() == real);
-	values_.push_back(value);
-	*(dims_.end()-1) += 1;
-}
+// void Variable::append_value(real_t value)
+// {
+// 	if (type() == empty)
+// 	{
+// 		type_ = real;
+// 		dims_.push_back(0);
+// 	}
+// 	assert(type() == real);
+// 	values_.push_back(value);
+// 	*(dims_.end()-1) += 1;
+// }
 
 /** \brief Appends a complex number to an already existing Variable object
 
  * \param value a constant complex_t reference to append
  *
  */
-void Variable::append_value(const
-                            complex_t& value)
-{
-	if (type() == empty)
-	{
-		type_ = complex;
-		dims_.push_back(0);
-	}
-	assert(type() == complex);
-	values_.push_back(value);
-	*(dims_.end()-1) += 1;
-}
+// void Variable::append_value(const
+//                             complex_t& value)
+// {
+// 	if (type() == empty)
+// 	{
+// 		type_ = complex;
+// 		dims_.push_back(0);
+// 	}
+// 	assert(type() == complex);
+// 	values_.push_back(value);
+// 	*(dims_.end()-1) += 1;
+// }
 
 
-void Variable::append_value(const
-                            string_t& value)
-{
-	if (type() == empty)
-	{
-		type_ = string;
-		dims_.push_back(0);
-	}
-	assert(type() == string);
-	values_.push_back(value);
-	*(dims_.end()-1) ++;
-}
+// void Variable::append_value(const
+//                             string_t& value)
+// {
+// 	if (type() == empty)
+// 	{
+// 		type_ = string;
+// 		dims_.push_back(0);
+// 	}
+// 	assert(type() == string);
+// 	values_.push_back(value);
+// 	*(dims_.end()-1) ++;
+// }
 
-void Variable::app(real_t value)
+void Variable::app(const boost::any& value)
 {
-	if (type() == empty)
-	{
-		type_ = real;
-	}
-	assert(type() == real);
 	values_.push_back(value);
-	//*(dims_.end()-1) += 1;
 }
 
 void Variable::set_dimensions(const std::vector< uint16_t >& d)
@@ -243,3 +242,29 @@ void Variable::add_dimension(uint16_t size)
 	dims_.push_back(size);
 }
 
+
+
+
+void Variable::parse_input(const std::string& s)
+{
+	VariableParser h;
+	
+	parse_info<> info;
+	info = parse(s.c_str(), h[assign(*this)], space_p);
+
+// 	if (info.full)
+// 	{
+// 		std::cout << "-------------------------\n";
+// 		std::cout << "Parsing succeeded\n";
+// 		std::cout << "-------------------------\n";
+// 	}
+// 
+// 	else
+// 	{
+// 		std::cout << "-------------------------\n";
+// 		std::cout << "Parsing failed\n";
+// 		std::cout << "stopped at: \"" << info.stop << "\"\n";
+// 		std::cout << "-------------------------\n";
+// 	}
+
+}

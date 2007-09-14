@@ -2,7 +2,6 @@
 #define _VARIABLE_HPP
 
 #include "types.hpp"
-
 #include <boost/any.hpp>
 
 
@@ -27,17 +26,19 @@ public:
 
 	explicit Variable(std::vector< uint16_t > dimensions);
 
-	void append_value(const integer_t& value);
+	void parse_input(const std::string& s);
 
-	void append_value(real_t value);
+// 	void append_value(const integer_t& value);
 
-	void app(real_t value);
+// 	void append_value(real_t value);
+
+	void app(const boost::any& value);
 
 	void add_dimension(uint16_t size);
 
-	void append_value(const complex_t& value);
+// 	void append_value(const complex_t& value);
 
-	void append_value(const string_t& value);
+// 	void append_value(const string_t& value);
 
 	void set_dimensions(const std::vector< uint16_t >& d);
 
@@ -53,8 +54,6 @@ public:
 
 	friend class iterator;
 
-	/** The iterator class
-	 */
 	class iterator : public std::iterator< std::bidirectional_iterator_tag, boost::any, ptrdiff_t >
 	{
 	public:
@@ -87,7 +86,7 @@ public:
 
 	iterator end();
 
-protected:
+public:
 	std::vector< uint16_t > dims_;
 
 /** \brief The type of the Variable
