@@ -15,16 +15,12 @@ int main(int argc, char **argv)
 	Block* b;
 
 	try {
-		b = bl.new_block("Dummy2");
-	} catch (InvalidBlockIdException &e)
+		b = bl.new_block("1in1out");
+	}
+	catch (InvalidBlockIdException &e)
 	{
 		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
 	}
-	std::cout << b->get_parameter_description() << std::endl;
-	b->set_parameter(2.0);
-	std::cout << b->get_parameter_description() << std::endl;
-	b->set_parameter(2);
-	//s.add_block(b, "d");
 
 #define COMPLICATED 1
 #define SIMPLE 0
@@ -32,7 +28,7 @@ int main(int argc, char **argv)
 	s.add_block(bl.new_block("1in"), "con");
 	s.add_block(bl.new_block("1out"), "gen");
 
-	s.add_block(bl.new_block("1in1out"), "br1");
+	s.add_block(b, "br1");
 #if COMPLICATED
 	s.add_block(bl.new_block("1in1out"), "br2");
 	s.add_block(bl.new_block("2in2out"), "cb1");
