@@ -67,8 +67,10 @@ void Block_2in2out::configure_parameters()
 
 void Block_2in2out::wakeup()
 {
+#ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
-	
+#endif
+
 	integer_t *v_out1, *v_out2;
 	const integer_t *v_in1, *v_in2;
 	

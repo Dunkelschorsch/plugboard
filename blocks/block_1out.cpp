@@ -62,8 +62,10 @@ void Block_1out::configure_parameters()
 
 void Block_1out::wakeup()
 {
+#ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
-	
+#endif
+
 	integer_t *v;
 	
 	v = get_data_ptr< integer_t >(sig_out_);
