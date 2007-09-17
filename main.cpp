@@ -3,6 +3,7 @@
 #include "system.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
+#include "symtab.hpp"
 #include <iostream>
 
 
@@ -14,32 +15,39 @@ int main(int argc, char **argv)
 	bl.load_dir("blocks");
 	Block* b;
 
-	try {
-		b = bl.new_block("1in1out");
-	}
-	catch (InvalidBlockIdException &e)
-	{
-		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
-	}
+// 	try {
+// 		b = bl.new_block("Dummy2");
+// 	}
+// 	catch (InvalidBlockIdException &e)
+// 	{
+// 		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
+// 	}
+// 	Symtab st;
+// 
+// 	st.add_var("Ts", 1/3.84e6);
+// 	st.add_var("framesize", 1000);
+// 	b->set_parameter(st.get_var("Ts"));
+// 	b->set_parameter(st.get_var("framesize"));
+// 	s.add_block(b, "hump");
 
-#define COMPLICATED 1
+#define COMPLICATED 0
 #define SIMPLE 0
+#define LOOP 1
+
 
 	s.add_block(bl.new_block("1in"), "con");
 	s.add_block(bl.new_block("1out"), "gen");
-
-	s.add_block(b, "br1");
+	s.add_block(bl.new_block("1in1out"), "br1");
 #if COMPLICATED
 	s.add_block(bl.new_block("1in1out"), "br2");
+	s.add_block(bl.new_block("1in1out"), "br3");
 	s.add_block(bl.new_block("2in2out"), "cb1");
-
 	s.add_block(bl.new_block("1in2out"), "fo1");
 	s.add_block(bl.new_block("2in1out"), "fo2");
 #endif
 
 #if SIMPLE
 	s.connect_ports("gen", "out1", "br1", "in1");
-	
 	s.connect_ports("br1", "out1", "con", "in1");
 #endif
 
@@ -48,12 +56,22 @@ int main(int argc, char **argv)
 	s.connect_ports("fo2", "out1", "con", "in1"); // 8
 	s.connect_ports("cb1", "out2", "br2", "in1"); // 5
 	s.connect_ports("fo1", "out1", "cb1", "in1"); // 2
-
 	s.connect_ports("cb1", "out1", "br1", "in1"); // 4
-	s.connect_ports("br2", "out1", "fo2", "in2"); // 7
+	s.connect_ports("br2", "out1", "br3", "in1"); // 7
+	s.connect_ports("br3", "out1", "fo2", "in2"); // 7
 	s.connect_ports("br1", "out1", "fo2", "in1"); // 6
 	s.connect_ports("fo1", "out2", "cb1", "in2"); // 3
 #endif
+
+#if LOOP
+	s.add_block(bl.new_block("2in2out"), "cb1");
+
+	s.connect_ports("gen", "out1", "cb1", "in1");
+	s.connect_ports("cb1", "out1", "con", "in1");
+	s.connect_ports("cb1", "out2", "br1", "in1");
+	s.connect_ports("br1", "out1", "cb1", "in2");
+#endif
+
 	s.initialize();
 	s.wakeup_sys(1);
 
