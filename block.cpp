@@ -20,7 +20,8 @@ Block::Block() :
 	ports_out_(),
 	name_sys_(),
 	num_output_ports_(0),
-	num_input_ports_(0)
+	num_input_ports_(0),
+	connected_blocks_()
 {
 	register_parameter_types();
 }
@@ -238,4 +239,14 @@ OutPort::store_t & Block::get_outport_list()
 const std::vector< Block::param_t >& Block::get_params() const
 {
 	return params_;
+}
+
+void Block::add_connection(const std::string & name)
+{
+	connected_blocks_.insert(name);
+}
+
+const std::set< std::string > & Block::get_connections() const
+{
+	return connected_blocks_;
 }

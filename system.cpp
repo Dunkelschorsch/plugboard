@@ -6,11 +6,14 @@
 #include "port.hpp"
 #include "symtab.hpp"
 
+#include <boost/thread/thread.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <map>
+#include <set>
 #include <iostream>
 
 
@@ -18,6 +21,39 @@ using boost::bind;
 using boost::function;
 using boost::lambda::new_ptr;
 using boost::lambda::delete_ptr;
+
+
+class ExecutionStage
+{
+public:
+	ExecutionStage();
+	~ExecutionStage();
+
+	void add_path(Block::store_t *blocks);
+
+protected:
+	std::deque< Block::store_t > blocks_;
+	std::vector< uint32_t > dependencies_;
+};
+
+
+
+ExecutionStage::ExecutionStage() :
+	blocks_(),
+	dependencies_()
+{
+
+}
+
+
+
+ExecutionStage::~ExecutionStage()
+{
+
+}
+
+
+
 
 
 struct SystemImpl
@@ -50,11 +86,28 @@ struct SystemImpl
 
 	Symtab symtab_;
 
-	typedef std::vector< Block::store_t > block_list_t;
+	typedef std::deque< std::deque< Block::store_t > > block_list_t;
+
+	Block::store_t initial_block_list_;
 
 	block_list_t blocks_;
 
 	std::vector< std::string > block_names_;
+
+	std::set< std::string > placed_blocks_;
+
+	void linearize(const std::string& block_start);
+
+	void combine_stages();
+
+	void ident_parallel_regions();
+
+
+#ifndef NDEBUG
+	void show_sys();
+#endif
+
+	void execute_row(uint32_t stage_num, uint32_t row_num);
 };
 
 
@@ -76,18 +129,16 @@ SystemImpl::SystemImpl() :
 
 SystemImpl::~SystemImpl()
 {
-	for
-	(
-		block_list_t::iterator it = blocks_.begin();
-		it != blocks_.end();
-		it++
-	)
-	std::for_each
-	(
-		it->begin(),
-		it->end(),
-		boost::lambda::bind(delete_ptr(), boost::lambda::_1)
-	);
+	for(uint32_t i=0; i<blocks_.size(); ++i)
+	{
+		for(uint32_t j=0; j<blocks_[i].size(); ++j)
+		{
+			for(uint32_t k=0; k<blocks_[i][j].size(); ++k)
+			{
+				delete blocks_[i][j][k];
+			}
+		}
+	}
 }
 
 
@@ -160,18 +211,178 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 	}
 
-	/* create a new vector that contains the Block-pointer b as its only element 
-	   and append it to the block list */
-	blocks_.push_back(Block::store_t(1, b));
+	initial_block_list_.push_back(b);
 
 #ifndef NDEBUG
-	std::cerr << blocks_.size()-1 << ": "
-		<< blocks_.back().front()->get_name_sys() <<  " type: "
-		<< blocks_.back().front()->get_name() << std::endl;
+	std::cerr << initial_block_list_.size()-1 << ": "
+		<< initial_block_list_.back()->get_name_sys() <<  " type: "
+		<< initial_block_list_.back()->get_name() << std::endl;
+
 #endif
 
 	/* add the block's name to prevent further usage */
 	block_names_.push_back(name_sys);
+}
+
+
+
+bool is_left_terminated(Block::store_t v)
+{
+	return v.front()->get_num_input_ports() > 1 || v.front()->get_num_input_ports() == 0;
+}
+
+
+
+bool is_right_terminated(Block::store_t v)
+{
+	return v.back()->get_num_output_ports() > 1 || v.back()->get_num_output_ports() == 0;
+}
+
+
+
+bool is_left_terminated(Block *b)
+{
+	return b->get_num_input_ports() > 1 || b->get_num_input_ports() == 0;
+}
+
+
+
+bool is_right_terminated(Block *b)
+{
+	return b->get_num_output_ports() > 1 || b->get_num_output_ports() == 0;
+}
+
+
+
+void SystemImpl::linearize(const std::string& block_start)
+{
+	Block::store_t::iterator left_block;
+
+	std::deque< std::deque< Block::store_t > >::iterator stage_it;
+	std::deque< Block::store_t >::iterator row_it;
+	std::set< std::string >::iterator block_it;
+
+	for(stage_it = blocks_.begin(); stage_it != blocks_.end(); stage_it++)
+	{
+		for(row_it = stage_it->begin(); row_it != stage_it->end(); row_it++)
+		{
+			left_block = std::find_if
+			(
+				row_it->begin(),
+				row_it->end(),
+				bind(&Block::get_name_sys, _1) == block_start
+			);
+			if (left_block != row_it->end())
+			{
+				for
+				(
+					block_it = (*left_block)->get_connections().begin();
+					block_it != (*left_block)->get_connections().end();
+					block_it++
+				)
+				{
+					if(placed_blocks_.find(*block_it) != placed_blocks_.end())
+					{
+#ifndef NDEBUG
+						std::cout << *block_it << " has already been placed. skipping" << std::endl;
+#endif
+					}
+					else
+					{
+						placed_blocks_.insert(*block_it);
+#ifndef NDEBUG
+						std::cout << "placing " << *block_it << " after " << block_start << std::endl;
+#endif
+						Block::store_t::iterator right_block =
+							std::find_if
+							(
+								initial_block_list_.begin(),
+								initial_block_list_.end(),
+								bind(&Block::get_name_sys, _1) == *block_it
+							);
+
+						std::deque< Block::store_t > q;
+						Block::store_t bs;
+						bs.push_back(*right_block);
+						q.push_back(bs);
+
+						blocks_.insert(stage_it+1, q);
+
+						linearize(*block_it);
+					}
+				}
+			}
+		}
+	}
+}
+
+
+
+
+void SystemImpl::combine_stages()
+{
+
+	std::deque< std::deque< Block::store_t > >::iterator stage_it;
+	std::set< std::string >::iterator conn_it;
+	
+	for(stage_it = blocks_.begin(); stage_it != blocks_.end(); stage_it++)
+	{
+#ifndef NDEBUG
+		std::cout << "looking at: " << (stage_it)->front().back()->get_name_sys() << std::endl;
+#endif
+		conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
+		
+		while
+		(
+			conn_it != stage_it->front().back()->get_connections().end() &&
+			!is_right_terminated(stage_it->front()) &&
+			!is_left_terminated((stage_it+1)->front())
+		)
+		{
+#ifndef NDEBUG
+			std::cout << "interesting: " << (stage_it)->front().back()->get_name_sys() << std::endl;
+#endif
+			stage_it->front().push_back((stage_it+1)->front().front());
+			blocks_.erase(stage_it+1);
+
+			conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
+		}
+	}
+}
+
+
+
+void SystemImpl::ident_parallel_regions()
+{
+	std::deque< std::deque< Block::store_t > >::iterator stage_it;
+	std::set< std::string >::iterator conn_it;
+
+	for(stage_it = blocks_.begin(); stage_it != blocks_.end()-1; stage_it++)
+	{
+#ifndef NDEBUG
+		std::cout << "parallel looking at: " << (stage_it)->front().back()->get_name_sys() << std::endl;
+#endif
+		conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
+
+#ifndef DNDEBUG
+		std::cout << "connected to " << (stage_it+1)->front().front()->get_name_sys() << "?" << std::endl;
+#endif
+		if(conn_it == stage_it->front().back()->get_connections().end())
+		{
+
+			Block::store_t qq((stage_it+1)->front());
+#ifndef NDEBUG
+			std::cout << "parallel interesting..." << qq.front()->get_name_sys() << std::endl;
+#endif
+			stage_it->push_back(qq);
+			blocks_.erase(stage_it+1);
+
+			// that one is not nice but necessary
+			if(stage_it ==  blocks_.end()-1)
+				break;
+//			conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
+		}
+	}
 }
 
 
@@ -181,183 +392,88 @@ void System::connect_ports(const std::string & block_source,
 			   const std::string & block_sink,
                            const std::string & port_sink)
 {
-	H_D(System)
 
+	H_D(System);
 #ifndef NDEBUG
 	std::cerr << "connect " << block_source << " --> " << block_sink << std::endl;
 #endif
-
-	int32_t source_block_list_num = -1,
-		sink_block_list_num = -1;
-
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
 
-	Block::store_t::iterator source_block_pos;
-	Block::store_t::iterator sink_block_pos;
+	Block::store_t::iterator source_block_it;
+	Block::store_t::iterator sink_block_it;
 
-	/* no, i will NOT try to replace this with a single standard algorithm invocation ... */
-	for(uint32_t i=0; i<d->blocks_.size(); i++)
+	// search for both source and sink block:
+	// 1) source block
+	source_block_it =
+		std::find_if
+		(
+			d->initial_block_list_.begin(),
+			d->initial_block_list_.end(),
+			bind(&Block::get_name_sys, _1) == block_source
+		);
+
+	if(source_block_it == d->initial_block_list_.end())
 	{
-		/* check if source block given in "block_source" exists */
-		Block::store_t::iterator source_block_it =
-			std::find_if
-			(
-				d->blocks_[i].begin(),
-				d->blocks_[i].end(),
-				bind(&Block::get_name_sys, _1) == block_source
-			);
-
-		if(source_block_it != d->blocks_[i].end())
- 		{
-			/* so we found our block. now let's see if the given port name was valid */
-			source_port_it =
-				std::find_if
-				(
-					(*source_block_it)->get_outport_list().begin(),
-					(*source_block_it)->get_outport_list().end(),
-					bind(&OutPort::get_name, _1) == port_source
-				);
-
-			/* unfortunately the given port name was invalid */
-			if (source_port_it == (*source_block_it)->get_outport_list().end())
-			{
-				throw InvalidPortNameException(port_source);
-			}
-
-			if (source_port_it->send != 0)
-			{
-				/* the ports exists, but has already been connected */
-				std::cerr << "already connected!" << std::endl;
-				return;
-			}
-			/* the ports exists. all is fine. remember where the block is stored */
-			source_block_list_num = i;
-			source_block_pos = source_block_it;
-		} 
-
-		/* check if sink block given in "block_sink" exists */
-		Block::store_t::iterator sink_block_it =
-			std::find_if
-			(
-				d->blocks_[i].begin(),
-				d->blocks_[i].end(),
-				bind(&Block::get_name_sys, _1) == block_sink
-			);
-		
-		if(sink_block_it != d->blocks_[i].end())
-		{
-			/* so we found our block. now let's see if the given port name was valid */
-			sink_port_it =
-				std::find_if
-				(
-					(*sink_block_it)->get_inport_list().begin(),
-					(*sink_block_it)->get_inport_list().end(),
-					bind(&InPort::get_name, _1) == port_sink
-				);
-
-			/* unfortunately the given port name was invalid */
-			if (sink_port_it == (*sink_block_it)->get_inport_list().end())
-			{
-				throw InvalidPortNameException(port_sink);
-			}
-
-			/* the ports exists. all is fine. remember where the block is stored */
-			sink_block_list_num = i;
-			sink_block_pos = sink_block_it;
-		}
-	} // <- that is from a for-loop
-
-	if (source_block_list_num == -1)
-	{
-		/* apparently the source block does not exist */
 		throw InvalidBlockNameException(block_source);
 	}
 
-	if (sink_block_list_num == -1)
+	// so we found our source block. now let's see if the given port name was valid
+	source_port_it =
+		std::find_if
+		(
+			(*source_block_it)->get_outport_list().begin(),
+			(*source_block_it)->get_outport_list().end(),
+			bind(&OutPort::get_name, _1) == port_source
+		);
+
+	// unfortunately the given port name was invalid
+	if (source_port_it == (*source_block_it)->get_outport_list().end())
 	{
-		/* apparently the sink block does not exist */
+		throw InvalidPortNameException(port_source);
+	}
+
+	if (source_port_it->send != 0)
+	{
+		/* the ports exists, but has already been connected */
+		std::cerr << "already connected!" << std::endl;
+		return;
+	}
+
+	// 2) sink block
+	sink_block_it =
+		std::find_if
+		(
+			d->initial_block_list_.begin(),
+			d->initial_block_list_.end(),
+			bind(&Block::get_name_sys, _1) == block_sink
+		);
+
+	if(sink_block_it == d->initial_block_list_.end())
+	{
 		throw InvalidBlockNameException(block_sink);
 	}
 
+	// so we found our sink block. now let's see if the given port name was valid
+	sink_port_it =
+		std::find_if
+		(
+			(*sink_block_it)->get_inport_list().begin(),
+			(*sink_block_it)->get_inport_list().end(),
+			bind(&InPort::get_name, _1) == port_sink
+		);
 
-#ifndef NDEBUG
-	std::cerr << "found source block in vector no. " << source_block_list_num << std::endl;
-	std::cerr << "found sink block in vector no. " << sink_block_list_num << std::endl;
-#endif
-
-	if (sink_block_list_num != source_block_list_num)
+	// unfortunately the given port name was invalid
+	if (sink_port_it == (*sink_block_it)->get_inport_list().end())
 	{
-		if ((d->blocks_[source_block_list_num].back())->get_num_output_ports() > 1)
-		{
-			d->blocks_[source_block_list_num].insert
-			(
-				source_block_pos+1,
-				d->blocks_[sink_block_list_num].begin(),
-				d->blocks_[sink_block_list_num].end()
-			);
-#ifndef NDEBUG
-			std::cerr << "deleting: " << std::endl;
-			std::for_each
-			(
-				d->blocks_.at(sink_block_list_num).begin(),
-				d->blocks_.at(sink_block_list_num).end(),
-				std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
-			);
-			std::cerr << std::endl;
-#endif
-			d->blocks_.erase(d->blocks_.begin() + sink_block_list_num);
-		} else
-		{
-			d->blocks_[sink_block_list_num].insert
-			(
-				sink_block_pos,
-				d->blocks_[source_block_list_num].begin(),
-				d->blocks_[source_block_list_num].end()
-			);
-#ifndef NDEBUG
-			std::cerr << "deleting: " << std::endl;
-			std::for_each
-			(
-				d->blocks_.at(source_block_list_num).begin(),
-				d->blocks_.at(source_block_list_num).end(),
-				std::cerr << boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1) << " "
-			);
-			std::cerr << std::endl;
-#endif
-			d->blocks_.erase(d->blocks_.begin() + source_block_list_num);
-		}
-	} else
-	{
-		if (source_block_pos > sink_block_pos)
-		/* long story... i will coment on that later. */
-		{
-#ifndef NDEBUG
-			std::cerr << "swapping " << (*source_block_pos)->get_name_sys() << "<->" << (*sink_block_pos)->get_name_sys() << std::endl;
-#endif
- 			d->blocks_[source_block_list_num].insert
-			(
-				source_block_pos+1,
-				*sink_block_pos
-			);
-
-			d->blocks_[source_block_list_num].erase
-			(
-				std::find_if
-				(
-					d->blocks_[source_block_list_num].begin(),
-					d->blocks_[source_block_list_num].end(),
-					block_sink == boost::lambda::bind(&Block::get_name_sys, boost::lambda::_1)
-				)
-			);
-		}
+		throw InvalidPortNameException(port_sink);
 	}
 
-#ifndef NDEBUG
-	std::cerr << "size of block-list-list: " << d->blocks_.size() << std::endl;
-#endif
 
-	/* make the send() method of the source port call the right method of the sink port */
+	/*
+	 *  all provided block- and port names were valid, now let's connect them
+	 */
+	
 	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
 	
 	uint32_t curr_sig_buffer =
@@ -365,6 +481,7 @@ void System::connect_ports(const std::string & block_source,
 
 	d->set_buffer_ptrs(*source_port_it, *sink_port_it, &d->signal_buffers_[curr_sig_buffer]);
 
+	(*source_block_it)->add_connection(block_sink);
 }
 
 
@@ -373,11 +490,41 @@ void System::initialize()
 {
 	H_D(System);
 
+	for(uint32_t i=0; i<d->blocks_.size(); ++i)
+		for(uint32_t j=0; j<d->blocks_[i].size(); ++j)
+			for(uint32_t k=0; k<d->blocks_[i][j].size(); ++k)
+				d->blocks_[i][j][k]->initialize();
+}
+
+
+
+#ifndef NDEBUG
+void SystemImpl::show_sys()
+{
+	for(uint32_t i=0; i<blocks_.size(); ++i)
+	{
+		std::cout << "Stage: " << i << std::endl;
+		for(uint32_t j=0; j<blocks_[i].size(); ++j)
+		{
+			std::cout << "  Row: " << j << std::endl;
+			for(uint32_t k=0; k<blocks_[i][j].size(); ++k)
+			{
+				std::cout << "   Blockname: " << blocks_[i][j][k]->get_name_sys() << std::endl;
+			}
+		}
+	}
+}
+#endif
+
+
+
+void SystemImpl::execute_row(uint32_t stage_num, uint32_t row_num)
+{
 	std::for_each
 	(
-		d->blocks_.front().begin(),
-		d->blocks_.front().end(),
-		bind(&Block::initialize, _1)
+		blocks_[stage_num][row_num].begin(),
+		blocks_[stage_num][row_num].end(),
+		boost::bind(&Block::wakeup, _1)
 	);
 }
 
@@ -387,23 +534,65 @@ void System::wakeup_sys(uint32_t times)
 {
 	H_D(System);
 
-	if(d->blocks_.size() == 1)
+	Block::store_t::iterator source_block_it =
+		std::find_if
+		(
+			d->initial_block_list_.begin(),
+			d->initial_block_list_.end(),
+			bind(&Block::get_name_sys, _1) == "gen"
+		);
+
+	std::deque< Block::store_t > q;
+	Block::store_t bs;
+	bs.push_back(*source_block_it);
+	q.push_back(bs);
+	d->blocks_.push_back(q);
+
+	d->linearize("gen");
+	d->combine_stages();
+#ifndef NDEBUG
+	d->show_sys();
+#endif
+	d->ident_parallel_regions();
+#ifndef NDEBUG
+	d->show_sys();
+#endif
+#ifndef NO_THREADS
+	boost::thread_group threads;
+#endif
+	uint32_t num_blocks;
+	for(uint32_t t=0; t<times; ++t)
+ 	// iterate through stages
+	for(uint32_t i=0; i<d->blocks_.size(); ++i)
 	{
-		for(uint32_t i=0; i<times; i++)
+		num_blocks = d->blocks_[i].size();
+		// do not create a thread when not necessary
+		if(num_blocks > 1)
 		{
-			std::for_each
-			(
-				d->blocks_.front().begin(),
-				d->blocks_.front().end(),
-				bind(&Block::wakeup, _1)
-			);
+			// iterate through rows
+			for(uint32_t j=0; j<num_blocks; ++j)
+			{
+				 // iterate through blocks of a row
+#ifndef NO_THREADS
+				threads.create_thread(bind(&SystemImpl::execute_row, d, i, j));
+#else
+				d->execute_row(i, j);
+#endif
+			}
+#ifndef NO_THREADS
+			threads.join_all();
+#endif
+		}
+		else
+		{
+			d->execute_row(i, 0);
 		}
 	}
 }
 
 
 
-/* sometimes you have to get by without anonymous functions ... */
+// sometimes you have to get by without anonymous functions ...
 namespace
 {
 	template< class T >

@@ -30,9 +30,9 @@ int main(int argc, char **argv)
 // 	b->set_parameter(st.get_var("framesize"));
 // 	s.add_block(b, "hump");
 
-#define COMPLICATED 0
+#define COMPLICATED 1
 #define SIMPLE 0
-#define LOOP 1
+#define LOOP 0
 
 
 	s.add_block(bl.new_block("1in"), "con");
@@ -64,12 +64,20 @@ int main(int argc, char **argv)
 #endif
 
 #if LOOP
-	s.add_block(bl.new_block("2in2out"), "cb1");
+	s.add_block(bl.new_block("1in1out"), "br2");
+	s.add_block(bl.new_block("1in1out"), "br3");
+	s.add_block(bl.new_block("1in2out"), "fo1");
+	s.add_block(bl.new_block("2in1out"), "fo2");
 
-	s.connect_ports("gen", "out1", "cb1", "in1");
-	s.connect_ports("cb1", "out1", "con", "in1");
-	s.connect_ports("cb1", "out2", "br1", "in1");
-	s.connect_ports("br1", "out1", "cb1", "in2");
+	s.connect_ports("gen", "out1", "fo2", "in1");
+	s.connect_ports("br3", "out1", "fo2", "in2");
+	s.connect_ports("fo2", "out1", "br1", "in1");
+
+	s.connect_ports("br1", "out1", "br2", "in1");
+	s.connect_ports("br2", "out1", "fo1", "in1");
+
+	s.connect_ports("fo1", "out1", "con", "in1");
+	s.connect_ports("fo1", "out2", "br3", "in1");
 #endif
 
 	s.initialize();

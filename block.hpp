@@ -5,6 +5,7 @@
 class Variable;
 
 #include <map>
+#include <set>
 #include <boost/function.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -30,6 +31,7 @@ const string_t name()\
 class Block
 {
 friend class SystemImpl;
+friend class System;
 
 public:
 	Block();
@@ -37,7 +39,7 @@ public:
 
 	typedef boost::tuple< void *, type_t, std::string > param_t;
 
-	typedef std::vector < Block* > store_t;
+	typedef std::deque < Block* > store_t;
 
 	virtual void initialize();
 
@@ -62,6 +64,8 @@ public:
 	InPort::store_t & get_inport_list();
 
 	OutPort::store_t & get_outport_list();
+
+	const std::set< std::string >& get_connections() const;
 
 	uint16_t get_num_input_ports() const;
 
@@ -98,12 +102,16 @@ protected:
 
 	OutPort::store_t ports_out_;
 
+	std::set< std::string > connected_blocks_;
+
 private:
 	virtual bool setup_input_ports();
 
 	virtual bool setup_output_ports();
 
 	void set_name_sys(const std::string& name_sys) __attribute__ ((visibility("hidden")));
+
+	void add_connection(const std::string& name);
 
 	std::string name_sys_;
 
@@ -112,17 +120,21 @@ private:
 	uint16_t num_input_ports_;
 };
 
-namespace {
-template< class T >
-inline const T* get_data_ptr(const InPort *p)
+
+
+namespace
 {
-	return static_cast< const T* >(p->get_buffer_ptr());
+	template< class T >
+	inline const T* get_data_ptr(const InPort *p)
+	{
+		return static_cast< const T* >(p->get_buffer_ptr());
+	}
+	
+	template< class T >
+	inline T* get_data_ptr(const OutPort *p)
+	{
+		return static_cast< T* >(p->get_buffer_ptr());
+	}
 }
 
-template< class T >
-inline T* get_data_ptr(const OutPort *p)
-{
-	return static_cast< T* >(p->get_buffer_ptr());
-}
-}
 #endif //_BLOCK_HPP

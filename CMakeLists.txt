@@ -64,7 +64,14 @@ if(NOT BOOST_FILESYSTEM)
 	message(fatal_error 'Could not find the boost::filesystem library!')
 endif(NOT BOOST_FILESYSTEM)
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ltdl)
+
+#find and link against the boost::thread library
+find_library(BOOST_THREAD boost_thread)
+if(NOT BOOST_THREAD)
+	message(fatal_error 'Could not find the boost::thread library!')
+endif(NOT BOOST_THREAD)
+
+target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ltdl)
 
 
 add_library (block_common SHARED block.cpp)
