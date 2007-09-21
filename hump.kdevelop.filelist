@@ -16,7 +16,6 @@ factory.hpp
 macros.hpp
 main.cpp
 message.hpp
-port.cpp
 port.hpp
 signal.hpp
 system.cpp
@@ -35,3 +34,5 @@ port_out.hpp
 port_in.cpp
 port_out.cpp
 variable_parser.hpp
+port_base.cpp
+port_base.hpp

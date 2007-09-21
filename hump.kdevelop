@@ -47,6 +47,25 @@
         <default/>
       </environments>
     </make>
+    <filetypes>
+      <filetype>*.java</filetype>
+      <filetype>*.h</filetype>
+      <filetype>*.H</filetype>
+      <filetype>*.hh</filetype>
+      <filetype>*.hxx</filetype>
+      <filetype>*.hpp</filetype>
+      <filetype>*.c</filetype>
+      <filetype>*.C</filetype>
+      <filetype>*.cc</filetype>
+      <filetype>*.cpp</filetype>
+      <filetype>*.c++</filetype>
+      <filetype>*.cxx</filetype>
+      <filetype>Makefile</filetype>
+      <filetype>CMakeLists.txt</filetype>
+    </filetypes>
+    <blacklist>
+      <path>blocks/block_skel.cpp</path>
+    </blacklist>
   </kdevcustomproject>
   <kdevdebugger>
     <general>
@@ -164,14 +183,16 @@
       <usePermanentCaching>true</usePermanentCaching>
       <alwaysIncludeNamespaces>true</alwaysIncludeNamespaces>
       <includePaths>.;</includePaths>
+      <parseMissingHeadersExperimental>false</parseMissingHeadersExperimental>
+      <resolveIncludePathsUsingMakeExperimental>false</resolveIncludePathsUsingMakeExperimental>
     </codecompletion>
     <creategettersetter>
       <prefixGet>get</prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
-      <inlineGet>true</inlineGet>
-      <inlineSet>true</inlineSet>
+      <inlineGet>false</inlineGet>
+      <inlineSet>false</inlineSet>
     </creategettersetter>
     <splitheadersource>
       <enabled>false</enabled>
@@ -207,7 +228,7 @@
       <hidenonlocation>false</hidenonlocation>
     </groups>
     <tree>
-      <hidepatterns>*.o,*.lo,CVS,*~,*.bak,*.so,*.cmake</hidepatterns>
+      <hidepatterns></hidepatterns>
       <hidenonprojectfiles>false</hidenonprojectfiles>
       <showvcsfields>false</showvcsfields>
     </tree>
