@@ -4,12 +4,27 @@
 #include <complex>
 #include <vector>
 #include <boost/cstdint.hpp>
+#include <boost/preprocessor/repetition.hpp>
+#include <boost/preprocessor/array/elem.hpp>
 
 
 /** \file types.hpp
 
    \brief A documented file
 */
+
+
+#define SIGNAL_TYPE(I) SIGNAL_TYPE ## I
+
+#define SIGNAL_TYPE0	(4, (empty_t,		empty,		EmptySignal,	void*))
+#define SIGNAL_TYPE1	(4, (integer_t,		integer,	IntegerSignal,	uint32_t))
+#define SIGNAL_TYPE2	(4, (real_t,		real,		RealSignal,	double))
+#define SIGNAL_TYPE3	(4, (complex_t,		complex,	ComplexSignal,	std::complex< double >))
+#define SIGNAL_TYPE4	(4, (string_t,		string,		StringSignal,	std::string))
+#define SIGNAL_TYPE5	(4, (logical_t,		logical,	BitSignal, 	bool))
+
+#define SIGNAL_TYPE_CNT 6
+
 
 using boost::uint8_t;
 using boost::uint16_t;
@@ -35,33 +50,15 @@ typedef enum
 	int32,
 } type_t;
 
-/** \var typedef int32_t integer_t
- *  \brief The type for all integer-valued variables
- */
-typedef int32_t integer_t;
 
-/** \var typedef double real_t
- *  \brief The type for all real-valued variables
- */
-typedef double real_t;
 
-/** \var typedef std::complex<real_t> complex_t
- *  \brief The type for all complex-valued variables
- */
-typedef std::complex< real_t > complex_t;
+#define BOOST_PP_DEF(z, I, _) /* this macro creates all necessary typedefs */ \
+	typedef BOOST_PP_ARRAY_ELEM(3, SIGNAL_TYPE(I)) BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I));
 
-/** \var typedef std::string string_t
- *  \brief The type for all string variables
- */
-typedef std::string string_t;
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-/** \var typedef void* empty_t
- *  \brief The type for all undecided variables
- */
+#undef BOOST_PP_DEF
 
-typedef bool logical_t;
-
-typedef void* empty_t;
 
 #define vector_t std::vector
 

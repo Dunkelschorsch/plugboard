@@ -10,16 +10,16 @@ class Variable;
 #include <boost/tuple/tuple.hpp>
 
 
-#define DEFINE_ACCESS_FUNCTIONS(NAME)\
-extern "C"\
-Block* create()\
-{\
-return new Block_##NAME;\
-}\
-extern "C"\
-const string_t name()\
-{\
-	return #NAME;\
+#define DEFINE_ACCESS_FUNCTIONS(NAME)	\
+extern "C"				\
+Block* create()				\
+{					\
+	return new Block_##NAME;	\
+}					\
+extern "C"				\
+const string_t name()			\
+{					\
+	return #NAME;			\
 }
 
 

@@ -176,20 +176,13 @@ InPort* Block::add_port(InPort * const p)
 
 void Block::register_parameter_types()
 {
-	// integer_t
-	parameter_factory_.insert(std::make_pair(integer, boost::bind(&Block::copy_parameter< integer_t >, this, _1, _2)));
+#define BOOST_PP_DEF(z, I, _) /* this macro creates mapping between types and parameters */	\
+	parameter_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
+	boost::bind(&Block::copy_parameter< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >, this, _1, _2)));
 
-	// real_t
-	parameter_factory_.insert(std::make_pair(real, boost::bind(&Block::copy_parameter< real_t >, this, _1, _2)));
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-	// complex_t
-	parameter_factory_.insert(std::make_pair(complex, boost::bind(&Block::copy_parameter< complex_t >, this, _1, _2)));
-
-	// string_t
-	parameter_factory_.insert(std::make_pair(string, boost::bind(&Block::copy_parameter< string_t >, this, _1, _2)));
-
-	// logical_t
-	parameter_factory_.insert(std::make_pair(logical, boost::bind(&Block::copy_parameter< logical_t >, this, _1, _2)));
+#undef BOOST_PP_DEF
 }
 
 

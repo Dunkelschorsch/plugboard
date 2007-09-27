@@ -67,48 +67,18 @@ public:
 };
 
 
-class IntegerSignal : public Signal, public SignalStore< integer_t >
-{
-public:
-	IntegerSignal(uint32_t size) : SignalStore< integer_t >(size) {};
 
-	virtual ~IntegerSignal() {};
-};
+#define BOOST_PP_DEF(z, I, _) /* this macro creates all necessary Signal-derived classes */ \
+	class BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) :			\
+		public Signal, public SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
+	{								\
+		public:							\
+		BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))(uint32_t size) :	\
+			SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >(size) {};	\
+		virtual ~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};	\
+	};
 
-
-class RealSignal : public Signal, public SignalStore< real_t >
-{
-public:
-	RealSignal(uint32_t size) : SignalStore< real_t >(size) {};
-
-	virtual ~RealSignal() {};
-};
-
-
-class ComplexSignal : public Signal, public SignalStore< complex_t >
-{
-public:
-	ComplexSignal(uint32_t size) : SignalStore< complex_t >(size) {};
-
-	virtual ~ComplexSignal() {};
-};
-
-
-class StringSignal : public Signal, public SignalStore< string_t >
-{
-public:
-	StringSignal(uint32_t size) : SignalStore< string_t >(size) {};
-
-	virtual ~StringSignal() {};
-};
-
-
-class BitSignal : public Signal, public SignalStore< logical_t >
-{
-public:
-	BitSignal(uint32_t size) : SignalStore< logical_t >(size) {};
-
-	virtual ~BitSignal() {};
-};
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+#undef BOOST_PP_DEF
 
 #endif // _SIGNAL_HPP

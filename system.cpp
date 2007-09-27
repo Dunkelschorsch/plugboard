@@ -5,7 +5,10 @@
 #include "variable.hpp"
 #include "port.hpp"
 #include "symtab.hpp"
+#include "types.hpp"
 
+
+#include <boost/preprocessor/repetition.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/construct.hpp>
@@ -606,27 +609,16 @@ namespace
 
 void SystemImpl::register_basic_types()
 {
-	/* IntegerSignal and integer_t */
-	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
-	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+#define BOOST_PP_DEF(z, I, _) /* this macro inserts entries for all Singal types */ \
+	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
+		&get_buffer< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >)); 			\
+	signal_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),		\
+		bind< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* >(new_ptr< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >(), _1)));
 
-	/* RealSignal and real_t */
-	get_buffer_factory_.insert(std::make_pair(real, &get_buffer< RealSignal >));
-	signal_factory_.insert(std::make_pair(real, bind< RealSignal* >(new_ptr< RealSignal >(), _1)));
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-	/* ComplexSignal and complex_t */
-	get_buffer_factory_.insert(std::make_pair(complex, &get_buffer< ComplexSignal >));
-	signal_factory_.insert(std::make_pair(complex, bind< ComplexSignal* >(new_ptr< ComplexSignal >(), _1)));
-
-	/* StringSignal and string_t */
-	get_buffer_factory_.insert(std::make_pair(string, &get_buffer< StringSignal >));
-	signal_factory_.insert(std::make_pair(string, bind< StringSignal* >(new_ptr< StringSignal >(), _1)));
-
-	/* BitSignal and logical_t */
-	get_buffer_factory_.insert(std::make_pair(logical, &get_buffer< BitSignal >));
-	signal_factory_.insert(std::make_pair(logical, bind< BitSignal* >(new_ptr< BitSignal >(), _1)));
+#undef BOOST_PP_DEF
 }
-
 
 
 uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
