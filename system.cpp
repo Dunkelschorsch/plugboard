@@ -175,7 +175,7 @@ void System::add_block(Block *b, const std::string& name_sys)
 
 void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 {
-	/* determine if the given block name already exists */
+	// determine if the given block name already exists
 	std::vector< std::string >::const_iterator it =
 		std::find_if
 		(
@@ -190,10 +190,10 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 		throw DuplicateBlockNameException(name_sys);
 	}
 
-	/* if we make it here, we can set up and add the blocks to the system */
+	// if we make it here, we can set up and add the blocks to the system
 	if (!b->is_configured())
 	{
-		/* maybe the block does not need to be configured */
+		// maybe the block does not need to be configured
 		if (!(b->get_params().size() == 0))
 		{
 			delete b;
@@ -201,7 +201,7 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 		}
 	}
 
-	/* give it its unique name */
+	// give it its unique name
 	b->set_name_sys(name_sys);
 
 	if(!b->setup_input_ports())
@@ -223,7 +223,7 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 #endif
 
-	/* add the block's name to prevent further usage */
+	// add the block's name to prevent further usage
 	block_names_.push_back(name_sys);
 }
 
@@ -367,7 +367,7 @@ void SystemImpl::ident_parallel_regions()
 #endif
 		conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
 
-#ifndef DNDEBUG
+#ifndef NDEBUG
 		std::cout << "connected to " << (stage_it+1)->front().front()->get_name_sys() << "?" << std::endl;
 #endif
 		if(conn_it == stage_it->front().back()->get_connections().end())
@@ -383,7 +383,6 @@ void SystemImpl::ident_parallel_regions()
 			// that one is not nice but necessary
 			if(stage_it ==  blocks_.end()-1)
 				break;
-//			conn_it = stage_it->front().back()->get_connections().find((stage_it+1)->front().front()->get_name_sys());
 		}
 	}
 }
@@ -438,7 +437,7 @@ void System::connect_ports(const std::string & block_source,
 
 	if (source_port_it->send != 0)
 	{
-		/* the ports exists, but has already been connected */
+		// the ports exists, but has already been connected
 		std::cerr << "already connected!" << std::endl;
 		return;
 	}
@@ -493,6 +492,36 @@ void System::initialize()
 {
 	H_D(System);
 
+	Block::store_t::iterator start_block_it =
+		std::find_if
+		(
+			d->initial_block_list_.begin(),
+			d->initial_block_list_.end(),
+			bind(&Block::get_num_input_ports, _1) == 0
+		);
+
+#ifndef NDEBUG
+	std::cout << "starting with block named '" << (*start_block_it)->get_name_sys() << "'." << std::endl;
+#endif
+	std::deque< Block::store_t > q;
+	Block::store_t bs;
+	bs.push_front(*start_block_it);
+	q.push_back(bs);
+	d->blocks_.push_front(q);
+
+	d->linearize((*start_block_it)->get_name_sys());
+
+	d->combine_stages();
+
+#ifndef NDEBUG
+	d->show_sys();
+#endif
+
+	d->ident_parallel_regions();
+
+#ifndef NDEBUG
+	d->show_sys();
+#endif
 	for(uint32_t i=0; i<d->blocks_.size(); ++i)
 		for(uint32_t j=0; j<d->blocks_[i].size(); ++j)
 			for(uint32_t k=0; k<d->blocks_[i][j].size(); ++k)
@@ -537,35 +566,12 @@ void System::wakeup_sys(uint32_t times)
 {
 	H_D(System);
 
-	Block::store_t::iterator source_block_it =
-		std::find_if
-		(
-			d->initial_block_list_.begin(),
-			d->initial_block_list_.end(),
-			bind(&Block::get_name_sys, _1) == "gen"
-		);
-
-	std::deque< Block::store_t > q;
-	Block::store_t bs;
-	bs.push_back(*source_block_it);
-	q.push_back(bs);
-	d->blocks_.push_back(q);
-
-	d->linearize("gen");
-	d->combine_stages();
-#ifndef NDEBUG
-	d->show_sys();
-#endif
-	d->ident_parallel_regions();
-#ifndef NDEBUG
-	d->show_sys();
-#endif
 #ifndef NO_THREADS
 	boost::thread_group threads;
 #endif
 	uint32_t num_blocks;
 	for(uint32_t t=0; t<times; ++t)
- 	// iterate through stages
+	// iterate through stages
 	for(uint32_t i=0; i<d->blocks_.size(); ++i)
 	{
 		num_blocks = d->blocks_[i].size();
@@ -595,7 +601,6 @@ void System::wakeup_sys(uint32_t times)
 
 
 
-// sometimes you have to get by without anonymous functions ...
 namespace
 {
 	template< class T >
@@ -619,6 +624,7 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 #undef BOOST_PP_DEF
 }
+
 
 
 uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
