@@ -41,6 +41,7 @@ int main(int argc, char **argv)
 #if COMPLICATED
 	s.add_block(bl.new_block("1in1out"), "br2");
 	s.add_block(bl.new_block("1in1out"), "br3");
+	s.add_block(bl.new_block("1in1out"), "br4");
 	s.add_block(bl.new_block("2in2out"), "cb1");
 	s.add_block(bl.new_block("1in2out"), "fo1");
 	s.add_block(bl.new_block("2in1out"), "fo2");
@@ -58,7 +59,8 @@ int main(int argc, char **argv)
 	s.connect_ports("fo1", "out1", "cb1", "in1"); // 2
 	s.connect_ports("cb1", "out1", "br1", "in1"); // 4
 	s.connect_ports("br2", "out1", "br3", "in1"); // 7
-	s.connect_ports("br3", "out1", "fo2", "in2"); // 7
+	s.connect_ports("br3", "out1", "br4", "in1"); // 7
+	s.connect_ports("br4", "out1", "fo2", "in2"); // 7
 	s.connect_ports("br1", "out1", "fo2", "in1"); // 6
 	s.connect_ports("fo1", "out2", "cb1", "in2"); // 3
 #endif
