@@ -560,7 +560,7 @@ void SystemImpl::execute_row(uint32_t stage_num, uint32_t row_num)
 	(
 		blocks_[stage_num][row_num].begin(),
 		blocks_[stage_num][row_num].end(),
-		bind(&Block::wakeup, _1)
+		bind(&Block::process, _1)
 	);
 }
 
