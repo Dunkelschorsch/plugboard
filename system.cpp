@@ -103,7 +103,7 @@ struct SystemImpl
 
 	void combine_stages();
 
-	void ident_parallel_regions();
+	void parallelize();
 
 
 #ifndef NDEBUG
@@ -355,7 +355,7 @@ void SystemImpl::combine_stages()
 
 
 
-void SystemImpl::ident_parallel_regions()
+void SystemImpl::parallelize()
 {
 	std::deque< std::deque< Block::store_t > >::iterator stage_it;
 	std::set< std::string >::iterator conn_it;
@@ -517,7 +517,7 @@ void System::initialize()
 	d->show_sys();
 #endif
 
-	d->ident_parallel_regions();
+	d->parallelize();
 
 #ifndef NDEBUG
 	d->show_sys();
@@ -556,7 +556,7 @@ void SystemImpl::execute_row(uint32_t stage_num, uint32_t row_num)
 	(
 		blocks_[stage_num][row_num].begin(),
 		blocks_[stage_num][row_num].end(),
-		boost::bind(&Block::wakeup, _1)
+		bind(&Block::wakeup, _1)
 	);
 }
 
@@ -614,7 +614,12 @@ namespace
 
 void SystemImpl::register_basic_types()
 {
-#define BOOST_PP_DEF(z, I, _) /* this macro inserts entries for all Singal types */ \
+// 	this macro inserts entries for all Singal types
+//	for integer values signal the expansion would look like this:
+// 	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
+// 	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+
+#define BOOST_PP_DEF(z, I, _) 									\
 	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
 		&get_buffer< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >)); 			\
 	signal_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),		\
