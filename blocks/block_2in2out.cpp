@@ -101,7 +101,9 @@ Block_2in2out::Block_2in2out()
 
 Block_2in2out::~Block_2in2out()
 {
+#ifndef NDEBUG
 	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
+#endif
 }
 
 DEFINE_ACCESS_FUNCTIONS(2in2out)

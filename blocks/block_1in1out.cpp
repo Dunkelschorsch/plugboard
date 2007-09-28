@@ -93,7 +93,9 @@ Block_1in1out::Block_1in1out()
 
 Block_1in1out::~Block_1in1out()
 {
+#ifndef NDEBUG
 	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
+#endif
 }
 
 DEFINE_ACCESS_FUNCTIONS(1in1out)

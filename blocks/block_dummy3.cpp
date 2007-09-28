@@ -34,7 +34,9 @@ Block_Dummy3::Block_Dummy3()
 
 Block_Dummy3::~Block_Dummy3()
 {
+#ifndef NDEBUG
 	std::cout << "Dummy3 dtor called" << std::endl;
+#endif
 }
 
 DEFINE_ACCESS_FUNCTIONS(Dummy3)

@@ -30,9 +30,9 @@ int main(int argc, char **argv)
 // 	b->set_parameter(st.get_var("framesize"));
 // 	s.add_block(b, "hump");
 
-#define COMPLICATED 1
+#define COMPLICATED 0
 #define SIMPLE 0
-#define LOOP 0
+#define LOOP 1
 
 
 	s.add_block(bl.new_block("1in"), "con");
