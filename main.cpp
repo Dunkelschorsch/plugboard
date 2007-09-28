@@ -30,9 +30,9 @@ int main(int argc, char **argv)
 // 	b->set_parameter(st.get_var("framesize"));
 // 	s.add_block(b, "hump");
 
-#define COMPLICATED 0
+#define COMPLICATED 1
 #define SIMPLE 0
-#define LOOP 1
+#define LOOP 0
 
 
 	s.add_block(bl.new_block("1in"), "con");
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 #endif
 
 	s.initialize();
-	s.wakeup_sys(1);
+	s.wakeup_sys(10000);
 
 	return EXIT_SUCCESS;
 }

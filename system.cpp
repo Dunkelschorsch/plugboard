@@ -569,9 +569,9 @@ void SystemImpl::execute_row(uint32_t stage_num, uint32_t row_num)
 void System::wakeup_sys(uint32_t times)
 {
 	H_D(System);
-
 #ifndef NO_THREADS
 	boost::thread_group threads;
+	std::deque< boost::thread* > active_threads;
 #endif
 	uint32_t num_blocks;
 	for(uint32_t t=0; t<times; ++t)
@@ -587,13 +587,24 @@ void System::wakeup_sys(uint32_t times)
 			{
 				 // iterate through blocks of a row
 #ifndef NO_THREADS
-				threads.create_thread(bind(&SystemImpl::execute_row, d, i, j));
+				active_threads.push_back(threads.create_thread(bind(&SystemImpl::execute_row, d, i, j)));
 #else
 				d->execute_row(i, j);
 #endif
 			}
 #ifndef NO_THREADS
 			threads.join_all();
+			for
+			(
+				std::deque< boost::thread* >::iterator it=active_threads.begin();
+				it != active_threads.end();
+				it++
+			)
+			{
+				threads.remove_thread(*it);
+				delete active_threads.front();
+				active_threads.pop_front();
+			}
 #endif
 		}
 		else
