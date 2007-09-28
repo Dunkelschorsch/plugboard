@@ -1,8 +1,9 @@
 #include "block.hpp"
 #include "types.hpp"
-#include "port.hpp"
 
 #define NEED_INIT
+#define NEED_ADVANCE
+
 #define HAS_INPUTS
 #define HAS_OUTPUTS
 
@@ -21,7 +22,11 @@ public:
 	void initialize();
 #endif
 
-	void wakeup();
+	void process();
+
+#ifdef NEED_ADVANCE
+	void advance();
+#endif
 
 private:
 
@@ -94,10 +99,18 @@ void Block_$NAME::configure_parameters()
 
 
 
-void Block_$NAME::wakeup()
+void Block_$NAME::process()
 {
 
 }
+
+
+#ifdef NEED_ADVANCE
+void Block_$NAME::advance()
+{
+	// actions to be carried out in fast forward state go here
+}
+#endif
 
 
 DEFINE_ACCESS_FUNCTIONS($NAME)
