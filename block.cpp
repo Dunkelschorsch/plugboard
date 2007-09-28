@@ -42,6 +42,13 @@ void Block::initialize()
 
 
 
+void Block::advance()
+{
+
+}
+
+
+
 const std::string& Block::get_name() const
 {
 	return name_;

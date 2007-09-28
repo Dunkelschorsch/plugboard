@@ -16,7 +16,7 @@ public:
 
 	~Block_Dummy2();
 
-	void wakeup();
+	void process();
 private:
 
 	void configure_parameters() __attribute__ ((visibility("hidden"))) ;
@@ -52,7 +52,7 @@ void Block_Dummy2::configure_parameters()
 	add_parameter(&framesize_, integer, "Frame size");
 }
 
-void Block_Dummy2::wakeup()
+void Block_Dummy2::process()
 {
 	complex_t *z;
 	

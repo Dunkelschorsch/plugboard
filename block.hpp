@@ -39,11 +39,13 @@ public:
 
 	typedef boost::tuple< void *, type_t, std::string > param_t;
 
-	typedef std::deque < Block* > store_t;
+	typedef std::deque< Block * > store_t;
 
 	virtual void initialize();
 
-	virtual void wakeup() = 0;
+	virtual void process() = 0;
+
+	virtual void advance();
 
 	const std::string& get_name() const;
 

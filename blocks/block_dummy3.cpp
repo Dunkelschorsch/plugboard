@@ -10,7 +10,7 @@ public:
 
 	~Block_Dummy3();
 
-	void wakeup();
+	void process();
 private:
 
 	void configure_parameters() __attribute__ ((visibility("hidden")));
@@ -20,9 +20,9 @@ void Block_Dummy3::configure_parameters()
 {
 }
 
-void Block_Dummy3::wakeup()
+void Block_Dummy3::process()
 {
-	std::cout << "dummy wakeup call!" << std::endl;
+	std::cout << "dummy process call!" << std::endl;
 }
 
 
