@@ -515,14 +515,14 @@ void System::initialize()
 
 	d->linearize((*start_block_it)->get_name_sys());
 
-	d->combine_stages();
-
 #ifndef NDEBUG
 	d->show_sys();
 #endif
-
+	d->combine_stages();
+#ifndef NDEBUG
+	d->show_sys();
+#endif
 	d->parallelize();
-
 #ifndef NDEBUG
 	d->show_sys();
 #endif
