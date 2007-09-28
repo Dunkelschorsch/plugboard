@@ -142,6 +142,10 @@ SystemImpl::~SystemImpl()
 			}
 		}
 	}
+	for(uint32_t i=0; i<signal_buffer_count_; ++i)
+	{
+		delete signal_buffers_[i];
+	}
 }
 
 
@@ -481,7 +485,7 @@ void System::connect_ports(const std::string & block_source,
 	uint32_t curr_sig_buffer =
 		d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 
-	d->set_buffer_ptrs(*source_port_it, *sink_port_it, &d->signal_buffers_[curr_sig_buffer]);
+	d->set_buffer_ptrs(*source_port_it, *sink_port_it, d->signal_buffers_[curr_sig_buffer]);
 
 	(*source_block_it)->add_connection(block_sink);
 }

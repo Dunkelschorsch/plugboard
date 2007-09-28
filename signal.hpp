@@ -3,9 +3,8 @@
 
 #include "types.hpp"
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <vector>
 #include <algorithm>
+
 
 
 class Signal
@@ -13,7 +12,7 @@ class Signal
 public:
 	virtual ~Signal() {};
 
-	typedef boost::ptr_vector< Signal > store_t;
+	typedef std::vector< Signal* > store_t;
 
 protected:
 	Signal() : Ts_(0), dimensions_() { }
@@ -22,6 +21,7 @@ protected:
 
 	real_t Ts_;
 };
+
 
 
 template< class T >
@@ -47,7 +47,7 @@ public:
 		return SignalStore(other);
 	}
 
-	virtual ~SignalStore()
+	~SignalStore()
 	{
 		delete[] data_array_;
 	}
@@ -75,7 +75,7 @@ public:
 		public:							\
 		BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))(uint32_t size) :	\
 			SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >(size) {};	\
-		virtual ~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};	\
+		~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};	\
 	};
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
