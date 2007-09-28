@@ -15,7 +15,9 @@ public:
 	typedef std::vector< Signal* > store_t;
 
 protected:
-	Signal() : Ts_(0), dimensions_() { }
+	Signal() : signal_type_(empty), Ts_(0), dimensions_() { }
+
+	type_t signal_type_;
 
 	std::vector< uint8_t > dimensions_;
 
@@ -68,17 +70,22 @@ public:
 
 
 
-#define BOOST_PP_DEF(z, I, _) /* this macro creates all necessary Signal-derived classes */ \
+// this macro creates all necessary Signal-derived classes
+#define BOOST_PP_DEF(z, I, _)  \
 	class BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) :			\
 		public Signal, public SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
 	{								\
 		public:							\
+									\
 		BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))(uint32_t size) :	\
-			SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >(size) {};	\
+			SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >(size)	\
+		{							\
+ 			signal_type_ = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I));		\
+		};							\
 		~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};	\
 	};
 
-BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 #undef BOOST_PP_DEF
 
 #endif // _SIGNAL_HPP
