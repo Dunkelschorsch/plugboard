@@ -20,7 +20,7 @@ public:
 
 	~Block_stdout_sink();
 
-	void wakeup();
+	void process();
 
 private:
 
@@ -69,7 +69,7 @@ bool Block_stdout_sink::setup_output_ports()
 #endif
 
 
-void Block_stdout_sink::wakeup()
+void Block_stdout_sink::process()
 {
 	const complex_t* z;
 

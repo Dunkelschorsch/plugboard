@@ -15,7 +15,7 @@ public:
 
 	~Block_2in2out();
 
-	void wakeup();
+	void process();
 
 private:
 
@@ -65,7 +65,7 @@ void Block_2in2out::configure_parameters()
 }
 
 
-void Block_2in2out::wakeup()
+void Block_2in2out::process()
 {
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
