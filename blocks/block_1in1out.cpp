@@ -1,6 +1,7 @@
 #include "block.hpp"
 #include "types.hpp"
 #include <iostream>
+#include <unistd.h>
 
 #define HAS_INPUTS
 #define HAS_OUTPUTS
@@ -79,6 +80,7 @@ void Block_1in1out::process()
 		v_out[i] = 1+v_in[i];
 	}
 	
+	usleep(10000);
 	sig_out1_->send();
 }
 

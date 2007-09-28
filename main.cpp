@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 #endif
 
 	s.initialize();
-	s.wakeup_sys(10000);
+	s.wakeup_sys(100);
 
 	return EXIT_SUCCESS;
 }
