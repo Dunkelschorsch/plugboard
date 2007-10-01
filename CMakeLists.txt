@@ -1,5 +1,7 @@
 project (HUMP)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
+
 add_executable(
 	main
 	main.cpp
@@ -15,15 +17,6 @@ add_executable(
 
 include_directories (${HUMP_SOURCE_DIR})
 
-find_package(Boost)
-if (NOT Boost_FOUND)
-	message(fatal_error 'Cannot Find Boost!)
-endif (NOT Boost_FOUND)
-
-include_directories (${Boost_INCLUDE_DIRS})
-link_directories (${Boost_LIBRARY_DIRS})
-
-SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
 # include(CheckIncludeFileCXX)
 
@@ -57,6 +50,17 @@ SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 # 	endif(NOT ${${curr_head}_FOUND})
 # endforeach(curr_head)
 
+find_package(Boost)
+if (NOT Boost_FOUND)
+	message(fatal_error 'Cannot find Boost!)
+endif (NOT Boost_FOUND)
+
+
+find_package(Readline)
+if (NOT READLINE_FOUND)
+	message(fatal_error 'Cannot find Readline!')
+endif (NOT READLINE_FOUND)
+
 
 #find and link against the boost::fileysytem library
 find_library(BOOST_FILESYSTEM boost_filesystem)
@@ -71,8 +75,15 @@ if(NOT BOOST_THREAD)
 	message(fatal_error 'Could not find the boost::thread library!')
 endif(NOT BOOST_THREAD)
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ltdl)
 
+include_directories (${Boost_INCLUDE_DIRS} ${READLINE_INCLUDE_DIR})
+link_directories (${Boost_LIBRARY_DIRS})
+
+
+SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS} ${READLINE_INCLUDE_DIR})
+
+
+target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${READLINE_LIBRARY} ltdl)
 
 add_library (block_common SHARED block.cpp)
 
