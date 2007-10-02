@@ -28,6 +28,7 @@ struct BlockLoader::BlockLoaderImpl
 		> block_factory_t;
 
 	block_factory_t f_;
+	std::vector< std::string > available_blocks_;
 };
 
 
@@ -121,6 +122,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 				std::cerr << "ok" << " (id=" << block_id << ")" << std::endl;
 				++block_count;
+				d->available_blocks_.push_back(block_id);
 			}
 		} else
 		{
@@ -135,5 +137,10 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 Block* BlockLoader::new_block(const std::string& name)
 {
 	return d->f_.CreateObject(name);
+}
+
+const std::vector< std::string > & BlockLoader::available_blocks() const
+{
+	return d->available_blocks_;
 }
 

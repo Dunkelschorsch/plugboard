@@ -16,6 +16,8 @@ public:
 
 	uint32_t load_dir(const std::string &dir, const bool recursive = false);
 
+	const std::vector< std::string > & available_blocks() const;
+
 	Block* new_block(const std::string &name);
 
 private:

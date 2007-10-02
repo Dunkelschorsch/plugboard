@@ -1,20 +1,30 @@
+#include <iostream>
 #include "block_loader.hpp"
 #include "block.hpp"
 #include "system.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
 #include "symtab.hpp"
-#include <iostream>
+#include "input/console.hpp"
 
 
 int main(int argc, char **argv)
 {
-	BlockLoader bl;
+	BlockLoader *bl = new BlockLoader;
 	System s;
 
-	bl.load_dir("blocks");
-	Block* b;
+	bl->load_dir("blocks");
+	std::string st;
 
+	HumpShell shell(&s, bl);
+
+	shell.add_available_blocks(*bl);
+
+	while(shell.execute_command());
+
+	return 0;
+	Block* b;
+#if 0
 // 	try {
 // 		b = bl.new_block("Dummy2");
 // 	}
@@ -83,7 +93,7 @@ int main(int argc, char **argv)
 #endif
 
 	s.initialize();
-	s.wakeup_sys(100);
-
+	s.wakeup_sys(1);
+#endif
 	return EXIT_SUCCESS;
 }

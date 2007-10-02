@@ -165,6 +165,9 @@ System::System(SystemImpl &dd) : d_ptr(&dd)
 System::~System()
 {
 	delete d_ptr;
+#ifndef NDEBUG
+	std::cout << "Bye from System." << std::endl;
+#endif
 }
 
 

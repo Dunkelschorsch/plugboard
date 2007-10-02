@@ -84,6 +84,9 @@ Block_1in::Block_1in()
 	name_ = BLOCK_NAME;
 	set_description("This is a block for testing purposes. It has 1 input.");
 	configure_parameters();
+#ifndef NDEBUG
+	std::cout << "Contructed Block_" << BLOCK_NAME << "!" << std::endl;
+#endif
 }
 
 

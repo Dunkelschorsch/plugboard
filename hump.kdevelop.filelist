@@ -36,3 +36,7 @@ port_out.cpp
 variable_parser.hpp
 port_base.cpp
 port_base.hpp
+input
+input/console.hpp
+input/console.cpp
+command_parse.hpp

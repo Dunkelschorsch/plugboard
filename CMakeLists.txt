@@ -2,6 +2,8 @@ project (HUMP)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
+include_directories (${HUMP_SOURCE_DIR} ${HUMP_SOURCE_DIR}/swift ${HUMP_SOURCE_DIR}/input)
+
 add_executable(
 	main
 	main.cpp
@@ -13,13 +15,12 @@ add_executable(
 	port_base.cpp
 	port_in.cpp
 	port_out.cpp
+	input/console.cpp
 )
-
-include_directories (${HUMP_SOURCE_DIR})
 
 
 # include(CheckIncludeFileCXX)
-
+# 
 # foreach(
 # 	curr_head
 # 	iostream
@@ -36,7 +37,7 @@ include_directories (${HUMP_SOURCE_DIR})
 # 	boost/any.hpp
 # 	boost/bind.hpp
 # 	boost/lambda/lambda.hpp
-# 	boost/lambda/construct.hpp
+#  	boost/lambda/construct.hpp
 # 	boost/lambda/bind.hpp
 # 	boost/ptr_container/ptr_vector.hpp
 # 	boost/function.hpp

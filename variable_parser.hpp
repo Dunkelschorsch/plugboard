@@ -1,8 +1,6 @@
 #ifndef _VARIABLE_PARSER_HPP
 #define _VARIABLE_PARSER_HPP
 
-#define BOOST_SPIRIT_DEBUG
-
 #include <boost/any.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
@@ -154,5 +152,7 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
 		}
 	};
 };
+
+#undef BOOST_SPIRIT_DEBUG
 
 #endif // _VARIABLE_PARSER_HPP
