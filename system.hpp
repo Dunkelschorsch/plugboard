@@ -34,5 +34,4 @@ private:
 	H_DECLARE_PRIVATE(System);
 };
 
-
 #endif // _SYSTEM_HPP

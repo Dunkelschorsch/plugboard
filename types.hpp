@@ -25,7 +25,7 @@
 
 //			name of C++ type	name in type_t	signal name	typedef'ed from
 #define SIGNAL_TYPE0	(4, (empty_t,		empty,		EmptySignal,	void*))
-#define SIGNAL_TYPE1	(4, (integer_t,		integer,	IntegerSignal,	int32_t))
+#define SIGNAL_TYPE1	(4, (integer_t,		integer,	IntegerSignal,	boost::int32_t))
 #define SIGNAL_TYPE2	(4, (real_t,		real,		RealSignal,	double))
 #define SIGNAL_TYPE3	(4, (complex_t,		complex,	ComplexSignal,	std::complex< double >))
 #define SIGNAL_TYPE4	(4, (string_t,		string,		StringSignal,	std::string))
@@ -64,15 +64,12 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 #define vector_t std::vector
 
 typedef vector_t< empty_t > empty_vec_t;
-
 typedef vector_t< real_t > real_vec_t;
-
 typedef vector_t< integer_t > int_vec_t;
-
 typedef vector_t< complex_t > complex_vec_t;
-
 typedef vector_t< logical_t > bit_vec_t;
-
 typedef vector_t< string_t > string_vec_t;
+
+#undef vector_t
 
 #endif // _TYPES_HPP

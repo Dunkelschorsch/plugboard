@@ -59,7 +59,7 @@ public:
 
 	bool set_parameter(const Variable& p);
 
-	std::string get_parameter_description();
+	const std::string& get_parameter_description() const;
 
 	const std::vector< param_t >& get_params() const;
 
@@ -111,7 +111,7 @@ private:
 
 	virtual bool setup_output_ports();
 
-	void set_name_sys(const std::string& name_sys) __attribute__ ((visibility("hidden")));
+	void set_name_sys(const std::string& name_sys);
 
 	void add_connection(const std::string& name);
 

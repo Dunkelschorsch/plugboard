@@ -29,7 +29,9 @@ void Block_Dummy3::process()
 Block_Dummy3::Block_Dummy3()
 {
 	name_ = BLOCK_NAME;
+#ifndef NDEBUG
 	std::cout << "Dummy3 ctor called" << std::endl;
+#endif
 }
 
 Block_Dummy3::~Block_Dummy3()

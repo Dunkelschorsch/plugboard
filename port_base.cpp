@@ -18,14 +18,14 @@ BasePort::BasePort(const string_t& name, const type_t type, const real_t Ts, con
 
 
 
-string_t BasePort::get_name() const
+const std::string& BasePort::get_name() const
 {
 	return name_;
 }
 
 
 
-string_t BasePort::get_owner_block_name() const
+const std::string& BasePort::get_owner_block_name() const
 {
 	return owner_block_name_;
 }

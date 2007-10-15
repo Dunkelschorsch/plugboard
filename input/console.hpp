@@ -3,7 +3,7 @@
 
 #include <string>
 class BlockLoader;
-
+class System;
 
 
 class HumpShell
@@ -11,7 +11,7 @@ class HumpShell
 struct HumpShellImpl;
 
 public:
-	HumpShell(System * s, BlockLoader * bl);
+	HumpShell(System & s, BlockLoader & bl);
 	~HumpShell();
 
 	void set_available_blocks(const BlockLoader& bl);

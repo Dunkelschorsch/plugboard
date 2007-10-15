@@ -13,7 +13,7 @@ Block::Block() :
 	parameter_factory_(),
 	params_(),
 	param_curr_(0),
-	configured_(false),
+	configured_(true),
 	name_(),
 	description_(),
 	ports_in_(),
@@ -105,6 +105,7 @@ void Block::copy_parameter(void *out, Variable& p)
 
 void Block::add_parameter(void* var, type_t t, std::string description)
 {
+	configured_ = false;
 	params_.push_back(boost::make_tuple(var, t, description));
 }
 
@@ -136,7 +137,7 @@ bool Block::set_parameter(const Variable& pp)
 
 
 
-std::string Block::get_parameter_description()
+const std::string& Block::get_parameter_description() const
 {
 	return params_[param_curr_].get<2>();
 }
@@ -241,12 +242,16 @@ const std::vector< Block::param_t >& Block::get_params() const
 	return params_;
 }
 
+
+
 void Block::add_connection(const std::string & name)
 {
 	connected_blocks_.insert(name);
 }
 
-const std::set< std::string > & Block::get_connections() const
+
+
+const std::set< std::string >& Block::get_connections() const
 {
 	return connected_blocks_;
 }

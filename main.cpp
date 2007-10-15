@@ -10,20 +10,18 @@
 
 int main(int argc, char **argv)
 {
-	BlockLoader *bl = new BlockLoader;
+	BlockLoader bl;
 	System s;
 
-	bl->load_dir("blocks");
+	bl.load_dir("blocks");
 	std::string st;
 
-	HumpShell shell(&s, bl);
+	HumpShell shell(s, bl);
 
-	shell.add_available_blocks(*bl);
+	shell.add_available_blocks(bl);
 
 	while(shell.execute_command());
 
-	return 0;
-	Block* b;
 #if 0
 // 	try {
 // 		b = bl.new_block("Dummy2");

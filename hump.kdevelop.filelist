@@ -40,3 +40,4 @@ input
 input/console.hpp
 input/console.cpp
 command_parse.hpp
+swift/SReadline.h

@@ -16,7 +16,7 @@
   </general>
   <kdevcustomproject>
     <run>
-      <mainprogram>/home/aschmidt/hump/main</mainprogram>
+      <mainprogram>home/aschmidt/hump/main</mainprogram>
       <directoryradio>executable</directoryradio>
       <programargs/>
       <globaldebugarguments/>
@@ -29,6 +29,7 @@
       <envvars>
         <envvar value="main" name="APPNAMELC" />
       </envvars>
+      <customdirectory>/</customdirectory>
     </run>
     <build>
       <buildtool>make</buildtool>
@@ -77,6 +78,7 @@
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
+      <programargs/>
     </general>
     <display>
       <staticmembers>false</staticmembers>
@@ -141,11 +143,6 @@
       <type ext="ui" subtyperef="confdialog" />
       <type ext="ui" subtyperef="wizard" />
       <type ext="ui" subtyperef="mainwin" />
-      <type ext="ui" subtyperef="widget-qt4" />
-      <type ext="ui" subtyperef="dialog-qt4" />
-      <type ext="ui" subtyperef="mainwin-qt4" />
-      <type ext="ui" subtyperef="dialogr-qt4" />
-      <type ext="ui" subtyperef="dialogb-qt4" />
       <type ext="cpp" />
       <type ext="h" />
     </useglobaltypes>
@@ -155,10 +152,10 @@
       <used>false</used>
       <version>3</version>
       <includestyle>3</includestyle>
-      <root></root>
+      <root>/usr/lib/qt3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
       <qmake>/usr/bin/qmake</qmake>
-      <designer></designer>
+      <designer/>
       <designerpluginpaths/>
     </qt>
     <codecompletion>
@@ -185,6 +182,10 @@
       <includePaths>.;</includePaths>
       <parseMissingHeadersExperimental>false</parseMissingHeadersExperimental>
       <resolveIncludePathsUsingMakeExperimental>false</resolveIncludePathsUsingMakeExperimental>
+      <includeGlobalFunctions>true</includeGlobalFunctions>
+      <includeTypes>true</includeTypes>
+      <includeEnums>true</includeEnums>
+      <includeTypedefs>false</includeTypedefs>
     </codecompletion>
     <creategettersetter>
       <prefixGet>get</prefixGet>
@@ -216,7 +217,7 @@
   </kdevdocumentation>
   <ctagspart>
     <customArguments/>
-    <customTagfilePath>/home/aschmidt/hump/tags</customTagfilePath>
+    <customTagfilePath>/mnt/HOME/MIT/aschmidt/hump/tags</customTagfilePath>
     <activeTagsFiles/>
   </ctagspart>
   <kdevfileview>
@@ -228,7 +229,7 @@
       <hidenonlocation>false</hidenonlocation>
     </groups>
     <tree>
-      <hidepatterns></hidepatterns>
+      <hidepatterns>*.kdevses,*.kdevelop*,*~</hidepatterns>
       <hidenonprojectfiles>false</hidenonprojectfiles>
       <showvcsfields>false</showvcsfields>
     </tree>

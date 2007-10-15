@@ -12,7 +12,7 @@ friend class OutPort;
 friend class InPort;
 
 public:
-	string_t get_name() const;
+	const std::string& get_name() const;
 
 	type_t get_type() const;
 
@@ -24,7 +24,7 @@ public:
 
 	bool operator==(const BasePort& other) const;
 
-	string_t get_owner_block_name() const;
+	const std::string& get_owner_block_name() const;
 
 	void set_owner_block_name (const string_t& owner_name);
 

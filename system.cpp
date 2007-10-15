@@ -45,14 +45,12 @@ ExecutionStage::ExecutionStage() :
 	blocks_(),
 	dependencies_()
 {
-
 }
 
 
 
 ExecutionStage::~ExecutionStage()
 {
-
 }
 
 
@@ -95,16 +93,17 @@ struct SystemImpl
 
 	block_list_t blocks_;
 
-	std::vector< std::string > block_names_;
-
 	std::set< std::string > placed_blocks_;
+
+	bool can_run_;
 
 	void linearize(const std::string& block_start);
 
 	void combine_stages();
 
+#ifndef NO_THREADS
 	void parallelize();
-
+#endif
 
 #ifndef NDEBUG
 	void show_sys();
@@ -123,7 +122,7 @@ SystemImpl::SystemImpl() :
 	simulation_time_(0.0),
 	symtab_(),
 	blocks_(),
-	block_names_()
+	can_run_(false)
 {
 	register_basic_types();
 }
@@ -132,20 +131,22 @@ SystemImpl::SystemImpl() :
 
 SystemImpl::~SystemImpl()
 {
-	for(uint32_t i=0; i<blocks_.size(); ++i)
-	{
-		for(uint32_t j=0; j<blocks_[i].size(); ++j)
-		{
-			for(uint32_t k=0; k<blocks_[i][j].size(); ++k)
-			{
-				delete blocks_[i][j][k];
-			}
-		}
-	}
-	for(uint32_t i=0; i<signal_buffer_count_; ++i)
-	{
-		delete signal_buffers_[i];
-	}
+#ifndef NDEBUG
+	std::cout << "Bye from System." << std::endl;
+#endif
+	for_each
+	(
+		initial_block_list_.begin(),
+		initial_block_list_.end(),
+		boost::lambda::bind(delete_ptr(), boost::lambda::_1)
+	);
+
+	for_each
+	(
+		signal_buffers_.begin(),
+		signal_buffers_.end(),
+		boost::lambda::bind(delete_ptr(), boost::lambda::_1)
+	);
 }
 
 
@@ -165,9 +166,6 @@ System::System(SystemImpl &dd) : d_ptr(&dd)
 System::~System()
 {
 	delete d_ptr;
-#ifndef NDEBUG
-	std::cout << "Bye from System." << std::endl;
-#endif
 }
 
 
@@ -183,15 +181,15 @@ void System::add_block(Block *b, const std::string& name_sys)
 void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 {
 	// determine if the given block name already exists
-	std::vector< std::string >::const_iterator it =
+	Block::store_t::const_iterator it =
 		std::find_if
 		(
-			block_names_.begin(),
-			block_names_.end(),
-			boost::lambda::_1 == name_sys
+			initial_block_list_.begin(),
+			initial_block_list_.end(),
+			bind(&Block::get_name_sys, _1) == name_sys
 		);
 
-	if(it != block_names_.end())
+	if(it != initial_block_list_.end())
 	{
 		delete b;
 		throw DuplicateBlockNameException(name_sys);
@@ -200,12 +198,8 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 	// if we make it here, we can set up and add the blocks to the system
 	if (!b->is_configured())
 	{
-		// maybe the block does not need to be configured
-		if (!(b->get_params().size() == 0))
-		{
-			delete b;
-			throw BlockNotConfiguredException(name_sys);
-		}
+		delete b;
+		throw BlockNotConfiguredException(name_sys);
 	}
 
 	// give it its unique name
@@ -229,9 +223,6 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 		<< initial_block_list_.back()->get_name() << std::endl;
 
 #endif
-
-	// add the block's name to prevent further usage
-	block_names_.push_back(name_sys);
 }
 
 
@@ -361,7 +352,7 @@ void SystemImpl::combine_stages()
 }
 
 
-
+#ifndef NO_THREADS
 void SystemImpl::parallelize()
 {
 	std::deque< std::deque< Block::store_t > >::iterator stage_it;
@@ -393,7 +384,7 @@ void SystemImpl::parallelize()
 		}
 	}
 }
-
+#endif
 
 
 void System::connect_ports(const std::string & block_source,
@@ -409,8 +400,8 @@ void System::connect_ports(const std::string & block_source,
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
 
-	Block::store_t::iterator source_block_it;
-	Block::store_t::iterator sink_block_it;
+	Block::store_t::const_iterator source_block_it;
+	Block::store_t::const_iterator sink_block_it;
 
 	// search for both source and sink block:
 	// 1) source block
@@ -499,6 +490,9 @@ void System::initialize()
 {
 	H_D(System);
 
+// 	if(d->can_run_)
+// 		return;
+
 	Block::store_t::iterator start_block_it =
 		std::find_if
 		(
@@ -506,6 +500,14 @@ void System::initialize()
 			d->initial_block_list_.end(),
 			bind(&Block::get_num_input_ports, _1) == 0
 		);
+
+	if(d->placed_blocks_.find((*start_block_it)->get_name_sys()) != d->placed_blocks_.end())
+	{
+#ifndef NDEBUG
+		std::cout << "block named '" << (*start_block_it)->get_name_sys() << "' has already been placed." << std::endl;
+#endif
+		return;
+	}
 
 #ifndef NDEBUG
 	std::cout << "starting with block named '" << (*start_block_it)->get_name_sys() << "'." << std::endl;
@@ -516,23 +518,46 @@ void System::initialize()
 	q.push_back(bs);
 	d->blocks_.push_front(q);
 
+	d->placed_blocks_.insert((*start_block_it)->get_name_sys());
+
+#ifndef NDEBUG
+	std::cout << "linearizing system..." << std::endl;
+#endif
+
 	d->linearize((*start_block_it)->get_name_sys());
 
 #ifndef NDEBUG
+	std::cout << "current system:" << std::endl;
+
 	d->show_sys();
+
+	std::cout << "combining execution stages..." << std::endl;
 #endif
+
 	d->combine_stages();
+
 #ifndef NDEBUG
+	std::cout << "current system:" << std::endl;
+
 	d->show_sys();
+
+	std::cout << "parallelizing..." << std::endl;
 #endif
+
+#ifndef NO_THREADS
 	d->parallelize();
+#endif
+
 #ifndef NDEBUG
+	std::cout << "current system:" << std::endl;
 	d->show_sys();
 #endif
 	for(uint32_t i=0; i<d->blocks_.size(); ++i)
 		for(uint32_t j=0; j<d->blocks_[i].size(); ++j)
 			for(uint32_t k=0; k<d->blocks_[i][j].size(); ++k)
 				d->blocks_[i][j][k]->initialize();
+
+	d->can_run_ = true;
 }
 
 
@@ -548,8 +573,9 @@ void SystemImpl::show_sys()
 			std::cout << "  Row: " << j << std::endl;
 			for(uint32_t k=0; k<blocks_[i][j].size(); ++k)
 			{
-				std::cout << "   Blockname: " << blocks_[i][j][k]->get_name_sys() << std::endl;
+				std::cout << "   " << blocks_[i][j][k]->get_name_sys();
 			}
+			std::cout << std::endl;
 		}
 	}
 }
@@ -624,7 +650,7 @@ namespace
 	template< class T >
 	void* get_buffer(Signal *s)
 	{
-		return static_cast < T* >(s)->get_data();
+		return static_cast< T* >(s)->get_data();
 	}
 }
 
@@ -661,6 +687,7 @@ uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 {
 	void* (*f) (Signal*);
+
 	f = get_buffer_factory_[out.get_type()];
 
 	out.get_buffer_ptr = bind(f, s);

@@ -18,7 +18,7 @@ public:
 
 	const std::vector< std::string > & available_blocks() const;
 
-	Block* new_block(const std::string &name);
+	Block* new_block(const std::string &name) const;
 
 private:
 	BlockLoaderImpl *d;

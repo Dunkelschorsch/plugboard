@@ -134,7 +134,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 
 
-Block* BlockLoader::new_block(const std::string& name)
+Block* BlockLoader::new_block(const std::string& name) const
 {
 	return d->f_.CreateObject(name);
 }

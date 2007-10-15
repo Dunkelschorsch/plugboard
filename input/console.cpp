@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <iostream>
-
+#include <boost/function.hpp>
 
 #include "command_parse.hpp"
 #include "console.hpp"
@@ -11,7 +11,7 @@
 
 struct HumpShell::HumpShellImpl
 {
-	HumpShellImpl(System * sys, BlockLoader * bl);
+	HumpShellImpl(System & sys, BlockLoader & bl);
 
 	void register_completions();
 
@@ -20,20 +20,30 @@ struct HumpShell::HumpShellImpl
 	std::vector< std::string > available_blocks_;
 	std::vector< std::string > completers_;
 
+	std::vector< boost::any > v;
 	CommandParser p_;
 	parse_info<> info_;
+
+	System & sys_;
+	BlockLoader & bl_;
 };
 
 
 
-HumpShell::HumpShellImpl::HumpShellImpl(System * sys, BlockLoader * bl) : prompt_(">> "), reader_("hump_history", 256), completers_(), p_(sys, bl)
+HumpShell::HumpShellImpl::HumpShellImpl(System & sys, BlockLoader & bl) :
+	prompt_(">> "),
+	reader_("hump_history", 256),
+	completers_(),
+	p_(v),
+	sys_(sys),
+	bl_(bl)
 {
 
 }
 
 
 
-HumpShell::HumpShell(System * s, BlockLoader * bl)
+HumpShell::HumpShell(System & s, BlockLoader & bl)
 {
 	d = new HumpShellImpl(s, bl);
 }
@@ -112,20 +122,26 @@ const std::string HumpShell::read_command()
 bool HumpShell::execute_command()
 {
 	swift::SReadline dirty_hack__;
+	boost::function< void(System&, BlockLoader&) > f;
 
 	std::string command_string = read_command();
+
 	if(command_string == "quit")
 	{
 		return false;
 	}
 
-	d->info_ = parse(command_string.c_str(), d->p_, space_p);
+	using namespace phoenix;
+	d->info_ = parse(command_string.c_str(), d->p_[var(f)=arg1], space_p);
 
 	if (d->info_.full)
 	{
+#ifndef NDEBUG
 		std::cout << "-------------------------\n";
 		std::cout << "Parsing succeeded\n";
 		std::cout << "-------------------------\n";
+#endif
+		f(d->sys_, d->bl_);
 	}
 
 	else

@@ -20,5 +20,4 @@ public:
 	typedef std::deque< InPort > store_t;
 };
 
-
 #endif // _PORT_IN_HPP
