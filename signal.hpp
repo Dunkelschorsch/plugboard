@@ -26,15 +26,15 @@ protected:
 
 
 
-template< class T >
+template< class ElementT >
 class SignalStore
 {
 public:
-	typedef T element_t;
+	typedef ElementT element_t;
 
 	SignalStore(uint32_t size) : size_(size), data_array_()
 	{
-		data_array_ = new T[size_];
+		data_array_ = new element_t[size_];
 	}
 	
 	SignalStore(SignalStore &other)
@@ -54,14 +54,14 @@ public:
 		delete[] data_array_;
 	}
 
-	element_t * get_data()
+	element_t * get_data() const
 	{
 		return data_array_;
 	}
 
-	void put(std::vector< element_t >* v)
+	void put(std::vector< element_t >& v)
 	{
-		copy(v->begin(), v->end(), data_array_);
+		copy(v.begin(), v.end(), data_array_);
 	}
 
 	element_t* data_array_;
@@ -82,7 +82,8 @@ public:
 		{							\
  			signal_type_ = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I));		\
 		};							\
-		~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};	\
+		~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};		\
+		typedef BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* result_type;		\
 	};
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);

@@ -41,3 +41,8 @@ input/console.hpp
 input/console.cpp
 command_parse.hpp
 swift/SReadline.h
+exec_matrix.hpp
+exec_matrix.cpp
+exec_stage.cpp
+exec_stage.hpp
+input/actions.hpp

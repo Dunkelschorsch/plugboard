@@ -4,6 +4,7 @@
 #include <complex>
 #include <vector>
 #include <boost/cstdint.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/preprocessor/repetition.hpp>
 #include <boost/preprocessor/array/elem.hpp>
@@ -71,5 +72,13 @@ typedef vector_t< logical_t > bit_vec_t;
 typedef vector_t< string_t > string_vec_t;
 
 #undef vector_t
+
+// these assertions make sure the Variable::save_type_change methods works as expected
+namespace type_ordering
+{
+	BOOST_STATIC_ASSERT(complex > real);
+	BOOST_STATIC_ASSERT(real > integer);
+	BOOST_STATIC_ASSERT(integer > empty);
+}
 
 #endif // _TYPES_HPP

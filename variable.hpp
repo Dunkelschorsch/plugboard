@@ -11,9 +11,7 @@
  */
 class Variable
 {
-
 public:
-
 	Variable();
 
 	Variable(const integer_t& value);
@@ -28,25 +26,19 @@ public:
 
 	void parse_input(const std::string& s);
 
-// 	void append_value(const integer_t& value);
-
-// 	void append_value(real_t value);
-
 	void app(const boost::any& value);
 
 	void add_dimension(uint16_t size);
 
-// 	void append_value(const complex_t& value);
-
-// 	void append_value(const string_t& value);
-
 	void set_dimensions(const std::vector< uint16_t >& d);
 
-	std::vector< uint16_t > get_dimensions() const;
+	const std::vector< uint16_t >& get_dimensions() const;
 
 	type_t type() const;
 
-	std::vector< uint16_t > dims() const;
+	void set_type(const type_t t);
+
+	void save_type_change(const type_t t);
 
 	operator bool() const;
 
@@ -86,7 +78,7 @@ public:
 
 	iterator end();
 
-public:
+protected:
 	std::vector< uint16_t > dims_;
 
 /** \brief The type of the Variable

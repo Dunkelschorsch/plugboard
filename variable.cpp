@@ -1,147 +1,89 @@
 #include "variable_parser.hpp"
 #include "types.hpp"
 
-#include <cassert>
+#include <boost/any.hpp>
+
+
 
 Variable::Variable() :
 	dims_(std::vector< uint16_t >()),
 	type_(empty),
 	values_(std::vector< boost::any >())
 {
-
 }
 
-// Variable::Variable(std::vector< uint16_t > dimensions) : dims_(dimensions), type_(empty) { };
 
 
-Variable::Variable(const
-                   integer_t& value)
+Variable::Variable(const integer_t& value)
 {
 	type_ = integer;
 	values_.push_back(value);
 	dims_.push_back(1);
+	dims_.push_back(1);
 }
+
+
 
 /** \brief Constructs a new scalar, floating point Variable object
 
  * \param value a constant real_t reference to initialize the variable
  *
  */
-Variable::Variable(const
-                   real_t& value)
+Variable::Variable(const real_t& value)
 {
 	type_ = real;
 	values_.push_back(value);
 	dims_.push_back(1);
+	dims_.push_back(1);
 }
+
+
 
 /** \brief Constructs a new string Variable object
 
  * \param value a constant string_t reference to initialize the variable
  *
  */
-Variable::Variable(const
-                   string_t& value)
+Variable::Variable(const string_t& value)
 {
 	type_ = string;
 	values_.push_back(value);
 	dims_.push_back(1);
+	dims_.push_back(1);
 }
+
+
 
 Variable::Variable(const complex_t& value)
 {
 	type_ = complex;
 	values_.push_back(value);
-	//dims_.push_back(1);
+	dims_.push_back(1);
+	dims_.push_back(1);
 }
 
-/** \brief Appends an integer number to an already existing Variable object
 
- * \param value a constant integer_t reference to append
- *
- */
-// void Variable::append_value(const
-//                             integer_t& value)
-// {
-// 	if (type() == empty)
-// 	{
-// 		type_ = integer;
-// 		dims_.push_back(0);
-// 	}
-// 	assert(type() == integer);
-// 	values_.push_back(value);
-// 	*(dims_.end()-1) += 1;
-// }
-
-
-/** \brief Appends a floating point number to an already existing Variable object
-
- * \param value a constant real_t reference to append
- *
- */
-// void Variable::append_value(real_t value)
-// {
-// 	if (type() == empty)
-// 	{
-// 		type_ = real;
-// 		dims_.push_back(0);
-// 	}
-// 	assert(type() == real);
-// 	values_.push_back(value);
-// 	*(dims_.end()-1) += 1;
-// }
-
-/** \brief Appends a complex number to an already existing Variable object
-
- * \param value a constant complex_t reference to append
- *
- */
-// void Variable::append_value(const
-//                             complex_t& value)
-// {
-// 	if (type() == empty)
-// 	{
-// 		type_ = complex;
-// 		dims_.push_back(0);
-// 	}
-// 	assert(type() == complex);
-// 	values_.push_back(value);
-// 	*(dims_.end()-1) += 1;
-// }
-
-
-// void Variable::append_value(const
-//                             string_t& value)
-// {
-// 	if (type() == empty)
-// 	{
-// 		type_ = string;
-// 		dims_.push_back(0);
-// 	}
-// 	assert(type() == string);
-// 	values_.push_back(value);
-// 	*(dims_.end()-1) ++;
-// }
 
 void Variable::app(const boost::any& value)
 {
 	values_.push_back(value);
 }
 
+
+
 void Variable::set_dimensions(const std::vector< uint16_t >& d)
 {
 	dims_ = d;
 }
+
+
 
 type_t Variable::type() const
 {
 	return type_;
 }
 
-std::vector< uint16_t > Variable::dims() const
-{
-	return dims_;
-}
+
 
 Variable::operator bool() const
 {
@@ -150,6 +92,8 @@ Variable::operator bool() const
 	else
 		return true;
 }
+
+
 
 uint64_t Variable::size() const
 {
@@ -172,10 +116,14 @@ uint64_t Variable::size() const
 	}
 }
 
+
+
 std::vector<boost::any>::reference Variable::iterator::operator*() const
 {
 	return *it_;
 }
+
+
 
 bool Variable::iterator::operator== (const
                                      iterator& x) const
@@ -183,11 +131,15 @@ bool Variable::iterator::operator== (const
 	return it_ == x.it_;
 }
 
+
+
 bool Variable::iterator::operator!= (const
                                      iterator& x) const
 {
 	return !(*this == x);
 }
+
+
 
 Variable::iterator& Variable::iterator::operator++()
 {
@@ -195,18 +147,24 @@ Variable::iterator& Variable::iterator::operator++()
 	return *this;
 }
 
-Variable::iterator Variable::iterator::operator++ (int)
+
+
+Variable::iterator Variable::iterator::operator++(int)
 {
 	iterator tmp = *this;
 	++*this;
 	return tmp;
 }
 
+
+
 Variable::iterator& Variable::iterator::operator--()
 {
 	--it_;
 	return *this;
 }
+
+
 
 Variable::iterator Variable::iterator::operator-- (int)
 {
@@ -215,16 +173,22 @@ Variable::iterator Variable::iterator::operator-- (int)
 	return tmp;
 }
 
+
+
 Variable::iterator Variable::iterator::insert(const
           boost::any& x)
 {
 	return iterator(*r_, r_->insert(it_, x));
 }
 
+
+
 Variable::iterator Variable::iterator::erase()
 {
 	return iterator(*r_, r_->erase(it_));
 }
+
+
 
 Variable::iterator Variable::begin()
 {
@@ -232,16 +196,18 @@ Variable::iterator Variable::begin()
 }
 
 
+
 Variable::iterator Variable::end()
 {
 	return iterator(values_, values_.end());
 }
 
+
+
 void Variable::add_dimension(uint16_t size)
 {
 	dims_.push_back(size);
 }
-
 
 
 
@@ -252,19 +218,105 @@ void Variable::parse_input(const std::string& s)
 	parse_info<> info;
 	info = parse(s.c_str(), h[assign(*this)], space_p);
 
-// 	if (info.full)
-// 	{
-// 		std::cout << "-------------------------\n";
-// 		std::cout << "Parsing succeeded\n";
-// 		std::cout << "-------------------------\n";
-// 	}
-// 
-// 	else
-// 	{
-// 		std::cout << "-------------------------\n";
-// 		std::cout << "Parsing failed\n";
-// 		std::cout << "stopped at: \"" << info.stop << "\"\n";
-// 		std::cout << "-------------------------\n";
-// 	}
+	if (info.full)
+	{
+		std::cout << "-------------------------\n";
+		std::cout << "Parsing succeeded\n";
+		std::cout << "-------------------------\n";
+	}
+	else
+	{
+		std::cout << "-------------------------\n";
+		std::cout << "Parsing failed\n";
+		std::cout << "stopped at: \"" << info.stop << "\"\n";
+		std::cout << "-------------------------\n";
+	}
 
+}
+
+
+
+void Variable::set_type(const type_t t)
+{
+	type_ = t;
+}
+
+
+
+struct ChangeTypeAction
+{
+	ChangeTypeAction(const type_t& old_type, const type_t& new_type) : old_(old_type), new_(new_type) { }
+
+	template< typename ElementT >
+	void operator()(ElementT& e)
+	{
+		if(old_ == integer)
+		{
+#ifndef NDEBUG
+			std::cout << "was: integer" << std::endl;
+#endif
+			if(new_ == real)
+			{
+#ifndef NDEBUG
+				std::cout << "becomes: real" << std::endl;
+#endif
+				e = static_cast< real_t >(boost::any_cast< integer_t >(e));
+			}
+
+			if(new_ == complex)
+			{
+#ifndef NDEBUG
+				std::cout << "becomes: complex" << std::endl;
+#endif
+				e = static_cast< complex_t >(boost::any_cast< integer_t >(e));
+			}
+		}
+
+		if(old_ == real)
+		{
+#ifndef NDEBUG
+			std::cout << "was: real" << std::endl;
+#endif
+			if(new_ == complex)
+			{
+#ifndef NDEBUG
+				std::cout << "becomes: complex" << std::endl;
+#endif
+				e = static_cast< complex_t >(boost::any_cast< real_t >(e));
+			}
+		}
+	}
+
+	const type_t &old_, &new_;
+
+	typedef void reslt_type;
+};
+
+
+
+void Variable::save_type_change(const type_t t)
+{
+	// we change
+	if(t > type_)
+	{
+		std::for_each
+		(
+			values_.begin(),
+			values_.end()-1,
+			ChangeTypeAction(type_, t)
+		);
+	}
+
+#ifndef NDEBUG
+	std::cout << "Variable holds " << values_.size() << " values." << std::endl;
+#endif
+
+	type_ = t > type_ ? t : type_;
+}
+
+
+
+const std::vector< uint16_t >& Variable::get_dimensions( ) const
+{
+	return dims_;
 }

@@ -143,7 +143,6 @@ bool HumpShell::execute_command()
 #endif
 		f(d->sys_, d->bl_);
 	}
-
 	else
 	{
 		std::cout << "-------------------------\n";
@@ -153,4 +152,3 @@ bool HumpShell::execute_command()
 	}
 	return true;
 }
-

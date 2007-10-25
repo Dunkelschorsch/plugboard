@@ -39,6 +39,7 @@ protected:
 };
 
 
+
 template
 <
 	class AbstractProduct,

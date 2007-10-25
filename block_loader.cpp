@@ -139,8 +139,9 @@ Block* BlockLoader::new_block(const std::string& name) const
 	return d->f_.CreateObject(name);
 }
 
+
+
 const std::vector< std::string > & BlockLoader::available_blocks() const
 {
 	return d->available_blocks_;
 }
-

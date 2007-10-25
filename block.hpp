@@ -61,6 +61,8 @@ public:
 
 	const std::string& get_parameter_description() const;
 
+	const type_t& get_parameter_type() const;
+
 	const std::vector< param_t >& get_params() const;
 
 	InPort::store_t & get_inport_list();

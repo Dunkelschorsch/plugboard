@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	System s;
 
 	bl.load_dir("blocks");
-	std::string st;
+// 	std::string st;
 
 	HumpShell shell(s, bl);
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 // 	b->set_parameter(st.get_var("Ts"));
 // 	b->set_parameter(st.get_var("framesize"));
 // 	s.add_block(b, "hump");
-
+	return 0;
 #define COMPLICATED 1
 #define SIMPLE 0
 #define LOOP 0

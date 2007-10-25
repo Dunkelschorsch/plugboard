@@ -80,7 +80,7 @@ void Block_1in1out::process()
 		v_out[i] = 1+v_in[i];
 	}
 	
-	usleep(10000);
+//  	usleep(100000);
 	sig_out1_->send();
 }
 
