@@ -91,13 +91,31 @@ bool Block::is_configured() const
 
 
 
-template < typename T >
+template< typename TargetT >
+struct CopyAction
+{
+	CopyAction(void *out) : out_(out) { }
+
+	template< typename ElementT >
+	void operator()(ElementT e)
+	{
+		reinterpret_cast< std::vector< TargetT >* >(out_)->push_back(boost::any_cast< TargetT >(e));
+	}
+
+	void *out_;
+};
+
+
+
+template< typename T >
 void Block::copy_parameter(void *out, Variable& p)
 {
-	for(Variable::iterator it = p.begin(); it != p.end(); it++)
-	{
-		reinterpret_cast< std::vector < T >* >(out)->push_back(boost::any_cast< T >(*it));
-	}
+	std::for_each
+	(
+		p.begin(),
+		p.end(),
+		CopyAction< T >(out)
+	);
 	param_curr_++;
 }
 
