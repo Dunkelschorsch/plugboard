@@ -1,6 +1,7 @@
 #include "variable_parser.hpp"
 #include "types.hpp"
 
+#include <iostream>
 #include <boost/any.hpp>
 
 
@@ -253,34 +254,32 @@ struct ChangeTypeAction
 		if(old_ == integer)
 		{
 #ifndef NDEBUG
-			std::cout << "was: integer" << std::endl;
+			std::cout << "converting integer->";
 #endif
 			if(new_ == real)
 			{
 #ifndef NDEBUG
-				std::cout << "becomes: real" << std::endl;
+				std::cout << "real" << std::endl;
 #endif
 				e = static_cast< real_t >(boost::any_cast< integer_t >(e));
 			}
-
-			if(new_ == complex)
+			else if(new_ == complex)
 			{
 #ifndef NDEBUG
-				std::cout << "becomes: complex" << std::endl;
+				std::cout << "complex" << std::endl;
 #endif
 				e = static_cast< complex_t >(boost::any_cast< integer_t >(e));
 			}
 		}
-
-		if(old_ == real)
+		else if(old_ == real)
 		{
 #ifndef NDEBUG
-			std::cout << "was: real" << std::endl;
+			std::cout << "converting real->";
 #endif
 			if(new_ == complex)
 			{
 #ifndef NDEBUG
-				std::cout << "becomes: complex" << std::endl;
+				std::cout << "complex" << std::endl;
 #endif
 				e = static_cast< complex_t >(boost::any_cast< real_t >(e));
 			}
@@ -297,21 +296,21 @@ struct ChangeTypeAction
 void Variable::save_type_change(const type_t t)
 {
 	// we change
-	if(t > type_)
+	if(t > this->type())
 	{
-		std::for_each
-		(
-			values_.begin(),
-			values_.end()-1,
-			ChangeTypeAction(type_, t)
-		);
+		try
+		{
+			std::for_each
+			(
+				values_.begin(),
+				values_.end(),
+				ChangeTypeAction(this->type(), t)
+			);
+		}
+		catch(boost::bad_any_cast &e) { };
+
+		type_ = t;
 	}
-
-#ifndef NDEBUG
-	std::cout << "Variable holds " << values_.size() << " values." << std::endl;
-#endif
-
-	type_ = t > type_ ? t : type_;
 }
 
 

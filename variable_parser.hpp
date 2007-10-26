@@ -1,28 +1,27 @@
 #ifndef _VARIABLE_PARSER_HPP
 #define _VARIABLE_PARSER_HPP
 
-#include <boost/any.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/attribute.hpp>
-#include <boost/spirit/dynamic/for.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/increment_actor.hpp>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
-#include "variable.hpp"
-#include "types.hpp"
-
-#include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
 
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/attribute.hpp>
+#include <boost/spirit/dynamic/for.hpp>
+#include <boost/spirit/actor/increment_actor.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/any.hpp>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+#include "variable.hpp"
+#include "types.hpp"
 
 using namespace boost::spirit;
-using boost::bind;
 using boost::ref;
+
 
 
 struct value_closure : boost::spirit::closure< value_closure, complex_t >
@@ -42,7 +41,7 @@ struct var_closure : boost::spirit::closure< var_closure, Variable >
 template< class ActorT >
 struct ValueAppendAction
 {
-    ValueAppendAction(ActorT& v) : v_(v) { }
+    ValueAppendAction(const ActorT& v) : v_(v) { }
 
     template< typename ValueT >
     void operator()(const ValueT& val_curr) const
@@ -65,6 +64,9 @@ struct ValueAppendAction
             }
             else
             {
+#ifndef NDEBUG
+                std::cout << "variable is real valued." << std::endl;
+#endif
                 v_().app(static_cast< real_t >(val_curr.real()));
                 v_().save_type_change(real);
             }
@@ -82,7 +84,7 @@ struct ValueAppendAction
 #endif
     }
 
-    ActorT& v_;
+    const ActorT& v_;
 };
 
 
@@ -98,7 +100,7 @@ inline ValueAppendAction< ActorT > append_value_a(ActorT& v)
 template< class ActorT, typename IntT >
 struct DimensionAddAction
 {
-    DimensionAddAction(ActorT& v, const IntT size) : v_(v), size_(size) { }
+    DimensionAddAction(const ActorT& v, const IntT size) : v_(v), size_(size) { }
 
     template< typename WhatverT >
     void operator()(const WhatverT=0, const WhatverT=0) const
@@ -106,14 +108,14 @@ struct DimensionAddAction
         v_().add_dimension(size_);
     }
 
-    ActorT& v_;
+    const ActorT& v_;
     const IntT size_;
 };
 
 
 
 template< class ActorT, typename IntT >
-inline DimensionAddAction< ActorT, IntT > add_dimension_a(ActorT& v, const IntT size)
+inline DimensionAddAction< ActorT, IntT > add_dimension_a(const ActorT& v, const IntT size)
 {
     return DimensionAddAction< ActorT, IntT >(v, size);
 }

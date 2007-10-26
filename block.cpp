@@ -129,22 +129,32 @@ void Block::add_parameter(void* var, type_t t, std::string description)
 
 
 
-bool Block::set_parameter(const Variable& pp)
+bool Block::set_parameter(const Variable& p)
 {
-	/* FIXME This is evil! Implement a const_iterator instead! */
-	Variable p = const_cast< Variable& >(pp);
-
 	if (is_configured())
 	{
 		std::cout << "Block is already configured." << std::endl;
 		return false;
 	}
 
-	boost::function< void(void*, Variable&) > f = parameter_factory_[p.type()];
-
-	if (params_[param_curr_].get<1>() == p.type())
+	// check if type is safely convertible
+	if (params_[param_curr_].get<1>() >= p.type())
 	{
-		f(params_[param_curr_].get<0>(), p);
+		// we do not want to typecast the original variable
+		Variable var_tmp = p;
+
+		if(params_[param_curr_].get<1>() > p.type())
+		{
+#ifndef NDEBUG
+			std::cout << "changing type of variable." << std::endl;
+#endif
+			var_tmp.save_type_change(params_[param_curr_].get<1>());
+		}
+
+		boost::function< void(void*, Variable&) >
+			fill_block_parameter_with_values_from_variable = parameter_factory_[var_tmp.type()];
+
+		fill_block_parameter_with_values_from_variable(params_[param_curr_].get<0>(), var_tmp);
 		if (params_.size() == param_curr_)
 		{
 			configured_ = true;
