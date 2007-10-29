@@ -65,7 +65,7 @@ Variable::Variable(const complex_t& value)
 
 
 
-void Variable::app(const boost::any& value)
+void Variable::append(const boost::any& value)
 {
 	values_.push_back(value);
 }
@@ -79,7 +79,7 @@ void Variable::set_dimensions(const std::vector< uint16_t >& d)
 
 
 
-type_t Variable::type() const
+type_t Variable::get_type() const
 {
 	return type_;
 }
@@ -88,7 +88,7 @@ type_t Variable::type() const
 
 Variable::operator bool() const
 {
-	if (type() == empty)
+	if (get_type() == empty)
 		return false;
 	else
 		return true;
@@ -98,7 +98,7 @@ Variable::operator bool() const
 
 uint64_t Variable::size() const
 {
-	switch (type())
+	switch (get_type())
 	{
 	case (integer) :
 		return sizeof(integer_t) * values_.size();
@@ -296,7 +296,7 @@ struct ChangeTypeAction
 void Variable::save_type_change(const type_t t)
 {
 	// we change
-	if(t > this->type())
+	if(t > this->get_type())
 	{
 		try
 		{
@@ -304,7 +304,7 @@ void Variable::save_type_change(const type_t t)
 			(
 				values_.begin(),
 				values_.end(),
-				ChangeTypeAction(this->type(), t)
+				ChangeTypeAction(this->get_type(), t)
 			);
 		}
 		catch(boost::bad_any_cast &e) { };

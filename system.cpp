@@ -353,7 +353,7 @@ namespace
 void SystemImpl::register_basic_types()
 {
 // 	this macro inserts entries for all Singal types
-//	for integer values signal the expansion would look like this:
+//	for integer valued signals, the expansion would look like this:
 // 	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
 // 	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
 

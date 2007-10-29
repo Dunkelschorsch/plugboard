@@ -26,7 +26,7 @@ public:
 
 	void parse_input(const std::string& s);
 
-	void app(const boost::any& value);
+	void append(const boost::any& value);
 
 	void add_dimension(uint16_t size);
 
@@ -34,7 +34,7 @@ public:
 
 	const std::vector< uint16_t >& get_dimensions() const;
 
-	type_t type() const;
+	type_t get_type() const;
 
 	void set_type(const type_t t);
 

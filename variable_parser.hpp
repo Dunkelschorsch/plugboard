@@ -59,7 +59,7 @@ struct ValueAppendAction
 #ifndef NDEBUG
                 std::cout << "variable is integer valued." << std::endl;
 #endif
-                v_().app(static_cast< integer_t >(val_curr.real()));
+                v_().append(static_cast< integer_t >(val_curr.real()));
                 v_().save_type_change(integer);
             }
             else
@@ -67,7 +67,7 @@ struct ValueAppendAction
 #ifndef NDEBUG
                 std::cout << "variable is real valued." << std::endl;
 #endif
-                v_().app(static_cast< real_t >(val_curr.real()));
+                v_().append(static_cast< real_t >(val_curr.real()));
                 v_().save_type_change(real);
             }
         }
@@ -76,11 +76,11 @@ struct ValueAppendAction
 #ifndef NDEBUG
             std::cout << "variable is complex." << std::endl;
 #endif
-            v_().app(val_curr);
+            v_().append(val_curr);
             v_().save_type_change(complex);
         }
 #ifndef NDEBUG
-        std::cout << "type of variable: " << v_().type() << std::endl;
+        std::cout << "type of variable: " << v_().get_type() << std::endl;
 #endif
     }
 

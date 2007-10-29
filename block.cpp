@@ -152,7 +152,7 @@ bool Block::set_parameter(const Variable& p)
 		}
 
 		boost::function< void(void*, Variable&) >
-			fill_block_parameter_with_values_from_variable = parameter_factory_[var_tmp.type()];
+			fill_block_parameter_with_values_from_variable = parameter_factory_[var_tmp.get_type()];
 
 		fill_block_parameter_with_values_from_variable(params_[param_curr_].get_data(), var_tmp);
 
