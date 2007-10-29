@@ -67,6 +67,9 @@
     <blacklist>
       <path>blocks/block_skel.cpp</path>
     </blacklist>
+    <general>
+      <activedir/>
+    </general>
   </kdevcustomproject>
   <kdevdebugger>
     <general>

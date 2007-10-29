@@ -1,13 +1,13 @@
 #ifndef _BLOCK_HPP
 #define _BLOCK_HPP
 
+#include "parameter.hpp"
 #include "port.hpp"
 class Variable;
 
 #include <map>
 #include <set>
 #include <boost/function.hpp>
-#include <boost/tuple/tuple.hpp>
 
 
 #define DEFINE_ACCESS_FUNCTIONS(NAME)	\
@@ -37,8 +37,6 @@ public:
 	Block();
 	virtual ~Block();
 
-	typedef boost::tuple< void *, type_t, std::string > param_t;
-
 	typedef std::deque< Block * > store_t;
 
 	virtual void initialize();
@@ -61,9 +59,9 @@ public:
 
 	const std::string& get_parameter_description() const;
 
-	const type_t& get_parameter_type() const;
+	type_t get_parameter_type() const;
 
-	const std::vector< param_t >& get_params() const;
+	const std::vector< Parameter >& get_params() const;
 
 	InPort::store_t & get_inport_list();
 
@@ -92,7 +90,7 @@ protected:
 
 	parameter_factory_t parameter_factory_;
 
-	std::vector< param_t > params_;	
+	std::vector< Parameter > params_;
 
 	uint16_t param_curr_;
 

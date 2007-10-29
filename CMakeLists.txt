@@ -13,6 +13,7 @@ add_executable(
 	exec_matrix.cpp
 	exec_stage.cpp
 	block_loader.cpp
+	parameter.cpp
 	block.cpp
 	port_base.cpp
 	port_in.cpp

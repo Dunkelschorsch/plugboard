@@ -46,3 +46,5 @@ exec_matrix.cpp
 exec_stage.cpp
 exec_stage.hpp
 input/actions.hpp
+parameter.cpp
+parameter.hpp

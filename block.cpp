@@ -124,7 +124,7 @@ void Block::copy_parameter(void *out, Variable& p)
 void Block::add_parameter(void* var, type_t t, std::string description)
 {
 	configured_ = false;
-	params_.push_back(boost::make_tuple(var, t, description));
+	params_.push_back(Parameter(var, t, description));
 }
 
 
@@ -138,23 +138,25 @@ bool Block::set_parameter(const Variable& p)
 	}
 
 	// check if type is safely convertible
-	if (params_[param_curr_].get<1>() >= p.type())
+	if (params_[param_curr_].is_convertible_to(p))
 	{
 		// we do not want to typecast the original variable
 		Variable var_tmp = p;
 
-		if(params_[param_curr_].get<1>() > p.type())
+		if(not params_[param_curr_].is_of_same_type_as(p));
 		{
 #ifndef NDEBUG
 			std::cout << "changing type of variable." << std::endl;
 #endif
-			var_tmp.save_type_change(params_[param_curr_].get<1>());
+			var_tmp.save_type_change(params_[param_curr_].get_type());
 		}
 
 		boost::function< void(void*, Variable&) >
 			fill_block_parameter_with_values_from_variable = parameter_factory_[var_tmp.type()];
 
-		fill_block_parameter_with_values_from_variable(params_[param_curr_].get<0>(), var_tmp);
+		fill_block_parameter_with_values_from_variable(params_[param_curr_].get_data(), var_tmp);
+
+		// if this was the last parameter the block is completely configured
 		if (params_.size() == param_curr_)
 		{
 			configured_ = true;
@@ -167,14 +169,14 @@ bool Block::set_parameter(const Variable& p)
 
 const std::string& Block::get_parameter_description() const
 {
-	return params_[param_curr_].get<2>();
+	return params_[param_curr_].get_description();
 }
 
 
 
-const type_t & Block::get_parameter_type() const
+type_t Block::get_parameter_type() const
 {
-	return params_[param_curr_].get<1>();
+	return params_[param_curr_].get_type();
 }
 
 
@@ -284,7 +286,7 @@ OutPort::store_t & Block::get_outport_list()
 
 
 
-const std::vector< Block::param_t >& Block::get_params() const
+const std::vector< Parameter >& Block::get_params() const
 {
 	return params_;
 }

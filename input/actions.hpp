@@ -64,8 +64,7 @@ struct BlockAddAction
 				Variable v;
 				v.parse_input(inp);
 
-				std::cout << v.get_dimensions()[0] << "x"<< v.get_dimensions()[1] <<std::endl;
- 				b->set_parameter(v);
+				b->set_parameter(v);
 			} while(not b->is_configured());
 		}
 		else
