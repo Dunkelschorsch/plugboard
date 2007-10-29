@@ -155,18 +155,20 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 
 
+template< typename StringT, typename SystemT >
 struct PlaceBlock
 {
-	template< typename StringT, typename SystemT >
-	void operator()(const StringT& block_next, const StringT& block_curr, SystemT sys) const
+	PlaceBlock(const StringT& block_curr, SystemT sys) : block_curr_(block_curr), sys_(sys) { }
+
+	void operator()(const StringT& block_next) const
 	{
-		if(not sys->exec_m_.block_is_placed(block_next))
+		if(not sys_->exec_m_.block_is_placed(block_next))
 		{
 #ifndef NDEBUG
-			std::cout << "placing " << block_next << " after " << block_curr << std::endl;
+			std::cout << "placing " << block_next << " after " << block_curr_ << std::endl;
 #endif
-			sys->exec_m_.place_block(block_next, block_curr);
-			sys->linearize(block_next);
+			sys_->exec_m_.place_block(block_next, block_curr_);
+			sys_->linearize(block_next);
 		}
 #ifndef NDEBUG
 		else
@@ -176,8 +178,19 @@ struct PlaceBlock
 #endif
 	}
 
+	SystemT sys_;
+	const StringT& block_curr_;
+
 	typedef void result_type;
 };
+
+
+
+template< typename StringT, typename SystemT >
+inline PlaceBlock< StringT, SystemT > place_block_a(const StringT& block_start, SystemT sys)
+{
+	return PlaceBlock< StringT, SystemT >(block_start, sys);
+}
 
 
 
@@ -187,7 +200,7 @@ void SystemImpl::linearize(const std::string& block_start)
 	(
 		exec_m_[block_start]->get_connections().begin(),
 		exec_m_[block_start]->get_connections().end(),
-		bind(PlaceBlock(), _1, boost::ref(block_start), this)
+		place_block_a(block_start, this)
 	);
 }
 
