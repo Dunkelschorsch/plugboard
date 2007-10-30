@@ -76,6 +76,12 @@ public:
 	template < typename T >
 	void copy_parameter(void*, Variable&);
 
+	virtual bool setup_output_ports();
+
+	virtual bool setup_input_ports();
+
+	std::vector< std::pair< OutPort::store_t::iterator, InPort::store_t::iterator > > connect_calls;
+
 protected:
 	InPort* add_port(InPort * const p);
 	OutPort* add_port(OutPort * const p);
@@ -107,10 +113,6 @@ protected:
 	std::set< std::string > connected_blocks_;
 
 private:
-	virtual bool setup_input_ports();
-
-	virtual bool setup_output_ports();
-
 	void set_name_sys(const std::string& name_sys);
 
 	void add_connection(const std::string& name);

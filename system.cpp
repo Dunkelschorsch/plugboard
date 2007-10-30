@@ -155,10 +155,47 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 
 
+template< typename StringT, class SystemT >
+struct MakeConnection
+{
+	MakeConnection(SystemT sys, const StringT& block_curr) : sys_(sys), block_curr_(block_curr) { }
+
+	template< typename PairT >
+	void operator()(PairT& ports)
+	{
+		OutPort::store_t::iterator source_port_it = ports.first;
+		InPort::store_t::iterator sink_port_it = ports.second;
+
+		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
+
+		uint32_t curr_sig_buffer =
+			sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
+
+#ifndef NDEBUG
+		std::cout << "connecting " << source_port_it->get_name() << "->" << sink_port_it->get_name() << std::endl;
+		std::cout << "creating signal buffer no. " << curr_sig_buffer << std::endl;
+#endif
+		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[curr_sig_buffer]);
+	}
+
+	SystemT sys_;
+	const StringT& block_curr_;
+};
+
+
+
+template< typename StringT, class SystemT >
+inline MakeConnection< StringT, SystemT > make_connections(SystemT sys, const StringT& block_curr)
+{
+	return MakeConnection< StringT, SystemT >(sys, block_curr);
+}
+
+
+
 template< typename StringT, typename SystemT >
 struct PlaceBlock
 {
-	PlaceBlock(const StringT& block_curr, SystemT sys) : block_curr_(block_curr), sys_(sys) { }
+	PlaceBlock(const StringT& block_curr, SystemT& sys) : block_curr_(block_curr), sys_(sys) { }
 
 	void operator()(const StringT& block_next) const
 	{
@@ -166,7 +203,19 @@ struct PlaceBlock
 		{
 #ifndef NDEBUG
 			std::cout << "placing " << block_next << " after " << block_curr_ << std::endl;
+			std::cout << "blockname: " << sys_->exec_m_[block_next]->get_name_sys() << std::endl;
 #endif
+			sys_->exec_m_[block_next]->setup_output_ports();
+
+			std::for_each
+			(
+				sys_->exec_m_[block_next]->connect_calls.begin(),
+				sys_->exec_m_[block_next]->connect_calls.end(),
+				make_connections(sys_, block_next)
+			);
+			// do not call twice
+ 			sys_->exec_m_[block_next]->connect_calls.clear();
+
 			sys_->exec_m_.place_block(block_next, block_curr_);
 			sys_->linearize(block_next);
 		}
@@ -178,7 +227,7 @@ struct PlaceBlock
 #endif
 	}
 
-	SystemT sys_;
+	SystemT& sys_;
 	const StringT& block_curr_;
 
 	typedef void result_type;
@@ -187,7 +236,7 @@ struct PlaceBlock
 
 
 template< typename StringT, typename SystemT >
-inline PlaceBlock< StringT, SystemT > place_block_a(const StringT& block_start, SystemT sys)
+inline PlaceBlock< StringT, SystemT > place_block_a(const StringT& block_start, SystemT& sys)
 {
 	return PlaceBlock< StringT, SystemT >(block_start, sys);
 }
@@ -268,18 +317,11 @@ void System::connect_ports(const std::string & block_source,
 		throw InvalidPortNameException(port_sink);
 	}
 
-
 	/*
 	 *  all provided block- and port names were valid, now let's connect them
 	 */
-	
-	source_port_it->connect(*sink_port_it, d->signal_buffer_count_);
-	
-	uint32_t curr_sig_buffer =
-		d->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 
-	d->set_buffer_ptrs(*source_port_it, *sink_port_it, d->signal_buffers_[curr_sig_buffer]);
-
+	d->exec_m_[block_source]->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
 	d->exec_m_[block_source]->add_connection(block_sink);
 }
 
@@ -303,8 +345,18 @@ void System::initialize()
 #ifndef NDEBUG
 	std::cout << "starting with block named '" << start_block_name << "'." << std::endl;
 #endif
-
 	d->exec_m_.add_block(start_block_name);
+
+	std::for_each
+	(
+		d->exec_m_[start_block_name]->connect_calls.begin(),
+		d->exec_m_[start_block_name]->connect_calls.end(),
+		make_connections(d, start_block_name)
+	);
+
+	// do not call twice
+	d->exec_m_[start_block_name]->connect_calls.clear();
+	d->exec_m_[start_block_name]->setup_output_ports();
 
 #ifndef NDEBUG
 	std::cout << "linearizing system..." << std::endl;

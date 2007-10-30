@@ -16,9 +16,15 @@ public:
 
 	type_t get_type() const;
 
+	void set_type(type_t t);
+
 	real_t get_Ts() const;
 
+	void set_Ts(real_t Ts);
+
 	uint32_t get_frame_size() const;
+
+	void set_frame_size(uint32_t framesize);
 
 	uint32_t get_signal_buffer_id() const;
 

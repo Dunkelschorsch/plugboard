@@ -78,3 +78,24 @@ BasePort::~BasePort()
 {
 
 }
+
+
+
+void BasePort::set_type(type_t t)
+{
+	type_ = t;
+}
+
+
+
+void BasePort::set_Ts(real_t Ts)
+{
+	Ts_ = Ts;
+}
+
+
+
+void BasePort::set_frame_size(uint32_t framesize)
+{
+	frame_size_ = framesize;
+}

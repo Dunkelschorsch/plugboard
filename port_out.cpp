@@ -3,7 +3,9 @@
 #include "exceptions.hpp"
 #include <boost/bind.hpp>
 
-
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 OutPort::OutPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
 	BasePort(name, type, Ts, frame_size),
@@ -25,10 +27,16 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 	if (other.frame_size_ > 0 && this->frame_size_ != other.frame_size_)
 		throw FrameSizesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
 	
+	assert(this->Ts_ > 0.0);
+	assert(this->type_ != empty);
+	assert(this->frame_size_ > 0);
+
 	other.Ts_ = this->Ts_;
 	other.type_ = this->type_;
 	other.frame_size_ = this->frame_size_;
-
+#ifndef NDEBUG
+	std::cout << get_owner_block_name() << ".connect(): setting input ports type to: " << this->type_ << std::endl;
+#endif
 	signal_buffer_id_ = signal_buffer_id;
 
 	send = boost::bind(&InPort::receive, boost::ref(other), signal_buffer_id);

@@ -39,7 +39,6 @@ private:
 #ifdef HAS_INPUTS
 bool Block_1in1out::setup_input_ports()
 {
-/* calls to "add_port(InPort &) go here */
 	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
 
 	return true;
@@ -47,12 +46,15 @@ bool Block_1in1out::setup_input_ports()
 #endif
 
 
+
 #ifdef HAS_OUTPUTS
 bool Block_1in1out::setup_output_ports()
 {
-/* calls to "add_port(OutPort &) go here */
-	sig_out1_ = add_port(new OutPort("out1", integer, 1.0, 2));
+	sig_out1_ = add_port(new OutPort("out1", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
 
+#ifndef NDEBUG
+	std::cout << "type of 'out1': " << sig_in1_->get_type() << std::endl;
+#endif
 	return true;
 }
 #endif

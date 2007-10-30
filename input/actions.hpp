@@ -57,7 +57,7 @@ struct BlockAddAction
 #endif
 			do
 			{
-				std::cout << b->get_parameter_description() << std::endl;
+				std::cout << b->get_parameter_description() << ": ";
 				std::string inp;
 				std::getline(std::cin, inp);
 
@@ -91,9 +91,6 @@ struct ConnectAction
 		const std::string& sink_block   = boost::any_cast< std::string >(args[2]);
 		const std::string& sink_port    = boost::any_cast< std::string >(args[3]);
 
-#ifndef NDEBUG
-		std::cout << "Connecting " << source_block << ":" << source_port << "->" << sink_block << ":" << sink_port << std::endl;
-#endif
 		sys.connect_ports(source_block, source_port, sink_block, sink_port);
 	}
 

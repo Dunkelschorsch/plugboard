@@ -136,11 +136,6 @@ bool HumpShell::execute_command()
 
 	if (d->info_.full)
 	{
-#ifndef NDEBUG
-		std::cout << "-------------------------\n";
-		std::cout << "Parsing succeeded\n";
-		std::cout << "-------------------------\n";
-#endif
 		f(d->sys_, d->bl_);
 	}
 	else

@@ -219,20 +219,13 @@ void Variable::parse_input(const std::string& s)
 	parse_info<> info;
 	info = parse(s.c_str(), h[assign(*this)], space_p);
 
-	if (info.full)
-	{
-		std::cout << "-------------------------\n";
-		std::cout << "Parsing succeeded\n";
-		std::cout << "-------------------------\n";
-	}
-	else
+	if (not info.full)
 	{
 		std::cout << "-------------------------\n";
 		std::cout << "Parsing failed\n";
 		std::cout << "stopped at: \"" << info.stop << "\"\n";
 		std::cout << "-------------------------\n";
 	}
-
 }
 
 
