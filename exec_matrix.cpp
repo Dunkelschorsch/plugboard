@@ -13,23 +13,32 @@ using boost::bind;
 
 namespace
 {
-	bool is_left_terminated(Block::store_t v)
+	template< typename SequenceT >
+	bool is_left_terminated(SequenceT v)
 	{
+		assert(not v.empty());
 		return v.front()->get_num_input_ports() > 1 || v.front()->get_num_input_ports() == 0;
 	}
-	
-	bool is_right_terminated(Block::store_t v)
+
+
+	template< typename SequenceT >
+	bool is_right_terminated(SequenceT v)
 	{
+		assert(not v.empty());
 		return v.back()->get_num_output_ports() > 1 || v.back()->get_num_output_ports() == 0;
 	}
 
+
 	bool is_left_terminated(Block *b)
 	{
+		assert(b != NULL);
 		return b->get_num_input_ports() > 1 || b->get_num_input_ports() == 0;
 	}
-	
+
+
 	bool is_right_terminated(Block *b)
 	{
+		assert(b != NULL);
 		return b->get_num_output_ports() > 1 || b->get_num_output_ports() == 0;
 	}
 
@@ -134,6 +143,7 @@ void ExecutionMatrix::swap_stages< int >(int s1, int s2)
 
 void ExecutionMatrix::add_block(Block *b)
 {
+	assert(b != NULL);
 	stages_.push_back(ExecutionStage(b));
 }
 
@@ -141,6 +151,7 @@ void ExecutionMatrix::add_block(Block *b)
 
 void ExecutionMatrix::add_block(Block * b, uint32_t insert_where)
 {
+	assert(b != NULL);
 	stages_.insert(stages_.begin()+insert_where+1, ExecutionStage(b));
 }
 
@@ -256,29 +267,36 @@ bool ExecutionMatrix::block_exists(const std::string & name) const
 
 void ExecutionMatrix::combine_stages()
 {
-	ExecutionStage::store_t::iterator stage_it;
+	ExecutionStage::store_t::iterator stage_curr;
 	std::set< std::string >::const_iterator conn_it;
 	
-	for(stage_it = stages_.begin(); stage_it != stages_.end(); stage_it++)
+	for(stage_curr = stages_.begin(); stage_curr != stages_.end(); stage_curr++)
 	{
 		// that is the rightmost block of the first (and only) path in the currently examined execution stage
-		Block* block_curr = (stage_it)->get_paths().front().back();
-
-		// that is the leftmost block of the first (and only) path in the next execution stage
-		Block* block_succ = (stage_it+1)->get_paths().front().front();
+		Block* block_curr = (stage_curr)->get_paths().front().back();
+		assert(block_curr != NULL);
 
 #ifndef NDEBUG
 		std::cout << "looking at: " << block_curr->get_name_sys() << std::endl;
 #endif
-		// maybe this needs some explanation ...
+
+		if(stage_curr+1 == stages_.end())
+		{
+			continue;
+		}
+
+		// that is the leftmost block of the first (and only) path in the next execution stage
+		Block* block_succ = (stage_curr+1)->get_paths().front().front();
+		assert(block_succ != NULL);
+
+		// maybe this needs some explanation ... later
 		for
 		(
-
 			conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
 
 			conn_it != block_curr->get_connections().end() &&
-			!is_right_terminated(stage_it->get_paths().front()) &&
-			!is_left_terminated((stage_it+1)->get_paths().front());
+			!is_right_terminated(stage_curr->get_paths().front()) &&
+			!is_left_terminated((stage_curr+1)->get_paths().front());
 
 			conn_it = block_curr->get_connections().find(block_succ->get_name_sys())
 		)
@@ -286,12 +304,14 @@ void ExecutionMatrix::combine_stages()
 #ifndef NDEBUG
 			std::cout << "moving: " << block_succ->get_name_sys() << std::endl;
 #endif
-			stage_it->get_paths().front().push_back(block_succ);
-			stages_.erase(stage_it+1);
-			
+			stage_curr->get_paths().front().push_back(block_succ);
+			stages_.erase(stage_curr+1);
+#ifndef NDEBUG
+			std::cout << *this;
+#endif
 			// update blocks to be examined
-			block_curr = (stage_it)->get_paths().front().back();
-			block_succ = (stage_it+1)->get_paths().front().front();
+			block_curr = (stage_curr)->get_paths().front().back();
+			block_succ = (stage_curr+1)->get_paths().front().front();
 		}
 	}
 }
@@ -325,37 +345,48 @@ void ExecutionMatrix::parallelize()
 				// that is the leftmost block of the first (and only) path in the next execution stage
 				block_succ = (stage_curr+1)->get_paths().front().front();
 #ifndef NDEBUG
-				std::cout << "parallel looking at: " << block_curr->get_name_sys() << std::endl;
+				std::cout << "parallelize(): '" << block_curr->get_name_sys() << "' connected to '" << block_succ->get_name_sys() << "' ?" << std::endl;
 #endif
-	
+
 				conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
-	
-#ifndef NDEBUG
-				std::cout << "connected to " << block_succ->get_name_sys() << "?" << std::endl;
-#endif
+
 				// if block_curr and block_succ are NOT connected ...
 				if(conn_it != block_curr->get_connections().end())
 				{
 #ifndef NDEBUG
-					std::cout << "Awww..."<< std::endl;
+					std::cout << "... apparently"<< std::endl;
 #endif
 					parallelizeable = false;
 					break;
 				}
 			}
-	
+
 			if(parallelizeable)
 			{
 #ifndef NDEBUG
-				std::cout << "parallel interesting... " << block_succ->get_name_sys() << std::endl;
+				std::cout << "parallelize(): moving '" << block_succ->get_name_sys() << "'" << std::endl;
 #endif
  				stage_curr->threading_enabled_ = true;
 				stage_curr->add_path((stage_curr+1)->get_paths().front());
 				stages_.erase(stage_curr+1);
+#ifndef NDEBUG
+				std::cout << *this;
+#endif
+				if(stage_curr+1 == stages_.end())
+				{
+#ifndef NDEBUG	
+					std::cout << "parallelize(): at last stage" << std::endl;
+#endif
+					return;
+// 					proceed_to_next_stage = true;
+				}
 			}
 			else
 			{
 				proceed_to_next_stage = true;
+#ifndef NDEBUG
+				std::cout << "parallelize(): proceeding to next stage" << std::endl;
+#endif
 			}
 		}
 	}
