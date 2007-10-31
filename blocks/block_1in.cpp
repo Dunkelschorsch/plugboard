@@ -69,13 +69,13 @@ void Block_1in::process()
 #endif
 	const integer_t *v_in;
 	v_in = get_data_ptr< integer_t >(sig_in_);
-#ifndef NDEBUG
+
 	for(uint16_t i=0; i<sig_in_->get_frame_size(); i++)
 	{
 		std::cout << v_in[i] << " ";
 	}
 	std::cout << std::endl;
-#endif
+
 }
 
 

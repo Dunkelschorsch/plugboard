@@ -144,7 +144,16 @@ void ExecutionMatrix::swap_stages< int >(int s1, int s2)
 void ExecutionMatrix::add_block(Block *b)
 {
 	assert(b != NULL);
-	stages_.push_back(ExecutionStage(b));
+	if(b->get_num_input_ports() == 0)
+	{
+#ifndef NDEBUG
+		std::cout << "a source block!" << std::endl;
+#endif
+		stages_.push_front(ExecutionStage(b));
+	} else
+	{
+		stages_.push_back(ExecutionStage(b));
+	}
 }
 
 

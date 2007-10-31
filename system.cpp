@@ -332,38 +332,47 @@ void System::initialize()
 	H_D(System);
 
 	std::vector< Block * > start_blocks = d->exec_m_.find_start_blocks();
-	std::string start_block_name = (start_blocks.front())->get_name_sys();
 
-	if(d->exec_m_.block_is_placed(start_block_name))
-	{
-#ifndef NDEBUG
-		std::cout << "block named '" << start_block_name << "' has already been placed." << std::endl;
-#endif
-		return;
-	}
-
-#ifndef NDEBUG
-	std::cout << "starting with block named '" << start_block_name << "'." << std::endl;
-#endif
-	d->exec_m_.add_block(start_block_name);
-
-	std::for_each
+	for
 	(
-		d->exec_m_[start_block_name]->connect_calls.begin(),
-		d->exec_m_[start_block_name]->connect_calls.end(),
-		make_connections(d, start_block_name)
-	);
+		std::vector< Block * >::iterator source_block = start_blocks.begin();
+		source_block != start_blocks.end();
+		source_block++
+	)
+	{
 
-	// do not call twice
-	d->exec_m_[start_block_name]->connect_calls.clear();
-	d->exec_m_[start_block_name]->setup_output_ports();
+		std::string start_block_name = (*source_block)->get_name_sys();
+
+		if(d->exec_m_.block_is_placed(start_block_name))
+		{
+#ifndef NDEBUG
+			std::cout << "block named '" << start_block_name << "' has already been placed." << std::endl;
+#endif
+			return;
+		}
 
 #ifndef NDEBUG
-	std::cout << "linearizing system..." << std::endl;
+		std::cout << "starting with block named '" << start_block_name << "'." << std::endl;
+#endif
+		d->exec_m_.add_block(start_block_name);
+	
+		std::for_each
+		(
+			d->exec_m_[start_block_name]->connect_calls.begin(),
+			d->exec_m_[start_block_name]->connect_calls.end(),
+			make_connections(d, start_block_name)
+		);
+
+		// do not call twice
+		d->exec_m_[start_block_name]->connect_calls.clear();
+		d->exec_m_[start_block_name]->setup_output_ports();
+
+#ifndef NDEBUG
+		std::cout << "linearizing system..." << std::endl;
 #endif
 
-	d->linearize(start_block_name);
-
+		d->linearize(start_block_name);
+	}
 #ifndef NDEBUG
 	std::cout << "current system:" << std::endl;
 	std::cout << d->exec_m_;
