@@ -12,7 +12,7 @@ public:
 
 	type_t get_type() const;
 
-	void *get_data();
+	void *get_data() const;
 
 	const std::string& get_description() const;
 

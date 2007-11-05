@@ -32,7 +32,7 @@ bool Parameter::is_convertible_to(const Variable & v) const
 
 
 
-void * Parameter::get_data()
+void * Parameter::get_data() const
 {
 	return data_;
 }
