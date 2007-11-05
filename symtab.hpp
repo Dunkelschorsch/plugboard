@@ -14,9 +14,11 @@ class Symtab
 public:
 	Symtab();
 
+	Symtab(const Symtab* parent);
+
 	bool add_var(const char* name, const Variable& v);
 
-	Variable get_var(const char* name);
+	Variable get_var(const char* name) const;
 
 private:
 
@@ -25,9 +27,11 @@ private:
 		bool operator()(const char* s1, const char* s2) const;
 	};
 
-	typedef hash_map<const char*, Variable, hash<const char*>, eqstr> ht_t;
+	typedef hash_map< const char*, Variable, hash< const char* >, eqstr > ht_t;
 
 	ht_t ht_;
+
+	const Symtab* parent_;
 };
 
 #endif
