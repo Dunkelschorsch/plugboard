@@ -17,15 +17,17 @@ int main(int argc, char **argv)
 // 	std::string st;
 
 // 	s.add_block(bl.new_block("1out"), "source1");
-// 	s.add_block(bl.new_block("1out"), "source2");
 // 	s.add_block(bl.new_block("1in"), "sink1");
+// 	s.add_block(bl.new_block("1out"), "source2");
 // 	s.add_block(bl.new_block("1in"), "sink2");
 // 	s.add_block(bl.new_block("2in2out"), "ding");
 // 	s.connect_ports("source1", "out1", "ding", "in1");
-// 	s.connect_ports("source2", "out1", "ding", "in2");
 // 	s.connect_ports("ding", "out1", "sink1", "in1");
+// 	s.connect_ports("source2", "out1", "ding", "in2");
 // 	s.connect_ports("ding", "out2", "sink2", "in1");
 // 	s.initialize();
+// 	s.wakeup_sys();
+// 
 // 	return EXIT_SUCCESS;
 
 

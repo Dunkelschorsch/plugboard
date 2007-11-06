@@ -29,20 +29,6 @@ namespace
 	}
 
 
-	bool is_left_terminated(const Block *b)
-	{
-		assert(b != NULL);
-		return b->get_num_input_ports() > 1 || b->get_num_input_ports() == 0;
-	}
-
-
-	bool is_right_terminated(const Block *b)
-	{
-		assert(b != NULL);
-		return b->get_num_output_ports() > 1 || b->get_num_output_ports() == 0;
-	}
-
-
 	struct FindStartBlock
 	{
 		template< typename PairT >
@@ -288,27 +274,24 @@ void ExecutionMatrix::combine_stages()
 #ifndef NDEBUG
 		std::cout << "looking at: " << block_curr->get_name_sys() << std::endl;
 #endif
-		if(stage_curr == stages_.end())
+		if(stage_curr+1 == stages_.end())
 		{
 #ifndef NDEBUG
 			std::cout << "obacht1!" << std::endl;
 #endif
-			continue;
+			break;
 		}
 		// that is the leftmost block of the first (and only) path in the next execution stage
 		Block* block_succ = (stage_curr+1)->get_paths().front().front();
 		assert(block_succ != NULL);
 
 		// maybe this needs some explanation ... later
-		for
+		conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
+		while
 		(
-			conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
-
 			conn_it != block_curr->get_connections().end() &&
 			!is_right_terminated(stage_curr->get_paths().front()) &&
-			!is_left_terminated((stage_curr+1)->get_paths().front());
-
-			conn_it = block_curr->get_connections().find(block_succ->get_name_sys())
+			!is_left_terminated((stage_curr+1)->get_paths().front())
 		)
 		{
 #ifndef NDEBUG
@@ -319,48 +302,25 @@ void ExecutionMatrix::combine_stages()
 #ifndef NDEBUG
 			std::cout << *this;
 #endif
-			// update blocks to be examined
-			if(stage_curr+1 == stages_.end())// || stage_curr+2 == stages_.end())
+			if (stage_curr+1 == stages_.end())
 			{
-#ifndef NDEBUG
-				std::cout << "obacht2!" << std::endl;
-#endif
-				continue;
+				break;
 			}
-			stage_curr++;
+			else if (stage_curr+2 != stages_.end())
+			{
+				stage_curr++;
+			}
 
 			block_curr = (stage_curr)->get_paths().front().back();
 			block_succ = (stage_curr+1)->get_paths().front().front();
+
+			assert(block_succ != block_curr);
+
+			conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
 		}
 	}
 }
 
-
-template< typename ExecStageT >
-struct ParAction
-{
-	ParAction(ExecStageT& stages) : stages_(stages) { }
-
-	template< typename ElementT >
-	void operator()(ElementT& stage_curr)
-	{
-		Block *block_curr = stage_curr.get_paths().front().front();
-
-#ifndef NDEBUG
-		std::cout << block_curr->get_name_sys() << std::endl;
-#endif
-		
-	}
-
-	ExecStageT& stages_;
-};
-
-
-template< typename ExecStageT >
-inline ParAction< ExecStageT > par_a(ExecStageT& e)
-{
-	return ParAction< ExecStageT >(e);
-}
 
 
 void ExecutionMatrix::parallelize()
