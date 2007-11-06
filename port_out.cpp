@@ -27,9 +27,9 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 	if (other.frame_size_ > 0 && this->frame_size_ != other.frame_size_)
 		throw FrameSizesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
 	
-	assert(this->Ts_ > 0.0);
-	assert(this->type_ != empty);
-	assert(this->frame_size_ > 0);
+// 	assert(this->Ts_ > 0.0);
+// 	assert(this->type_ != empty);
+// 	assert(this->frame_size_ > 0);
 
 	other.Ts_ = this->Ts_;
 	other.type_ = this->type_;

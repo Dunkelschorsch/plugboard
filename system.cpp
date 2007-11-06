@@ -348,7 +348,7 @@ void System::initialize()
 #ifndef NDEBUG
 			std::cout << "block named '" << start_block_name << "' has already been placed." << std::endl;
 #endif
-			return;
+			continue;
 		}
 
 #ifndef NDEBUG

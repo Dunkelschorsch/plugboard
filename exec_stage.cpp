@@ -15,7 +15,9 @@ ExecutionStage::ExecutionStage() :
 
 
 
-ExecutionStage::ExecutionStage(Block *b, bool threading_enabled) : paths_(), threading_enabled_(threading_enabled)
+ExecutionStage::ExecutionStage(Block *b, bool threading_enabled) :
+	paths_(),
+	threading_enabled_(threading_enabled)
 {
 	add_block(b);
 }
