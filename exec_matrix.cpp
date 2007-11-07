@@ -392,16 +392,14 @@ void ExecutionMatrix::parallelize()
 #endif
 					return;
 				}
-				else
-				{
-					// that is the leftmost block of the first (and only) path in the next execution stage
-					block_succ = (stage_curr+2)->get_paths().front().front();
-					// the "+2" is neccessary to compensate for the deleted stage
+				// neccessary to compensate for the deleted stage
+				stage_curr++;
+				// that is the leftmost block of the first (and only) path in the next execution stage
+				block_succ = (stage_curr+1)->get_paths().front().front();
 #ifndef NDEBUG
-					std::cout << "next stage: " << std::endl << *(stage_curr+2);
-					std::cout << "parallelize(): next reference block: " << block_succ->get_name_sys() << std::endl;
+				std::cout << "next stage: " << std::endl << *(stage_curr+1);
+				std::cout << "parallelize(): next reference block: " << block_succ->get_name_sys() << std::endl;
 #endif
-				}
 			}
 			else
 			{
