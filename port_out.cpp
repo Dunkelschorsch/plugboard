@@ -34,8 +34,12 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 	other.Ts_ = this->Ts_;
 	other.type_ = this->type_;
 	other.frame_size_ = this->frame_size_;
+
+	assert(get_owner_block_name() != "");
 #ifndef NDEBUG
-	std::cout << get_owner_block_name() << ".connect(): setting input ports type to: " << this->type_ << std::endl;
+	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << this->type_ << std::endl;
+	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating sample time: " << this->Ts_ << std::endl;
+	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << this->frame_size_ << std::endl;
 #endif
 	signal_buffer_id_ = signal_buffer_id;
 

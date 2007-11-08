@@ -130,13 +130,16 @@ struct MakeConnection
 		InPort::store_t::iterator sink_port_it = ports.second;
 
 		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
+#ifndef NDEBUG
+		std::cout << "  creating signal buffer no. " << sys_->signal_buffer_count_ << ":" << std::endl;
+		std::cout << "    type: " << source_port_it->get_type() << ", size: " << source_port_it->get_frame_size() << std::endl;
+#endif
 
 		uint32_t curr_sig_buffer =
 			sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
 
 #ifndef NDEBUG
-		std::cout << "connecting " << source_port_it->get_name() << "->" << sink_port_it->get_name() << std::endl;
-		std::cout << "creating signal buffer no. " << curr_sig_buffer << std::endl;
+		std::cout << "    setting buffer aquiration functions for ports '" << source_port_it->get_name() << "' and '" << sink_port_it->get_name() << "'" << std::endl;
 #endif
 		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[curr_sig_buffer]);
 	}
@@ -165,8 +168,7 @@ struct PlaceBlock
 		if(not sys_->exec_m_.block_is_placed(block_next))
 		{
 #ifndef NDEBUG
-			std::cout << "placing " << block_next << " after " << block_curr_ << std::endl;
-			std::cout << "blockname: " << sys_->exec_m_[block_next]->get_name_sys() << std::endl;
+			std::cout << std::endl << "  placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
 #endif
 			sys_->exec_m_[block_next]->setup_output_ports();
 
@@ -177,15 +179,18 @@ struct PlaceBlock
 				make_connections(sys_, block_next)
 			);
 			// do not call twice
- 			sys_->exec_m_[block_next]->connect_calls.clear();
+			sys_->exec_m_[block_next]->connect_calls.clear();
 
 			sys_->exec_m_.place_block(block_next, block_curr_);
+#ifndef NDEBUG
+			std::cout << sys_->exec_m_;
+#endif
 			sys_->linearize(block_next);
 		}
 #ifndef NDEBUG
 		else
 		{
-			std::cout << block_next << " has already been placed. skipping" << std::endl;
+			std::cout << "block '" << block_next << "' has already been placed. skipping..." << std::endl;
 		}
 #endif
 	}
@@ -225,10 +230,14 @@ void System::connect_ports(const std::string & block_source,
 {
 	H_D(System)
 #ifndef NDEBUG
-	std::cerr << "connect " << block_source << " --> " << block_sink << std::endl;
+	std::cerr << "connect " << block_source << "->" << block_sink << std::endl;
 #endif
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
+
+
+	// ensure that the given block and port name are valid.
+	// if signal types and frame sizes are compatible is checked at a later time.
 
 	// search for both source and sink block:
 	// 1) source block
@@ -294,6 +303,7 @@ void System::initialize()
 {
 	H_D(System);
 
+	// in case of subsystems this does not help very much
 	std::vector< Block * > start_blocks = d->exec_m_.find_start_blocks();
 
 	for
@@ -315,7 +325,7 @@ void System::initialize()
 		}
 
 #ifndef NDEBUG
-		std::cout << "starting with block named '" << start_block_name << "'." << std::endl;
+		std::cout << "starting linearization with block '" << start_block_name << "'." << std::endl;
 #endif
 		d->exec_m_.add_block(start_block_name);
 	
@@ -331,7 +341,7 @@ void System::initialize()
 		d->exec_m_[start_block_name]->setup_output_ports();
 
 #ifndef NDEBUG
-		std::cout << "linearizing system..." << std::endl;
+		std::cout << std::endl << "linearizing system..." << std::endl;
 #endif
 
 		d->linearize(start_block_name);
@@ -346,32 +356,17 @@ void System::initialize()
 #endif
 	}
 
-
-
 #ifndef NDEBUG
-	std::cout << "current system:" << std::endl;
-	std::cout << d->exec_m_;
-	std::cout << "combining execution stages..." << std::endl;
+	std::cout << std::endl << "combining execution stages..." << std::endl;
 #endif
 
 	d->exec_m_.combine_stages();
-
-#ifndef NDEBUG
-	std::cout << "current system:" << std::endl;
-	std::cout << d->exec_m_;
-#endif
-
 
 #ifndef NDEBUG
 	std::cout << "parallelizing..." << std::endl;
 #endif
 
 	d->exec_m_.parallelize();
-
-#ifndef NDEBUG
-	std::cout << "current system:" << std::endl;
-	std::cout << d->exec_m_;
-#endif
 	
 	d->exec_m_.init();
 }

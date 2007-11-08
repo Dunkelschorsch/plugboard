@@ -194,7 +194,7 @@ OutPort* Block::add_port(OutPort * const p)
 	if (it != ports_out_.end())
 	{
 #ifndef NDEBUG
-		std::cout << get_name_sys() << ".add_port(): setting output port type to: " << p->get_type() << std::endl;
+		std::cout << "    " << get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
 #endif
 		type_t t = p->get_type();
 		real_t Ts = p->get_Ts();
@@ -213,7 +213,7 @@ OutPort* Block::add_port(OutPort * const p)
 		return &(*it);
 	}
 
-	p->set_owner_block_name(get_name());
+	p->set_owner_block_name(get_name_sys());
 	ports_out_.push_back(*p);
 	delete p;
 
@@ -238,7 +238,7 @@ InPort* Block::add_port(InPort * const p)
 		throw DuplicatePortNameException(get_name() + "::" + p->get_name());
 	}
 
-	p->set_owner_block_name(get_name());
+	p->set_owner_block_name(get_name_sys());
 	ports_in_.push_back(*p);
 	delete p;
 

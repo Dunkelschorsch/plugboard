@@ -133,7 +133,7 @@ void ExecutionMatrix::add_block(Block *b)
 	if(b->get_num_input_ports() == 0)
 	{
 #ifndef NDEBUG
-		std::cout << "a source block!" << std::endl;
+		std::cout << "  This is a source block!" << std::endl;
 #endif
 		stages_.insert(stages_.begin(), ExecutionStage(b));
 	}
@@ -271,14 +271,13 @@ void ExecutionMatrix::combine_stages()
 		// that is the rightmost block of the first (and only) path in the currently examined execution stage
 		Block* block_curr = (stage_curr)->get_paths().front().back();
 		assert(block_curr != NULL);
+
 #ifndef NDEBUG
-		std::cout << "looking at: " << block_curr->get_name_sys() << std::endl;
+		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to its successors." << std::endl;
 #endif
+
 		if(stage_curr+1 == stages_.end())
 		{
-#ifndef NDEBUG
-			std::cout << "obacht1!" << std::endl;
-#endif
 			break;
 		}
 		// that is the leftmost block of the first (and only) path in the next execution stage

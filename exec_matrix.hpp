@@ -60,10 +60,10 @@ protected:
 namespace std
 {
 	template< typename C, typename E >
-	const basic_ostream< C, E > & operator<<(basic_ostream< C, E >& out, const ExecutionMatrix& what)
+	const basic_ostream< C, E >& operator<<(basic_ostream< C, E >& out, const ExecutionMatrix& what)
 	{
 #ifndef NDEBUG
-		out << "--- number of stages: " << what.get_stages().size() << std::endl;
+		out << std::endl << "-------------" << std::endl;
 #endif
 		for(uint32_t j=0; j<what.get_stages().size(); ++j)
 		{
@@ -71,7 +71,7 @@ namespace std
 			out << what.get_stages()[j];
 		}
 #ifndef NDEBUG
-		out << "--- finished output" << std::endl;
+		out << "-------------" << std::endl << std::endl;
 #endif
 		return out;
 	}

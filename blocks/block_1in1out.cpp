@@ -52,9 +52,6 @@ bool Block_1in1out::setup_output_ports()
 {
 	sig_out1_ = add_port(new OutPort("out1", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
 
-#ifndef NDEBUG
-	std::cout << "type of 'out1': " << sig_in1_->get_type() << std::endl;
-#endif
 	return true;
 }
 #endif
