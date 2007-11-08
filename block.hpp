@@ -30,8 +30,9 @@ const string_t name()			\
 
 class Block
 {
-friend class SystemImpl;
 friend class System;
+friend class SystemImpl;
+friend class SubsystemImpl;
 
 public:
 	Block();

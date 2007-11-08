@@ -2,6 +2,7 @@
 #include "block_loader.hpp"
 #include "block.hpp"
 #include "system.hpp"
+#include "subsystem.hpp"
 #include "variable.hpp"
 #include "exceptions.hpp"
 #include "symtab.hpp"
@@ -11,31 +12,32 @@
 int main(int argc, char **argv)
 {
 	BlockLoader bl;
-	System s;
-
 	bl.load_dir("blocks");
-// 	std::string st;
-
-// 	s.add_block(bl.new_block("1out"), "source1");
-// 	s.add_block(bl.new_block("1in"), "sink1");
-// 	s.add_block(bl.new_block("1out"), "source2");
-// 	s.add_block(bl.new_block("1in"), "sink2");
-// 	s.add_block(bl.new_block("2in2out"), "ding");
-// 	s.connect_ports("source1", "out1", "ding", "in1");
-// 	s.connect_ports("ding", "out1", "sink1", "in1");
-// 	s.connect_ports("source2", "out1", "ding", "in2");
-// 	s.connect_ports("ding", "out2", "sink2", "in1");
-// 	s.initialize();
-// 	s.wakeup_sys();
-// 
-// 	return EXIT_SUCCESS;
 
 
-	HumpShell shell(s, bl);
+	System root;
+	Subsystem* sub = new Subsystem;
 
-	shell.add_available_blocks(bl);
+	sub->add_block(bl.new_block("1out"), "gen");
+	sub->add_block(bl.new_block("1in1out"), "br1");
 
-	while(shell.execute_command());
+	sub->connect_ports("gen", "out1", "br1", "in1");
+  	sub->create_output("br1", "out1", "out");
+
+	root.add_block(bl.new_block("1in"), "con");
+	root.add_block(sub, "sub");
+	root.connect_ports("sub", "out", "con", "in1");
+	root.initialize();
+
+//   	sub->create_output("br1", "out1", "out");
+
+
+	root.wakeup_sys(1);
+// 	HumpShell shell(s, bl);
+
+// 	shell.add_available_blocks(bl);
+
+// 	while(shell.execute_command());
 
 #if 0
 // 	try {
