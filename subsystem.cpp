@@ -8,7 +8,6 @@
 #include "subsystem.hpp"
 #include "system.ipp"
 #include <boost/bind.hpp>
-// #include <boost/tuple/tuple.hpp>
 
 using boost::bind;
 
@@ -26,6 +25,9 @@ struct SubsystemImpl : public SystemImpl
 
 	template< class PortT >
 	struct PortAddAction;
+
+	template< class PortT >
+	struct ReplacePortAction;
 };
 
 
@@ -68,51 +70,67 @@ Subsystem::Subsystem(SubsystemImpl &dd) : System(dd)
 
 
 
+template< class PortT >
+struct SubsystemImpl::ReplacePortAction
+{
+	ReplacePortAction(std::vector< PortT* >& sig, ExecutionMatrix& exec_m) : sig_(sig), exec_m_(exec_m) { }
+
+	template< typename PortDescT >
+	void operator()(const PortDescT& p) const
+	{
+		typename PortT::store_t::iterator source_port_it;
+
+		std::string gateway_port(p.first);
+		std::string block_source = p.second.first;
+		std::string port_source = p.second.second;
+
+		if(not exec_m_.block_exists(block_source))
+		{
+			throw InvalidBlockNameException(block_source);
+		}
+	
+		// so we found our source block. now let's see if the given port name was valid
+		source_port_it =
+			std::find_if
+			(
+				exec_m_[block_source]->get_outport_list().begin(),
+				exec_m_[block_source]->get_outport_list().end(),
+				bind(&BasePort::get_name, _1) == port_source
+			);
+	
+		// unfortunately the given port name was invalid
+		if (source_port_it == exec_m_[block_source]->get_outport_list().end())
+		{
+			throw InvalidPortNameException(port_source);
+		}
+		//d->sig_out_.push_back(add_port(new OutPort(port_sink, source_port_it->get_type(), source_port_it->get_Ts(), source_port_it->get_frame_size())));
+		*source_port_it =
+			**std::find_if
+			(
+				sig_.begin(),
+				sig_.end(),
+				bind(&BasePort::get_name, _1) == gateway_port
+			);
+	}
+	
+	std::vector< PortT* >& sig_;
+	ExecutionMatrix& exec_m_;
+};
+
+
+
 void Subsystem::initialize()
 {
 	H_D(Subsystem)
 
 	System::initialize(); // initialize() alone is ambigious. it could also mean Block::initialize()
 
-	std::string exit_port("out");
-
-
-	std::string block_source = d->exits_[exit_port].first;
-	std::string port_source = d->exits_[exit_port].second;
-
-	OutPort::store_t::iterator source_port_it;
-
-	// search for both source and sink block:
-	// 1) source block
-	if(not d->exec_m_.block_exists(block_source))
-	{
-		throw InvalidBlockNameException(block_source);
-	}
-
-	// so we found our source block. now let's see if the given port name was valid
-	source_port_it =
-		std::find_if
-		(
-			d->exec_m_[block_source]->get_outport_list().begin(),
-			d->exec_m_[block_source]->get_outport_list().end(),
-			bind(&OutPort::get_name, _1) == port_source
-		);
-
-	// unfortunately the given port name was invalid
-	if (source_port_it == d->exec_m_[block_source]->get_outport_list().end())
-	{
-		throw InvalidPortNameException(port_source);
-	}
-
-// 	d->sig_out_.push_back(add_port(new OutPort(port_sink, source_port_it->get_type(), source_port_it->get_Ts(), source_port_it->get_frame_size())));
-	
-	*source_port_it =
-		**std::find_if
-		(
-			d->sig_out_.begin(),
-			d->sig_out_.end(),
-			bind(&OutPort::get_name, _1) == exit_port
-		);
+	std::for_each
+	(
+		d->exits_.begin(),
+		d->exits_.end(),
+		SubsystemImpl::ReplacePortAction< OutPort >(d->sig_out_, d->exec_m_)
+	);
 }
 
 
@@ -123,7 +141,7 @@ struct SubsystemImpl::PortAddAction
 	PortAddAction(std::vector< PortT* >& v, Block* const b) : v_(v), b_(b) { };
 
 	template< typename TupleT >
-	void operator()(const TupleT& c)
+	void operator()(const TupleT& c) const
 	{
 		v_.push_back(b_->add_port(new PortT(c.first, integer, 1, 2)));
 #ifndef NDEBUG
@@ -173,9 +191,5 @@ void Subsystem::create_output(const std::string & block_source, const std::strin
 {
 	H_D(Subsystem)
 
-// 	d->exits_.push_back(boost::make_tuple(block_source, port_source, port_sink));
 	d->exits_[port_sink] = std::make_pair(block_source, port_source);
-#ifndef NDEBUG
-// 	std::cerr << "creating output of subsystem: " << d->exits_[port_sink].first << ":" << d->exits_[port_sink].second << "->" << port_sink << std::endl;
-#endif
 }
