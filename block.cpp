@@ -201,9 +201,9 @@ OutPort* Block::add_port(OutPort * const p)
 		integer_t framesize = p->get_frame_size();
 
 		// propagating a default value is certainly an error
-// 		assert(t != empty);
-// 		assert(Ts > 0.0);
-// 		assert(framesize > 0);
+		assert(t != empty);
+		assert(Ts > 0.0);
+		assert(framesize > 0);
 
 		it->set_type(t);
 		it->set_frame_size(framesize);

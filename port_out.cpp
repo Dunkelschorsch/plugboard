@@ -27,22 +27,24 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 	if (other.frame_size_ > 0 && this->frame_size_ != other.frame_size_)
 		throw FrameSizesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
 	
-// 	assert(this->Ts_ > 0.0);
-// 	assert(this->type_ != empty);
-// 	assert(this->frame_size_ > 0);
+	assert(this->Ts_ > 0.0);
+	assert(this->type_ != empty);
+	assert(this->frame_size_ > 0);
+	assert(get_owner_block_name() != "");
 
 	other.Ts_ = this->Ts_;
 	other.type_ = this->type_;
 	other.frame_size_ = this->frame_size_;
 
-	assert(get_owner_block_name() != "");
+
 #ifndef NDEBUG
 	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << this->type_ << std::endl;
 	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating sample time: " << this->Ts_ << std::endl;
 	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << this->frame_size_ << std::endl;
 #endif
-	signal_buffer_id_ = signal_buffer_id;
 
+	signal_buffer_id_ = signal_buffer_id;
+ 
 	send = boost::bind(&InPort::receive, boost::ref(other), signal_buffer_id);
 }
 

@@ -24,6 +24,8 @@ struct SystemImpl
 
 	void linearize(const std::string& block_start);
 
+	void propagate_signal_attributes();
+
 	void execute_row(uint32_t stage_num, uint32_t row_num);
 
 	Signal::store_t signal_buffers_;

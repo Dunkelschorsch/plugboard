@@ -76,6 +76,65 @@ System::~System()
 
 
 
+namespace
+{
+	template< class SignalT >
+	inline void* get_buffer(Signal *s)
+	{
+		return static_cast< SignalT* >(s)->get_data();
+	}
+}
+
+
+
+void SystemImpl::register_basic_types()
+{
+// 	this macro inserts entries for all Singal types
+//	for integer valued signals, the expansion would look like this:
+// 	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
+// 	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+
+#define BOOST_PP_DEF(z, I, _) 									\
+	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
+		&get_buffer< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >)); 			\
+	signal_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),		\
+		bind< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* >(new_ptr< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >(), _1)));
+
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
+
+#undef BOOST_PP_DEF
+}
+
+
+
+uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
+{
+#ifndef NDEBUG
+	std::cout << "  creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
+	std::cout << "    type: " << type << ", size: " << size << std::endl;
+#endif
+	signal_buffers_.push_back(signal_factory_[type](size));
+	return signal_buffer_count_++;
+}
+
+
+
+void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
+{
+	void* (*f) (Signal*);
+
+#ifndef NDEBUG
+	std::cout << "    setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
+#endif
+
+	f = get_buffer_factory_[out.get_type()];
+
+	out.get_buffer_ptr = bind(f, s);
+	in.get_buffer_ptr = bind(f, s);
+}
+
+
+
 void System::add_block(Block *b, const std::string& name_sys)
 {
 	H_D(System)
@@ -103,57 +162,10 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 	// give it its unique name
 	b->set_name_sys(name_sys);
 
-	if(!b->setup_input_ports())
-	{
-
-	}
-
-	if(!b->setup_output_ports())
-	{
-
-	}
+	b->setup_input_ports();	
+	b->setup_output_ports();
 
 	exec_m_.store_block(b, name_sys);
-}
-
-
-
-template< typename StringT, class SystemT >
-struct MakeConnection
-{
-	MakeConnection(SystemT sys, const StringT& block_curr) : sys_(sys), block_curr_(block_curr) { }
-
-	template< typename PairT >
-	void operator()(PairT& ports)
-	{
-		OutPort::store_t::iterator source_port_it = ports.first;
-		InPort::store_t::iterator sink_port_it = ports.second;
-
-		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
-#ifndef NDEBUG
-		std::cout << "  creating signal buffer no. " << sys_->signal_buffer_count_ << ":" << std::endl;
-		std::cout << "    type: " << source_port_it->get_type() << ", size: " << source_port_it->get_frame_size() << std::endl;
-#endif
-
-		uint32_t curr_sig_buffer =
-			sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-
-#ifndef NDEBUG
-		std::cout << "    setting buffer aquiration functions for ports '" << source_port_it->get_name() << "' and '" << sink_port_it->get_name() << "'" << std::endl;
-#endif
-		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[curr_sig_buffer]);
-	}
-
-	SystemT sys_;
-	const StringT& block_curr_;
-};
-
-
-
-template< typename StringT, class SystemT >
-inline MakeConnection< StringT, SystemT > make_connections(SystemT sys, const StringT& block_curr)
-{
-	return MakeConnection< StringT, SystemT >(sys, block_curr);
 }
 
 
@@ -170,17 +182,6 @@ struct PlaceBlock
 #ifndef NDEBUG
 			std::cout << std::endl << "  placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
 #endif
-			sys_->exec_m_[block_next]->setup_output_ports();
-
-			std::for_each
-			(
-				sys_->exec_m_[block_next]->connect_calls.begin(),
-				sys_->exec_m_[block_next]->connect_calls.end(),
-				make_connections(sys_, block_next)
-			);
-			// do not call twice
-			sys_->exec_m_[block_next]->connect_calls.clear();
-
 			sys_->exec_m_.place_block(block_next, block_curr_);
 #ifndef NDEBUG
 			std::cout << sys_->exec_m_;
@@ -211,6 +212,73 @@ inline PlaceBlock< StringT, SystemT > place_block_a(const StringT& block_start, 
 
 
 
+template< class SystemT >
+struct MakeConnection
+{
+	MakeConnection(SystemT sys) : sys_(sys) { }
+
+	template< typename PairT >
+	void operator()(PairT& ports)
+	{
+		OutPort::store_t::iterator source_port_it = ports.first;
+		InPort::store_t::iterator sink_port_it = ports.second;
+
+		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
+ 
+		sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
+ 
+		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1]);
+	}
+
+	SystemT sys_;
+
+	typedef void result_type;
+};
+
+
+
+template< class SystemT >
+inline MakeConnection< SystemT > make_connections(SystemT sys)
+{
+	return MakeConnection< SystemT >(sys);
+}
+
+
+
+template< class SystemT >
+struct SignalAttributePropagationAction
+{
+	SignalAttributePropagationAction(SystemT sys) : sys_(sys) { };
+
+	template< typename StageT >
+	void operator()(StageT& stage_curr) const
+	{
+		Block *b = stage_curr.get_paths().front().front();
+		b->setup_output_ports();
+
+		std::for_each
+		(
+			b->connect_calls.begin(),
+			b->connect_calls.end(),
+			make_connections(sys_)
+		);
+
+		b->connect_calls.clear();
+	}
+
+	SystemT sys_;
+};
+
+
+
+template< class SystemT >
+inline SignalAttributePropagationAction< SystemT > create_buffers_and_stuff(SystemT sys)
+{
+	return SignalAttributePropagationAction< SystemT >(sys);
+}
+
+
+
 void SystemImpl::linearize(const std::string& block_start)
 {
 	std::for_each
@@ -218,6 +286,18 @@ void SystemImpl::linearize(const std::string& block_start)
 		exec_m_[block_start]->get_connections().begin(),
 		exec_m_[block_start]->get_connections().end(),
 		place_block_a(block_start, this)
+	);
+}
+
+
+
+void SystemImpl::propagate_signal_attributes()
+{
+	std::for_each
+	(
+		exec_m_.get_stages().begin(),
+		exec_m_.get_stages().end(),
+		create_buffers_and_stuff(this)
 	);
 }
 
@@ -234,7 +314,6 @@ void System::connect_ports(const std::string & block_source,
 #endif
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
-
 
 	// ensure that the given block and port name are valid.
 	// if signal types and frame sizes are compatible is checked at a later time.
@@ -323,22 +402,11 @@ void System::initialize()
 #endif
 			continue;
 		}
-
 #ifndef NDEBUG
 		std::cout << "starting linearization with block '" << start_block_name << "'." << std::endl;
 #endif
-		d->exec_m_.add_block(start_block_name);
-	
-		std::for_each
-		(
-			d->exec_m_[start_block_name]->connect_calls.begin(),
-			d->exec_m_[start_block_name]->connect_calls.end(),
-			make_connections(d, start_block_name)
-		);
 
-		// do not call twice
-		d->exec_m_[start_block_name]->connect_calls.clear();
-		d->exec_m_[start_block_name]->setup_output_ports();
+		d->exec_m_.add_block(start_block_name);
 
 #ifndef NDEBUG
 		std::cout << std::endl << "linearizing system..." << std::endl;
@@ -347,14 +415,19 @@ void System::initialize()
 		d->linearize(start_block_name);
 	}
 
-
-
 	if(start_blocks.empty())
 	{
 #ifndef NDEBUG
 		std::cout << "no start blocks!" << std::endl;
 #endif
 	}
+
+
+#ifndef NDEBUG
+	std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
+#endif
+	d->propagate_signal_attributes();
+
 
 #ifndef NDEBUG
 	std::cout << std::endl << "combining execution stages..." << std::endl;
@@ -378,56 +451,7 @@ void System::wakeup_sys(uint32_t times)
 	H_D(System);
 
 	for(uint32_t t=0; t<times; ++t)
-		d->exec_m_.exec();
-}
-
-
-
-namespace
-{
-	template< class SignalT >
-	inline void* get_buffer(Signal *s)
 	{
-		return static_cast< SignalT* >(s)->get_data();
+		d->exec_m_.exec();
 	}
-}
-
-
-
-void SystemImpl::register_basic_types()
-{
-// 	this macro inserts entries for all Singal types
-//	for integer valued signals, the expansion would look like this:
-// 	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
-// 	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
-
-#define BOOST_PP_DEF(z, I, _) 									\
-	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
-		&get_buffer< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >)); 			\
-	signal_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),		\
-		bind< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* >(new_ptr< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >(), _1)));
-
-BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
-
-#undef BOOST_PP_DEF
-}
-
-
-
-uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
-{
-	signal_buffers_.push_back(signal_factory_[type](size));
-	return signal_buffer_count_++;
-}
-
-
-
-void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
-{
-	void* (*f) (Signal*);
-
-	f = get_buffer_factory_[out.get_type()];
-
-	out.get_buffer_ptr = bind(f, s);
-	in.get_buffer_ptr = bind(f, s);
 }
