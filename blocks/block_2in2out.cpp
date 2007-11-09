@@ -39,8 +39,8 @@ private:
 bool Block_2in2out::setup_input_ports()
 {
 /* calls to "add_port(InPort &) go here */
-	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
-	sig_in2_ = add_port(new InPort("in2", empty, 0, 0));
+	sig_in1_ = add_port(new InPort("in1"));
+	sig_in2_ = add_port(new InPort("in2"));
 
 	return true;
 }

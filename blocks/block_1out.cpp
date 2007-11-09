@@ -83,7 +83,7 @@ Block_1out::Block_1out()
 	name_ = BLOCK_NAME;
 	set_description("This is a block for testing purposes. It has 1 output.");
 	configure_parameters();
-	framesize_.push_back(2);
+	framesize_.push_back(5);
 }
 
 
