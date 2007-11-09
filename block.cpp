@@ -18,10 +18,10 @@ Block::Block() :
 	description_(),
 	ports_in_(),
 	ports_out_(),
+	connected_blocks_(),
 	name_sys_(),
 	num_output_ports_(0),
-	num_input_ports_(0),
-	connected_blocks_()
+	num_input_ports_(0)
 {
 	register_parameter_types();
 }

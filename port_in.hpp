@@ -13,7 +13,7 @@ public:
 
 	InPort(const string_t& name, const type_t type=empty, const real_t Ts=0, const uint32_t frame_size=0);
 
-	Message& receive(uint32_t buff_num);
+	const Message receive(uint32_t buff_num);
 
 	~InPort();
 

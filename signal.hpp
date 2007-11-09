@@ -15,7 +15,7 @@ public:
 	typedef std::vector< Signal* > store_t;
 
 protected:
-	Signal() : signal_type_(empty), Ts_(0), dimensions_() { }
+	Signal() : signal_type_(empty), dimensions_(), Ts_(0) { }
 
 	type_t signal_type_;
 
@@ -64,8 +64,8 @@ public:
 		copy(v.begin(), v.end(), data_array_);
 	}
 
-	element_t* data_array_;
 	uint32_t size_;
+	element_t* data_array_;
 };
 
 

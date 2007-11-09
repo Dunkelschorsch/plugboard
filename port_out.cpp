@@ -18,24 +18,30 @@ OutPort::OutPort(const string_t& name, const type_t type, const real_t Ts, const
 
 void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 {
-	if (other.Ts_ > 0 && this->Ts_ != other.Ts_)
-		throw SampleTimesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
-
-	if (other.type_ != empty && this->type_ != other.type_)
-		throw SignalTypesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
-
-	if (other.frame_size_ > 0 && this->frame_size_ != other.frame_size_)
-		throw FrameSizesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
-	
 	assert(this->Ts_ > 0.0);
 	assert(this->type_ != empty);
 	assert(this->frame_size_ > 0);
+
+	if (other.Ts_ > 0 && this->Ts_ != other.Ts_)
+	{
+		throw SampleTimesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
+	}
+
+	if (other.type_ != empty && this->type_ != other.type_)
+	{
+		throw SignalTypesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
+	}
+
+	if (other.frame_size_ > 0 && this->frame_size_ != other.frame_size_)
+	{
+		throw FrameSizesMismatchException(other.get_owner_block_name()+"::"+other.get_name());
+	}
+
 	assert(get_owner_block_name() != "");
 
 	other.Ts_ = this->Ts_;
 	other.type_ = this->type_;
 	other.frame_size_ = this->frame_size_;
-
 
 #ifndef NDEBUG
 	std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << this->type_ << std::endl;

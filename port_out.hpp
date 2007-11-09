@@ -3,7 +3,7 @@
 
 #include "port_base.hpp"
 #include <deque>
-class Message;
+#include "message.hpp"
 class InPort;
 
 
@@ -17,7 +17,7 @@ public:
 
 	void disconnect(const InPort& other);
 
-	boost::function< Message&() > send;
+	boost::function< Message() > send;
 
 	~OutPort();
 

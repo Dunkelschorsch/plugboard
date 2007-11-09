@@ -196,8 +196,8 @@ struct PlaceBlock
 #endif
 	}
 
-	SystemT& sys_;
 	const StringT& block_curr_;
+	SystemT& sys_;
 
 	typedef void result_type;
 };

@@ -51,8 +51,8 @@ protected:
 	
 	typedef std::map< std::string, Block * > block_map_t;
 
-	block_map_t blocks_;
 	ExecutionStage::store_t stages_;
+	block_map_t blocks_;
 };
 
 
