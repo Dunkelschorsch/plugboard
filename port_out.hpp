@@ -19,8 +19,6 @@ public:
 
 	boost::function< Message() > send;
 
-	~OutPort();
-
 	typedef std::deque< OutPort > store_t;
 };
 

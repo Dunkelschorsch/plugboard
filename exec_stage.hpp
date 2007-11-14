@@ -42,7 +42,7 @@ protected:
 namespace std
 {
 	template< typename C, typename E >
-	const basic_ostream< C, E > & operator<<(basic_ostream< C, E > & out, const ExecutionStage& what)
+	basic_ostream< C, E > & operator<<(basic_ostream< C, E > & out, const ExecutionStage& what)
 	{
 		for(uint32_t j=0; j<what.get_paths().size(); ++j)
 		{

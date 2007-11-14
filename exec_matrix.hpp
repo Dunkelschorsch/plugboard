@@ -60,7 +60,7 @@ protected:
 namespace std
 {
 	template< typename C, typename E >
-	const basic_ostream< C, E >& operator<<(basic_ostream< C, E >& out, const ExecutionMatrix& what)
+	basic_ostream< C, E >& operator<<(basic_ostream< C, E >& out, const ExecutionMatrix& what)
 	{
 #ifndef NDEBUG
 		out << std::endl << "-------------" << std::endl;

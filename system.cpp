@@ -170,12 +170,12 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 
 
-template< typename StringT, typename SystemT >
+template< typename SystemT >
 struct PlaceBlock
 {
-	PlaceBlock(const StringT& block_curr, SystemT& sys) : block_curr_(block_curr), sys_(sys) { }
+	PlaceBlock(const std::string& block_curr, SystemT& sys) : block_curr_(block_curr), sys_(sys) { }
 
-	void operator()(const StringT& block_next) const
+	void operator()(const std::string& block_next) const
 	{
 		if(not sys_->exec_m_.block_is_placed(block_next))
 		{
@@ -196,7 +196,7 @@ struct PlaceBlock
 #endif
 	}
 
-	const StringT& block_curr_;
+	const std::string& block_curr_;
 	SystemT& sys_;
 
 	typedef void result_type;
@@ -204,10 +204,10 @@ struct PlaceBlock
 
 
 
-template< typename StringT, typename SystemT >
-inline PlaceBlock< StringT, SystemT > place_block_a(const StringT& block_start, SystemT& sys)
+template< typename SystemT >
+inline PlaceBlock< SystemT > place_block_a(const std::string& block_start, SystemT& sys)
 {
-	return PlaceBlock< StringT, SystemT >(block_start, sys);
+	return PlaceBlock< SystemT >(block_start, sys);
 }
 
 
@@ -218,15 +218,15 @@ struct MakeConnection
 	MakeConnection(SystemT sys) : sys_(sys) { }
 
 	template< typename PairT >
-	void operator()(PairT& ports)
+	void operator()(const PairT& ports)
 	{
 		OutPort::store_t::iterator source_port_it = ports.first;
 		InPort::store_t::iterator sink_port_it = ports.second;
 
 		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
- 
+
 		sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
- 
+
 		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1]);
 	}
 
@@ -251,9 +251,9 @@ struct SignalAttributePropagationAction
 	SignalAttributePropagationAction(SystemT sys) : sys_(sys) { };
 
 	template< typename StageT >
-	void operator()(StageT& stage_curr) const
+	void operator()(const StageT& stage_curr) const
 	{
-		Block *b = stage_curr.get_paths().front().front();
+		Block * const b = stage_curr.get_paths().front().front();
 		b->setup_output_ports();
 
 		std::for_each
@@ -262,8 +262,7 @@ struct SignalAttributePropagationAction
 			b->connect_calls.end(),
 			make_connections(sys_)
 		);
-
-		b->connect_calls.clear();
+// 		b->connect_calls.clear();
 	}
 
 	SystemT sys_;
@@ -306,7 +305,7 @@ void SystemImpl::propagate_signal_attributes()
 void System::connect_ports(const std::string & block_source,
 			   const std::string & port_source,
 			   const std::string & block_sink,
-                           const std::string & port_sink)
+			   const std::string & port_sink)
 {
 	H_D(System)
 #ifndef NDEBUG
@@ -426,8 +425,8 @@ void System::initialize()
 #ifndef NDEBUG
 	std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
 #endif
-	d->propagate_signal_attributes();
 
+	d->propagate_signal_attributes();
 
 #ifndef NDEBUG
 	std::cout << std::endl << "combining execution stages..." << std::endl;
@@ -440,7 +439,7 @@ void System::initialize()
 #endif
 
 	d->exec_m_.parallelize();
-	
+
 	d->exec_m_.init();
 }
 

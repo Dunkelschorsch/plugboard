@@ -50,7 +50,7 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 #endif
 
 	signal_buffer_id_ = signal_buffer_id;
- 
+
 	send = boost::bind(&InPort::receive, boost::ref(other), signal_buffer_id);
 }
 
@@ -60,11 +60,4 @@ void OutPort::disconnect(const InPort & other)
 {
 	send = 0;
 	get_buffer_ptr = 0;
-}
-
-
-
-OutPort::~OutPort()
-{
-
 }

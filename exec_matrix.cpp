@@ -340,8 +340,7 @@ void ExecutionMatrix::parallelize()
 		// that is the leftmost block of the first (and only) path in the next execution stage
 		block_succ = (stage_curr+1)->get_paths().front().front();
 #ifndef NDEBUG
-		std::cout << "checking against " << block_succ->get_name_sys() << std::endl;
-		std::cout << "parallelize(): proceeding to next stage" << std::endl;
+		std::cout << "checking against block '" << block_succ->get_name_sys() << "'" << std::endl;
 #endif
 		while(!proceed_to_next_stage)
 		{
@@ -349,9 +348,6 @@ void ExecutionMatrix::parallelize()
 
 			for(path_curr = (stage_curr)->get_paths().begin(); path_curr != (stage_curr)->get_paths().end(); path_curr++)
 			{
-#ifndef NDEBUG
-				std::cout << "Obacht: " << std::endl << *(stage_curr+1);
-#endif
 				// that is the rightmost block of the currently investigated path in the currently examined execution stage
 				block_curr = path_curr->back();
 #ifndef NDEBUG
@@ -359,24 +355,33 @@ void ExecutionMatrix::parallelize()
 				std::cout << block_curr->get_name_sys() << "' connected to '";
 				std::cout << block_succ->get_name_sys() << "'?";
 #endif
-				assert(block_curr != block_succ);
+				if(block_curr == block_succ)
+				{
+					return;
+				}
 				conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
 
 				// if block_curr and block_succ ARE connected ...
 				if(conn_it != block_curr->get_connections().end())
 				{
 #ifndef NDEBUG
-					std::cout << " ... apparently" << std::endl;
+					std::cout << " Yes.";
 #endif
 					parallelizeable = false;
 					break;
 				}
+#ifndef NDEBUG
+				else
+				{
+					std::cout << " No.";
+				}
+#endif
 			}
 
 			if(parallelizeable)
 			{
 #ifndef NDEBUG
-				std::cout << std::endl << "parallelize(): moving '" << block_succ->get_name_sys() << "'" << std::endl;
+				std::cout << std::endl << "parallelize(): moving stage: " << std::endl << *(stage_curr+1);
 #endif
 				stage_curr->threading_enabled_ = true;
 				stage_curr->add_path((stage_curr+1)->get_paths().front());
@@ -384,19 +389,27 @@ void ExecutionMatrix::parallelize()
 #ifndef NDEBUG
 				std::cout << *this;
 #endif
+				if(get_stages().size() == 1)
+				{
+#ifndef NDEBUG
+					std::cout << "parallelize(): system now only consists of a single stage" << std::endl;
+#endif
+					return;
+				}
+
 				if(stage_curr+1 == stages_.end() || stage_curr+2 == stages_.end())
 				{
 #ifndef NDEBUG
 					std::cout << "parallelize(): at last stage" << std::endl;
 #endif
-					return;
+					continue;
 				}
 				// neccessary to compensate for the deleted stage
 				stage_curr++;
 				// that is the leftmost block of the first (and only) path in the next execution stage
 				block_succ = (stage_curr+1)->get_paths().front().front();
 #ifndef NDEBUG
-				std::cout << "next stage: " << std::endl << *(stage_curr+1);
+				std::cout << "next stage: " << std::endl << *(stage_curr+1) << std::endl;
 				std::cout << "parallelize(): next reference block: " << block_succ->get_name_sys() << std::endl;
 #endif
 			}
