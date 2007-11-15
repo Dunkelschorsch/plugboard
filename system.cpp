@@ -171,9 +171,9 @@ void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
 
 
 template< typename SystemT >
-struct PlaceBlock
+struct PlaceBlockAction
 {
-	PlaceBlock(const std::string& block_curr, SystemT& sys) : block_curr_(block_curr), sys_(sys) { }
+	PlaceBlockAction(const std::string& block_curr, SystemT& sys) : block_curr_(block_curr), sys_(sys) { }
 
 	void operator()(const std::string& block_next) const
 	{
@@ -205,17 +205,17 @@ struct PlaceBlock
 
 
 template< typename SystemT >
-inline PlaceBlock< SystemT > place_block_a(const std::string& block_start, SystemT& sys)
+inline PlaceBlockAction< SystemT > place_block_a(const std::string& block_start, SystemT& sys)
 {
-	return PlaceBlock< SystemT >(block_start, sys);
+	return PlaceBlockAction< SystemT >(block_start, sys);
 }
 
 
 
 template< class SystemT >
-struct MakeConnection
+struct MakeConnectionAction
 {
-	MakeConnection(SystemT sys) : sys_(sys) { }
+	MakeConnectionAction(SystemT sys) : sys_(sys) { }
 
 	template< typename PairT >
 	void operator()(const PairT& ports)
@@ -238,9 +238,9 @@ struct MakeConnection
 
 
 template< class SystemT >
-inline MakeConnection< SystemT > make_connections(SystemT sys)
+inline MakeConnectionAction< SystemT > make_connections_a(SystemT sys)
 {
-	return MakeConnection< SystemT >(sys);
+	return MakeConnectionAction< SystemT >(sys);
 }
 
 
@@ -260,7 +260,7 @@ struct SignalAttributePropagationAction
 		(
 			b->connect_calls.begin(),
 			b->connect_calls.end(),
-			make_connections(sys_)
+			make_connections_a(sys_)
 		);
 // 		b->connect_calls.clear();
 	}
@@ -271,7 +271,7 @@ struct SignalAttributePropagationAction
 
 
 template< class SystemT >
-inline SignalAttributePropagationAction< SystemT > create_buffers_and_stuff(SystemT sys)
+inline SignalAttributePropagationAction< SystemT > create_buffers_and_stuff_a(SystemT sys)
 {
 	return SignalAttributePropagationAction< SystemT >(sys);
 }
@@ -296,7 +296,7 @@ void SystemImpl::propagate_signal_attributes()
 	(
 		exec_m_.get_stages().begin(),
 		exec_m_.get_stages().end(),
-		create_buffers_and_stuff(this)
+		create_buffers_and_stuff_a(this)
 	);
 }
 
