@@ -6,6 +6,8 @@
 
 #include "block.hpp"
 
+namespace boost { class thread; }
+
 
 
 class ExecutionStage
@@ -31,6 +33,8 @@ public:
 protected:
 	stage_t paths_;
 	bool threading_enabled_;
+	std::vector< boost::thread* > thread_group_;
+
 	bool block_is_placed(const std::string& name) const;
 
 	void exec();

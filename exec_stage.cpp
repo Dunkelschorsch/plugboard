@@ -2,6 +2,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/pool/object_pool.hpp>
 
 using boost::bind;
 
@@ -107,17 +108,19 @@ void ExecutionStage::exec()
 {
 	if(threading_enabled_)
 	{
-		boost::thread_group threads;
 		uint32_t num_paths = paths_.size();
+		boost::object_pool< boost::thread > thread_pool;
 
 		assert(num_paths > 1);
 
 		// iterate through paths
 		for(uint32_t path_num_curr=0; path_num_curr<num_paths; ++path_num_curr)
 		{
-			threads.create_thread(bind(&ExecutionStage::exec_path, this, paths_[path_num_curr]));
+			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, paths_[path_num_curr]));
+			thread_group_.push_back(t);
 		}
-		threads.join_all();
+		std::for_each(thread_group_.begin(), thread_group_.end(), bind(&boost::thread::join, _1));
+ 		thread_group_.clear();
 	}
 	else
 	{
