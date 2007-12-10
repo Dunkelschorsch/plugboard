@@ -10,13 +10,45 @@
 #include "variable.hpp"
 
 
+template< typename ContainerT >
+struct ClearAction
+{
+	ClearAction(ContainerT& args) : args_(args) { }
+
+	template< typename T0 >
+	void operator()(T0) const
+	{
+		args_.clear();
+	}
+
+	template< typename T0, typename T1 >
+	void operator()(T0, T1) const
+	{
+		args_.clear();
+	}
+
+	typedef void result_type;
+
+	ContainerT& args_;
+};
+
+
+
+template< typename ContainerT >
+inline ClearAction< ContainerT > clear_a(ContainerT& v)
+{
+	return ClearAction< ContainerT >(v);
+}
+
+
 
 template< template< typename > class VectorT >
 struct BlockDescribeAction
 {
 	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args) { }
 
-	void operator()(System&, const BlockLoader&) const
+	template< typename SystemT, typename LoaderT >
+	void operator()(SystemT&, const LoaderT&) const
 	{
 		const std::string& name = boost::any_cast< std::string >(args_[0]);
 
@@ -31,20 +63,23 @@ struct BlockDescribeAction
 
 
 template< template< typename > class VectorT >
-inline BlockDescribeAction< VectorT > block_describer(VectorT< boost::any >& v)
+inline BlockDescribeAction< VectorT > block_describe_a(VectorT< boost::any >& v)
 {
 	return BlockDescribeAction< VectorT >(v);
 }
 
 
 
+template< template< typename > class VectorT >
 struct BlockAddAction
 {
-	template< template< typename > class VectorT >
-	void operator()(const VectorT< boost::any >& args, System & sys, const BlockLoader& bl) const
+	BlockAddAction(const VectorT< boost::any >& args) : args_(args) { }
+
+	template< typename SystemT, typename LoaderT >
+	void operator()(SystemT & sys, const LoaderT& bl) const
 	{
-		const std::string& type = boost::any_cast< std::string >(args[0]);
-		const std::string& name = boost::any_cast< std::string >(args[1]);
+		const std::string& type = boost::any_cast< std::string >(args_[0]);
+		const std::string& name = boost::any_cast< std::string >(args_[1]);
 #ifndef NDEBUG
 		std::cout << "creating block of type: '" << type << "' with name '" << name << "'" << std::endl;
 #endif
@@ -77,34 +112,60 @@ struct BlockAddAction
 	}
 
 	typedef void result_type;
+
+	const VectorT< boost::any >& args_;
 };
 
 
 
+template< template< typename > class VectorT >
+inline BlockAddAction< VectorT > block_add_a(VectorT< boost::any >& v)
+{
+	return BlockAddAction< VectorT >(v);
+}
+
+
+
+template< template< typename > class VectorT >
 struct ConnectAction
 {
-	template< template< typename > class VectorT >
-	void operator()(const VectorT< boost::any >& args, System & sys, const BlockLoader&) const
+	ConnectAction(const VectorT< boost::any >& args) : args_(args) { }
+
+	template< typename SystemT, typename LoaderT >
+	void operator()(SystemT & sys, const LoaderT&) const
 	{
-		const std::string& source_block = boost::any_cast< std::string >(args[0]);
-		const std::string& source_port  = boost::any_cast< std::string >(args[1]);
-		const std::string& sink_block   = boost::any_cast< std::string >(args[2]);
-		const std::string& sink_port    = boost::any_cast< std::string >(args[3]);
+		const std::string& source_block = boost::any_cast< std::string >(args_[0]);
+		const std::string& source_port  = boost::any_cast< std::string >(args_[1]);
+		const std::string& sink_block   = boost::any_cast< std::string >(args_[2]);
+		const std::string& sink_port    = boost::any_cast< std::string >(args_[3]);
 
 		sys.connect_ports(source_block, source_port, sink_block, sink_port);
 	}
 
 	typedef void result_type;
+
+	const VectorT< boost::any >& args_;
 };
 
 
 
+template< template< typename > class VectorT >
+inline ConnectAction< VectorT > connect_a(VectorT< boost::any >& v)
+{
+	return ConnectAction< VectorT >(v);
+}
+
+
+
+template< template< typename > class VectorT >
 struct RunAction
 {
-	template< template< typename > class VectorT >
-	void operator()(const VectorT< boost::any >& args, System & sys, const BlockLoader&) const
+	RunAction(const VectorT< boost::any >& args) : args_(args) { }
+
+	template< typename SystemT, typename LoaderT >
+	void operator()(SystemT & sys, const LoaderT&) const
 	{
-		const uint32_t times = args.empty() ? 1u : boost::any_cast< uint32_t >(args[0]);
+		const uint32_t times = args_.empty() ? 1u : boost::any_cast< uint32_t >(args_[0]);
 #ifndef NDEBUG
 		std::cout << "initializing..." << std::endl;
 #endif
@@ -116,6 +177,16 @@ struct RunAction
 	}
 
 	typedef void result_type;
+
+	const VectorT< boost::any >& args_;
 };
+
+
+
+template< template< typename > class VectorT >
+inline RunAction< VectorT > run_a(VectorT< boost::any >& v)
+{
+	return RunAction< VectorT >(v);
+}
 
 #endif // _ACTIONS_HPP

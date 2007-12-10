@@ -7,7 +7,6 @@
 #include <boost/any.hpp>
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
@@ -78,23 +77,23 @@ struct CommandParser : public grammar< CommandParser, CommandClosure::context_t 
                 first
                     =    (    eps_p
                               [
-                                  boost::bind(&std::vector< boost::any >::clear, ref(self.args_))
+                                  clear_a(self.args_)
                               ]
                               >> block_add
                                  [
-                                     self.command=boost::bind(BlockAddAction(), ref(self.args_), _1, _2)
+                                     self.command=block_add_a(self.args_)
                                  ]
                               |  block_describe
                                  [
-                                     self.command=block_describer(self.args_)
+                                     self.command=block_describe_a(self.args_)
                                  ]
                               |  ports_connect
                                  [
-                                     self.command=boost::bind(ConnectAction(), ref(self.args_), _1, _2)
+                                     self.command=connect_a(self.args_)
                                  ]
                               |  run
                                  [
-                                     self.command=boost::bind(RunAction(), ref(self.args_), _1, _2)
+                                     self.command=run_a(self.args_)
                                  ]
                          )
                          >> ch_p(';')
