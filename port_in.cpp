@@ -3,8 +3,9 @@
 #include <iostream>
 
 
+
 InPort::InPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
-	BasePort(name, type, Ts, frame_size)
+	BasePort< InPort >(name, type, Ts, frame_size)
 {
 
 }
@@ -20,9 +21,3 @@ const Message InPort::receive(uint32_t buff_num)
 	return Message();
 }
 
-
-
-InPort::~InPort()
-{
-
-}

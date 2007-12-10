@@ -95,7 +95,7 @@ struct SubsystemImpl::ReplacePortAction
 			(
 				exec_m_[block_source]->get_outport_list().begin(),
 				exec_m_[block_source]->get_outport_list().end(),
-				bind(&BasePort::get_name, _1) == port_source
+				bind(&OutPort::get_name, _1) == port_source
 			);
 	
 		// unfortunately the given port name was invalid
@@ -103,13 +103,13 @@ struct SubsystemImpl::ReplacePortAction
 		{
 			throw InvalidPortNameException(port_source);
 		}
-		//d->sig_out_.push_back(add_port(new OutPort(port_sink, source_port_it->get_type(), source_port_it->get_Ts(), source_port_it->get_frame_size())));
+
 		*source_port_it =
 			**std::find_if
 			(
 				sig_.begin(),
 				sig_.end(),
-				bind(&BasePort::get_name, _1) == gateway_port
+				bind(&OutPort::get_name, _1) == gateway_port
 			);
 	}
 	

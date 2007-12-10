@@ -7,8 +7,7 @@
 class InPort;
 
 
-
-class OutPort : public BasePort
+class OutPort : public BasePort< OutPort >
 {
 public:
 	OutPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size);

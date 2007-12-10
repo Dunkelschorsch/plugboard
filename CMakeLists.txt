@@ -16,7 +16,6 @@ add_executable(
 	block_loader.cpp
 	parameter.cpp
 	block.cpp
-	port_base.cpp
 	port_in.cpp
 	port_out.cpp
 	input/console.cpp

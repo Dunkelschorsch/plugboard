@@ -6,8 +6,7 @@
 class Message;
 
 
-
-class InPort : public BasePort
+class InPort : public BasePort< InPort >
 {
 public:
 
@@ -15,9 +14,8 @@ public:
 
 	const Message receive(uint32_t buff_num);
 
-	~InPort();
-
 	typedef std::deque< InPort > store_t;
 };
+
 
 #endif // _PORT_IN_HPP

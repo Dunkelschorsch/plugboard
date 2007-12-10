@@ -188,7 +188,7 @@ OutPort* Block::add_port(OutPort * const p)
 		(
 			ports_out_.begin(),
 			ports_out_.end(),
-			boost::bind(&BasePort::get_name, _1) == p->get_name()
+			boost::bind(&OutPort::get_name, _1) == p->get_name()
 		);
 
 	if (it != ports_out_.end())
@@ -230,7 +230,7 @@ InPort* Block::add_port(InPort * const p)
 		(
 			ports_in_.begin(),
 			ports_in_.end(),
-			boost::bind(&BasePort::get_name, _1) == p->get_name()
+			boost::bind(&InPort::get_name, _1) == p->get_name()
 		);
 
 	if (it != ports_in_.end())
