@@ -4,21 +4,33 @@
 class Block;
 #include "types.hpp"
 #include <string>
+#include <boost/pool/detail/singleton.hpp>
+
 
 
 class BlockLoader
 {
 struct BlockLoaderImpl;
 
-public:
-	BlockLoader();
-	~BlockLoader();
+typedef boost::details::pool::singleton_default< BlockLoader > singleton;
+friend class boost::details::pool::singleton_default< BlockLoader >;
 
-	uint32_t load_dir(const std::string &dir, const bool recursive = false);
+public:
+	uint32_t load_dir(const std::string& dir, const bool recursive = false);
 
 	const std::vector< std::string > & available_blocks() const;
 
 	Block* new_block(const std::string &name) const;
+
+	static BlockLoader& instance()
+	{
+		BlockLoader & bl = singleton::instance();
+		return bl;
+	}
+
+protected:
+	BlockLoader();
+	~BlockLoader();
 
 private:
 	BlockLoaderImpl *d;

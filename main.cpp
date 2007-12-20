@@ -9,36 +9,37 @@
 #include "input/console.hpp"
 
 
+
 int main(int argc, char **argv)
 {
-	BlockLoader bl;
+	BlockLoader& bl = BlockLoader::instance();
 	bl.load_dir("blocks");
 
 
 	System root;
-// 	return 0;
- 	HumpShell shell(root, bl);
+//	return 0;
+//	HumpShell shell(root, bl);
 
-//  	shell.add_available_blocks(bl);
+//	shell.add_available_blocks(bl);
 
- 	while(shell.execute_command());
+//	while(shell.execute_command());
 
 #if 1
-// 	try {
-// 		b = bl.new_block("Dummy2");
-// 	}
-// 	catch (InvalidBlockIdException &e)
-// 	{
-// 		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
-// 	}
-// 	Symtab st;
-// 
-// 	st.add_var("Ts", 1/3.84e6);
-// 	st.add_var("framesize", 1000);
-// 	b->set_parameter(st.get_var("Ts"));
-// 	b->set_parameter(st.get_var("framesize"));
-// 	root.add_block(b, "hump");
-// 	return 0;
+//	try {
+//		b = bl.new_block("Dummy2");
+//	}
+//	catch (InvalidBlockIdException &e)
+//	{
+//		std::cout << e.what() << ": '" << e.get_id() << "'" << std::endl;
+//	}
+//	Symtab st;
+//
+//	st.add_var("Ts", 1/3.84e6);
+//	st.add_var("framesize", 1000);
+//	b->set_parameter(st.get_var("Ts"));
+//	b->set_parameter(st.get_var("framesize"));
+//	root.add_block(b, "hump");
+//	return 0;
 #define COMPLICATED 1
 #define SIMPLE 0
 #define LOOP 0
@@ -92,7 +93,7 @@ int main(int argc, char **argv)
 #endif
 
 	root.initialize();
-	root.wakeup_sys(1000);
+	root.wakeup_sys(1);
 #endif
 	return EXIT_SUCCESS;
 }

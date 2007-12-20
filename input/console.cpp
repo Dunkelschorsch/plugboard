@@ -11,15 +11,16 @@
 
 struct HumpShell::HumpShellImpl
 {
-	HumpShellImpl(System & sys, BlockLoader & bl);
+	HumpShellImpl(System & sys);
 
 	void register_completions();
 
-	void set_available_blocks(const BlockLoader& bl);
+	void set_available_blocks();
 
-	void add_available_blocks(const BlockLoader& bl);
+	void add_available_blocks();
 
-	std::string prompt_;
+	const std::string prompt_;
+
 	swift::SReadline reader_;
 	std::vector< std::string > available_blocks_;
 	std::vector< std::string > completers_;
@@ -29,27 +30,25 @@ struct HumpShell::HumpShellImpl
 	parse_info<> info_;
 
 	System & sys_;
-	BlockLoader & bl_;
 };
 
 
 
-HumpShell::HumpShellImpl::HumpShellImpl(System & sys, BlockLoader & bl) :
+HumpShell::HumpShellImpl::HumpShellImpl(System & sys) :
 	prompt_(">> "),
 	reader_("hump_history", 256),
 	completers_(),
 	p_(v),
-	sys_(sys),
-	bl_(bl)
+	sys_(sys)
 {
 
 }
 
 
-HumpShell::HumpShell(System & s, BlockLoader & bl)
+HumpShell::HumpShell(System & s)
 {
-	d = new HumpShellImpl(s, bl);
-	d->add_available_blocks(bl);
+	d = new HumpShellImpl(s);
+	d->add_available_blocks();
 }
 
 
@@ -61,12 +60,12 @@ HumpShell::~HumpShell()
 
 
 
-void HumpShell::HumpShellImpl::add_available_blocks(const BlockLoader & bl)
+void HumpShell::HumpShellImpl::add_available_blocks()
 {
 	std::copy
 	(
-		bl.available_blocks().begin(),
-		bl.available_blocks().end(),
+		BlockLoader::instance().available_blocks().begin(),
+		BlockLoader::instance().available_blocks().end(),
 		back_inserter(available_blocks_)
 	);
 	register_completions();
@@ -74,9 +73,9 @@ void HumpShell::HumpShellImpl::add_available_blocks(const BlockLoader & bl)
 
 
 
-void HumpShell::HumpShellImpl::set_available_blocks(const BlockLoader & bl)
+void HumpShell::HumpShellImpl::set_available_blocks()
 {
-	available_blocks_ = bl.available_blocks();
+	available_blocks_ = BlockLoader::instance().available_blocks();
 	register_completions();
 }
 
@@ -131,7 +130,7 @@ const std::string HumpShell::read_command()
 bool HumpShell::execute_command()
 {
 	swift::SReadline dirty_hack__;
-	boost::function< void(System&, BlockLoader&) > f;
+	boost::function< void(System&) > f;
 
 	std::string command_string = read_command();
 
@@ -145,7 +144,7 @@ bool HumpShell::execute_command()
 
 	if (d->info_.full)
 	{
-		f(d->sys_, d->bl_);
+		f(d->sys_);
 	}
 	else
 	{

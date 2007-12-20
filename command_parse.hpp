@@ -48,7 +48,7 @@ namespace std
 #endif
 
 
-struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function< void(System &, BlockLoader &) > >
+struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function< void(System &) > >
 {
     member1 command;
 };

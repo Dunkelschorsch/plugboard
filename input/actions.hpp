@@ -47,8 +47,8 @@ struct BlockDescribeAction
 {
 	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args) { }
 
-	template< typename SystemT, typename LoaderT >
-	void operator()(SystemT&, const LoaderT&) const
+	template< typename SystemT >
+	void operator()(SystemT&) const
 	{
 		const std::string& name = boost::any_cast< std::string >(args_[0]);
 
@@ -75,15 +75,15 @@ struct BlockAddAction_interactive
 {
 	BlockAddAction_interactive(const VectorT< boost::any >& args) : args_(args) { }
 
-	template< typename SystemT, typename LoaderT >
-	void operator()(SystemT & sys, const LoaderT& bl) const
+	template< typename SystemT >
+	void operator()(SystemT & sys) const
 	{
 		const std::string& type = boost::any_cast< std::string >(args_[0]);
 		const std::string& name = boost::any_cast< std::string >(args_[1]);
 #ifndef NDEBUG
 		std::cout << "creating block of type: '" << type << "' with name '" << name << "'" << std::endl;
 #endif
-		Block *b = bl.new_block(type);
+		Block *b = BlockLoader::instance().new_block(type);
 
 		if(not b->is_configured())
 		{
@@ -130,8 +130,8 @@ struct ConnectAction
 {
 	ConnectAction(const VectorT< boost::any >& args) : args_(args) { }
 
-	template< typename SystemT, typename LoaderT >
-	void operator()(SystemT & sys, const LoaderT&) const
+	template< typename SystemT >
+	void operator()(SystemT & sys) const
 	{
 		const std::string& source_block = boost::any_cast< std::string >(args_[0]);
 		const std::string& source_port  = boost::any_cast< std::string >(args_[1]);
@@ -161,8 +161,8 @@ struct RunAction
 {
 	RunAction(const VectorT< boost::any >& args) : args_(args) { }
 
-	template< typename SystemT, typename LoaderT >
-	void operator()(SystemT & sys, const LoaderT&) const
+	template< typename SystemT >
+	void operator()(SystemT & sys) const
 	{
 		const uint32_t times = args_.empty() ? 1u : boost::any_cast< uint32_t >(args_[0]);
 #ifndef NDEBUG

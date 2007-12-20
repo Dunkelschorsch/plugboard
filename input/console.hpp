@@ -11,7 +11,7 @@ class HumpShell
 struct HumpShellImpl;
 
 public:
-	HumpShell(System & s, BlockLoader & bl);
+	HumpShell(System & s);
 	~HumpShell();
 
 	const std::string read_command();
