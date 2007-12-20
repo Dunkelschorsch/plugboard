@@ -15,6 +15,10 @@ struct HumpShell::HumpShellImpl
 
 	void register_completions();
 
+	void set_available_blocks(const BlockLoader& bl);
+
+	void add_available_blocks(const BlockLoader& bl);
+
 	std::string prompt_;
 	swift::SReadline reader_;
 	std::vector< std::string > available_blocks_;
@@ -42,10 +46,10 @@ HumpShell::HumpShellImpl::HumpShellImpl(System & sys, BlockLoader & bl) :
 }
 
 
-
 HumpShell::HumpShell(System & s, BlockLoader & bl)
 {
 	d = new HumpShellImpl(s, bl);
+	d->add_available_blocks(bl);
 }
 
 
@@ -57,18 +61,23 @@ HumpShell::~HumpShell()
 
 
 
-void HumpShell::add_available_blocks(const BlockLoader & bl)
+void HumpShell::HumpShellImpl::add_available_blocks(const BlockLoader & bl)
 {
-	std::copy(bl.available_blocks().begin(), bl.available_blocks().end(), back_inserter(d->available_blocks_));
-	d->register_completions();
+	std::copy
+	(
+		bl.available_blocks().begin(),
+		bl.available_blocks().end(),
+		back_inserter(available_blocks_)
+	);
+	register_completions();
 }
 
 
 
-void HumpShell::set_available_blocks(const BlockLoader & bl)
+void HumpShell::HumpShellImpl::set_available_blocks(const BlockLoader & bl)
 {
-	d->available_blocks_ = bl.available_blocks();
-	d->register_completions();
+	available_blocks_ = bl.available_blocks();
+	register_completions();
 }
 
 

@@ -94,15 +94,15 @@ bool Block::is_configured() const
 template< typename TargetT >
 struct CopyAction
 {
-	CopyAction(void *out) : out_(out) { }
+	CopyAction(void * const out) : out_(out) { }
 
 	template< typename ElementT >
-	void operator()(ElementT e)
+	void operator()(ElementT e) const
 	{
 		reinterpret_cast< std::vector< TargetT >* >(out_)->push_back(boost::any_cast< TargetT >(e));
 	}
 
-	void *out_;
+	void * const out_;
 };
 
 
@@ -177,73 +177,6 @@ const std::string& Block::get_parameter_description() const
 type_t Block::get_parameter_type() const
 {
 	return params_[param_curr_].get_type();
-}
-
-
-
-OutPort* Block::add_port(OutPort * const p)
-{
-	OutPort::store_t::iterator it =
-		std::find_if
-		(
-			ports_out_.begin(),
-			ports_out_.end(),
-			boost::bind(&OutPort::get_name, _1) == p->get_name()
-		);
-
-	if (it != ports_out_.end())
-	{
-#ifndef NDEBUG
-		std::cout << "    " << get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
-#endif
-		type_t t = p->get_type();
-		real_t Ts = p->get_Ts();
-		integer_t framesize = p->get_frame_size();
-
-		// propagating a default value is certainly an error
-		assert(t != empty);
-		assert(Ts > 0.0);
-		assert(framesize > 0);
-
-		it->set_type(t);
-		it->set_frame_size(framesize);
-		it->set_Ts(Ts);
-		
-		delete p;
-		return &(*it);
-	}
-
-	p->set_owner_block_name(get_name_sys());
-	ports_out_.push_back(*p);
-	delete p;
-
-	num_output_ports_++;
-	return &ports_out_.back();
-}
-
-
-
-InPort* Block::add_port(InPort * const p)
-{
-	InPort::store_t::iterator it =
-		std::find_if
-		(
-			ports_in_.begin(),
-			ports_in_.end(),
-			boost::bind(&InPort::get_name, _1) == p->get_name()
-		);
-
-	if (it != ports_in_.end())
-	{
-		throw DuplicatePortNameException(get_name() + "::" + p->get_name());
-	}
-
-	p->set_owner_block_name(get_name_sys());
-	ports_in_.push_back(*p);
-	delete p;
-
-	num_input_ports_++;
-	return &ports_in_.back();
 }
 
 

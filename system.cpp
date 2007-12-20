@@ -215,7 +215,7 @@ inline PlaceBlockAction< SystemT > place_block_a(const std::string& block_start,
 template< class SystemT >
 struct MakeConnectionAction
 {
-	MakeConnectionAction(SystemT sys) : sys_(sys) { }
+	MakeConnectionAction(SystemT* sys) : sys_(sys) { }
 
 	template< typename PairT >
 	void operator()(const PairT& ports)
@@ -230,7 +230,7 @@ struct MakeConnectionAction
 		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1]);
 	}
 
-	SystemT sys_;
+	SystemT* sys_;
 
 	typedef void result_type;
 };
@@ -238,7 +238,7 @@ struct MakeConnectionAction
 
 
 template< class SystemT >
-inline MakeConnectionAction< SystemT > make_connections_a(SystemT sys)
+inline MakeConnectionAction< SystemT > make_connections_a(SystemT* sys)
 {
 	return MakeConnectionAction< SystemT >(sys);
 }
@@ -328,13 +328,13 @@ void System::connect_ports(const std::string & block_source,
 	source_port_it =
 		std::find_if
 		(
-			d->exec_m_[block_source]->get_outport_list().begin(),
-			d->exec_m_[block_source]->get_outport_list().end(),
+			d->exec_m_[block_source]->get_port_list< OutPort >()->begin(),
+			d->exec_m_[block_source]->get_port_list< OutPort >()->end(),
 			bind(&OutPort::get_name, _1) == port_source
 		);
 
 	// unfortunately the given port name was invalid
-	if (source_port_it == d->exec_m_[block_source]->get_outport_list().end())
+	if (source_port_it == d->exec_m_[block_source]->get_port_list< OutPort >()->end())
 	{
 		throw InvalidPortNameException(port_source);
 	}
@@ -356,13 +356,13 @@ void System::connect_ports(const std::string & block_source,
 	sink_port_it =
 		std::find_if
 		(
-			d->exec_m_[block_sink]->get_inport_list().begin(),
-			d->exec_m_[block_sink]->get_inport_list().end(),
+			d->exec_m_[block_sink]->get_port_list< InPort >()->begin(),
+			d->exec_m_[block_sink]->get_port_list< InPort >()->end(),
 			bind(&InPort::get_name, _1) == port_sink
 		);
 
 	// unfortunately the given port name was invalid
-	if (sink_port_it == d->exec_m_[block_sink]->get_inport_list().end())
+	if (sink_port_it == d->exec_m_[block_sink]->get_port_list< InPort >()->end())
 	{
 		throw InvalidPortNameException(port_sink);
 	}
@@ -391,7 +391,6 @@ void System::initialize()
 		source_block++
 	)
 	{
-
 		std::string start_block_name = (*source_block)->get_name_sys();
 
 		if(d->exec_m_.block_is_placed(start_block_name))

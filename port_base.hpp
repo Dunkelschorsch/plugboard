@@ -8,7 +8,7 @@ template< class DerivedPortT >
 class BasePort
 {
 public:
-	const std::string& get_name() const;
+	inline const std::string& get_name() const;
 
 	type_t get_type() const;
 

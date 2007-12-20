@@ -16,12 +16,12 @@ int main(int argc, char **argv)
 
 
 	System root;
-	
-	HumpShell shell(root, bl);
+// 	return 0;
+ 	HumpShell shell(root, bl);
 
-	shell.add_available_blocks(bl);
+//  	shell.add_available_blocks(bl);
 
-// 	while(shell.execute_command());
+ 	while(shell.execute_command());
 
 #if 1
 // 	try {

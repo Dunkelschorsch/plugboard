@@ -71,9 +71,9 @@ inline BlockDescribeAction< VectorT > block_describe_a(VectorT< boost::any >& v)
 
 
 template< template< typename > class VectorT >
-struct BlockAddAction
+struct BlockAddAction_interactive
 {
-	BlockAddAction(const VectorT< boost::any >& args) : args_(args) { }
+	BlockAddAction_interactive(const VectorT< boost::any >& args) : args_(args) { }
 
 	template< typename SystemT, typename LoaderT >
 	void operator()(SystemT & sys, const LoaderT& bl) const
@@ -87,9 +87,8 @@ struct BlockAddAction
 
 		if(not b->is_configured())
 		{
-#ifndef NDEBUG
 			std::cout << "needs additional arguments..." << std::endl;
-#endif
+
 			do
 			{
 				std::cout << b->get_parameter_description() << ": ";
@@ -119,9 +118,9 @@ struct BlockAddAction
 
 
 template< template< typename > class VectorT >
-inline BlockAddAction< VectorT > block_add_a(VectorT< boost::any >& v)
+inline BlockAddAction_interactive< VectorT > block_add_a_interactive(VectorT< boost::any >& v)
 {
-	return BlockAddAction< VectorT >(v);
+	return BlockAddAction_interactive< VectorT >(v);
 }
 
 

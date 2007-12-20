@@ -18,6 +18,8 @@ public:
 
 	void create_output(const std::string & block_source, const std::string & port_source, const std::string & port_out);
 
+	void create_input(const std::string & port_in, const std::string & block_sink, const std::string & port_sink);
+
 	bool setup_output_ports();
 	bool setup_input_ports();
 

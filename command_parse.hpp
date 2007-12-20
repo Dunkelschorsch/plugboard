@@ -1,17 +1,16 @@
 #ifndef _COMMAND_PARSE_HPP
 #define _COMMAND_PARSE_HPP
 
-#include <vector>
+#ifndef NDEBUG
 #include <iostream>
+#endif
 
+#include <vector>
 #include <boost/any.hpp>
-
 #include <boost/function.hpp>
-
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
-
 #include <boost/lambda/lambda.hpp>
 
 #include "input/actions.hpp"
@@ -31,7 +30,7 @@ using namespace boost::spirit;
 using boost::ref;
 
 
-
+#ifndef NDEBUG
 namespace std
 {
     template< typename C, typename E, typename T >
@@ -46,7 +45,7 @@ namespace std
         return out;
     }
 }
-
+#endif
 
 
 struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function< void(System &, BlockLoader &) > >
@@ -81,7 +80,7 @@ struct CommandParser : public grammar< CommandParser, CommandClosure::context_t 
                               ]
                               >> block_add
                                  [
-                                     self.command=block_add_a(self.args_)
+                                     self.command=block_add_a_interactive(self.args_)
                                  ]
                               |  block_describe
                                  [
