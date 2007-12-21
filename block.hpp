@@ -58,29 +58,72 @@ public:
 
 	virtual void advance();
 
-	const std::string& get_name() const;
+	const std::string& get_name() const
+	{
+		return name_;
+	}
 
-	const std::string& get_name_sys() const;
+	const std::string& get_name_sys() const
+	{
+		return name_sys_;
+	}
 
-	const std::string& get_description() const;
+	const std::string& get_description() const
+	{
+		return description_;
+	}
 
-	bool is_configured() const;
+	bool is_configured() const
+	{
+		return configured_;
+	}
 
-	void set_description(const std::string& description);
+	void set_description(const std::string& description)
+	{
+		description_ = description;
+	}
 
 	bool set_parameter(const Variable& p);
 
-	const std::string& get_parameter_description() const;
+	const std::string& get_parameter_description() const
+	{
+		return params_[param_curr_].get_description();
+	}
 
-	type_t get_parameter_type() const;
+	type_t get_parameter_type() const
+	{
+		return params_[param_curr_].get_type();
+	}
 
-	const std::vector< Parameter >& get_params() const;
+	const std::vector< Parameter >& get_params() const
+	{
+		return params_;
+	}
 
-	const std::set< std::string >& get_connections() const;
+	const std::set< std::string >& get_connections() const
+	{
+		return connected_blocks_;
+	}
 
-	uint16_t get_num_input_ports() const;
+	uint16_t get_num_input_ports() const
+	{
+		return num_input_ports_;
+	}
 
-	uint16_t get_num_output_ports() const;
+	uint16_t get_num_output_ports() const
+	{
+		return num_output_ports_;
+	}
+
+	virtual bool setup_output_ports()
+	{
+		return false;
+	}
+
+	virtual bool setup_input_ports()
+	{
+		return false;
+	}
 
 	template < typename T >
 	void copy_parameter(void*, Variable&);
@@ -90,10 +133,6 @@ public:
 
 	template< class PortT >
 	const typename PortT::store_t * get_port_list() const;
-
-	virtual bool setup_output_ports();
-
-	virtual bool setup_input_ports();
 
 	std::vector< std::pair< OutPort::store_t::iterator, InPort::store_t::iterator > > connect_calls;
 
@@ -111,10 +150,6 @@ protected:
 	InPort::store_t & get_inport_list();
 
 	OutPort::store_t & get_outport_list();
-
-	const InPort::store_t & get_inport_list() const;
-
-	const OutPort::store_t & get_outport_list() const;
 
 	typedef std::map< type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
 
@@ -137,9 +172,15 @@ protected:
 	std::set< std::string > connected_blocks_;
 
 private:
-	void set_name_sys(const std::string& name_sys);
+	void set_name_sys(const std::string& name_sys)
+	{
+		name_sys_ = name_sys;
+	}
 
-	void add_connection(const std::string& name);
+	void add_connection(const std::string& name)
+	{
+		connected_blocks_.insert(name);
+	}
 
 	std::string name_sys_;
 
@@ -159,7 +200,7 @@ template< >
 struct PortTypeSpecificActions< OutPort >
 {
 	template< class IteratorT, typename PointerT >
-	OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT* const this_p)
+	OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT * const this_p)
 	{
 #ifndef NDEBUG
 		std::cout << "    " << this_p->get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
@@ -194,14 +235,14 @@ template< >
 struct PortTypeSpecificActions< InPort >
 {
 	template< class IteratorT, typename PointerT >
-	InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT* const this_p)
+	InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT * const this_p)
 	{
 		throw DuplicatePortNameException(this_p->get_name() + "::" + p->get_name());
 		return NULL;
 	}
 
 	template< typename PointerT >
-	void increment_no_of_ports(PointerT* const this_p)
+	void increment_no_of_ports(PointerT * const this_p)
 	{
 		this_p->num_input_ports_++;
 	}
@@ -210,7 +251,7 @@ struct PortTypeSpecificActions< InPort >
 
 
 template< class PortT, class IteratorT, typename PointerT >
-inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT* const this_p)
+inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT * const this_p)
 {
 	return PortTypeSpecificActions< PortT >().name_exists_action(it, p, this_p);
 }
@@ -218,7 +259,7 @@ inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT* const t
 
 
 template< class PortT, typename PointerT >
-inline void increment_no_of_ports(PortT * const, PointerT* const this_p)
+inline void increment_no_of_ports(PortT * const, PointerT * const this_p)
 {
 	PortTypeSpecificActions< PortT >().increment_no_of_ports(this_p);
 }
@@ -246,7 +287,7 @@ PortT* Block::add_port(PortT * const p)
 	port_list->push_back(*p);
 	increment_no_of_ports(p, this);
 	delete p;
-	
+
 	return &(port_list->back());
 }
 
