@@ -144,7 +144,6 @@ bool HumpShell::execute_command()
 
 	if (d->info_.full)
 	{
-// 		f(d->sys_);
 		f(*Systems::instance());
 	}
 	else

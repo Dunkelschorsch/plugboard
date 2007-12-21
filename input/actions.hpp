@@ -45,7 +45,7 @@ inline ClearAction< ContainerT > clear_a(ContainerT& v)
 template< template< typename > class VectorT >
 struct BlockDescribeAction
 {
-	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args) { }
+	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
 
 	template< typename SystemT >
 	void operator()(SystemT&) const
@@ -57,7 +57,7 @@ struct BlockDescribeAction
 
 	typedef void result_type;
 
-	const VectorT< boost::any >& args_;
+	const VectorT< boost::any > args_;
 };
 
 
@@ -73,7 +73,7 @@ inline BlockDescribeAction< VectorT > block_describe_a(VectorT< boost::any >& v)
 template< template< typename > class VectorT >
 struct BlockAddAction_interactive
 {
-	BlockAddAction_interactive(const VectorT< boost::any >& args) : args_(args) { }
+	BlockAddAction_interactive(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
 
 	template< typename SystemT >
 	void operator()(SystemT & sys) const
@@ -112,7 +112,7 @@ struct BlockAddAction_interactive
 
 	typedef void result_type;
 
-	const VectorT< boost::any >& args_;
+	VectorT< boost::any > args_;
 };
 
 
@@ -128,7 +128,7 @@ inline BlockAddAction_interactive< VectorT > block_add_a_interactive(VectorT< bo
 template< template< typename > class VectorT >
 struct ConnectAction
 {
-	ConnectAction(const VectorT< boost::any >& args) : args_(args) { }
+	ConnectAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
 
 	template< typename SystemT >
 	void operator()(SystemT & sys) const
@@ -143,7 +143,7 @@ struct ConnectAction
 
 	typedef void result_type;
 
-	const VectorT< boost::any >& args_;
+	const VectorT< boost::any > args_;
 };
 
 
@@ -159,12 +159,12 @@ inline ConnectAction< VectorT > connect_a(VectorT< boost::any >& v)
 template< template< typename > class VectorT >
 struct RunAction
 {
-	RunAction(const VectorT< boost::any >& args) : args_(args) { }
+	RunAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
 
 	template< typename SystemT >
 	void operator()(SystemT & sys) const
 	{
-		const uint32_t times = args_.empty() ? 1u : boost::any_cast< uint32_t >(args_[0]);
+		const uint32_t times = args_.empty() ? 1 : boost::any_cast< uint32_t >(args_[0]);
 #ifndef NDEBUG
 		std::cout << "initializing..." << std::endl;
 #endif
@@ -177,7 +177,7 @@ struct RunAction
 
 	typedef void result_type;
 
-	const VectorT< boost::any >& args_;
+	const VectorT< boost::any > args_;
 };
 
 
