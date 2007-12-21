@@ -10,6 +10,7 @@ add_executable(
 	symtab.cpp
 	variable.cpp
 	system.cpp
+	systems.cpp
 	subsystem.cpp
 	exec_matrix.cpp
 	exec_stage.cpp

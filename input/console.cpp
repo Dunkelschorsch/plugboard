@@ -7,7 +7,7 @@
 #include "block_loader.hpp"
 
 #include "swift/SReadline.h"
-
+#include "systems.hpp"
 
 struct HumpShell::HumpShellImpl
 {
@@ -144,7 +144,8 @@ bool HumpShell::execute_command()
 
 	if (d->info_.full)
 	{
-		f(d->sys_);
+// 		f(d->sys_);
+		f(*Systems::instance());
 	}
 	else
 	{
