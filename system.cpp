@@ -135,7 +135,7 @@ void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 
 
 
-void System::add_block(Block *b, const std::string& name_sys)
+void System::add_block(Block * const b, const std::string& name_sys)
 {
 	H_D(System)
 	d->add_block_impl(b, name_sys);
@@ -143,7 +143,7 @@ void System::add_block(Block *b, const std::string& name_sys)
 
 
 
-void SystemImpl::add_block_impl(Block *b, const std::string& name_sys)
+void SystemImpl::add_block_impl(Block * const b, const std::string& name_sys)
 {
 
 	if(exec_m_.block_exists(name_sys))
@@ -452,4 +452,26 @@ void System::wakeup_sys(uint32_t times)
 	{
 		d->exec_m_.exec();
 	}
+}
+
+
+
+void System::add_variable( const std::string& name, const Variable& var )
+{
+	H_D(System)
+#ifndef NDEBUG
+	bool var_name_is_available =
+#endif
+	d->symtab_.add_var(name, var);
+	assert(var_name_is_available == true);
+#ifndef NDEBUG
+	std::cout << "added variable '" << name << "'." << std::endl;
+#endif
+}
+
+
+
+Variable System::get_variable(const std::string& name) const
+{
+	return d_func()->symtab_.get_var(name);
 }

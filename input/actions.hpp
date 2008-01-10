@@ -1,11 +1,13 @@
 #ifndef _ACTIONS_HPP
 #define _ACTIONS_HPP
 
+#include <cassert>
 #include <vector>
 #include <iostream>
 #include <boost/any.hpp>
 #include "block.hpp"
 #include "system.hpp"
+#include "systems.hpp"
 #include "block_loader.hpp"
 #include "variable.hpp"
 
@@ -45,7 +47,7 @@ inline ClearAction< ContainerT > clear_a(ContainerT& v)
 template< template< typename > class VectorT >
 struct BlockDescribeAction
 {
-	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
+	BlockDescribeAction(const VectorT< boost::any >& args) : args_(args) { }
 
 	template< typename SystemT >
 	void operator()(SystemT&) const
@@ -57,7 +59,7 @@ struct BlockDescribeAction
 
 	typedef void result_type;
 
-	const VectorT< boost::any > args_;
+	const VectorT< boost::any >& args_;
 };
 
 
@@ -71,15 +73,18 @@ inline BlockDescribeAction< VectorT > block_describe_a(VectorT< boost::any >& v)
 
 
 template< template< typename > class VectorT >
-struct BlockAddAction_interactive
+struct BlockAddAction
 {
-	BlockAddAction_interactive(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
+	BlockAddAction(const VectorT< boost::any >& args) : args_(args) { }
 
 	template< typename SystemT >
-	void operator()(SystemT & sys) const
+	void operator()(SystemT &) const
 	{
-		const std::string& type = boost::any_cast< std::string >(args_[0]);
-		const std::string& name = boost::any_cast< std::string >(args_[1]);
+		typename VectorT< boost::any >::const_iterator arg_iter = args_.begin();
+		const std::string& type = boost::any_cast< std::string >(*arg_iter++);
+		const std::string& name = boost::any_cast< std::string >(*arg_iter++);
+		assert(arg_iter == args_.end()-1);
+		
 #ifndef NDEBUG
 		std::cout << "creating block of type: '" << type << "' with name '" << name << "'" << std::endl;
 #endif
@@ -87,18 +92,19 @@ struct BlockAddAction_interactive
 
 		if(not b->is_configured())
 		{
+#ifndef NDEBUG
 			std::cout << "needs additional arguments..." << std::endl;
-
+#endif
+			VectorT< boost::any > block_param_vec = boost::any_cast< VectorT< boost::any > >(*arg_iter);
+			typename VectorT< boost::any >::const_iterator block_params = block_param_vec.begin();
+			typename VectorT< boost::any >::const_iterator params_end =   block_param_vec.end();
+#ifndef NDEBUG
+			std::cout << "number of parameters given: " << block_param_vec.size() << std::endl;
+#endif
 			do
 			{
-				std::cout << b->get_parameter_description() << ": ";
-				std::string inp;
-				std::getline(std::cin, inp);
-
-				Variable v;
-				v.parse_input(inp);
-
-				b->set_parameter(v);
+				assert(boost::any_cast< Variable >(*block_params) == true);
+				b->set_parameter(boost::any_cast< Variable >(*block_params++));
 			} while(not b->is_configured());
 		}
 		else
@@ -107,51 +113,117 @@ struct BlockAddAction_interactive
 			std::cout << "does not need any additional arguments." << std::endl;
 #endif
 		}
-		sys.add_block(b, name);
+		Systems::instance().get_root()->add_block(b, name);
 	}
 
 	typedef void result_type;
 
-	VectorT< boost::any > args_;
+	const VectorT< boost::any >& args_;
 };
 
 
 
 template< template< typename > class VectorT >
-inline BlockAddAction_interactive< VectorT > block_add_a_interactive(VectorT< boost::any >& v)
+inline BlockAddAction< VectorT > block_add_a_interactive(VectorT< boost::any >& v)
 {
-	return BlockAddAction_interactive< VectorT >(v);
+	return BlockAddAction< VectorT >(v);
 }
 
 
 
-template< template< typename > class VectorT >
+template< class VectorT >
 struct ConnectAction
 {
-	ConnectAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
+	ConnectAction(const VectorT& args) : args_(args) { }
 
 	template< typename SystemT >
-	void operator()(SystemT & sys) const
+	void operator()(SystemT &) const
 	{
-		const std::string& source_block = boost::any_cast< std::string >(args_[0]);
-		const std::string& source_port  = boost::any_cast< std::string >(args_[1]);
-		const std::string& sink_block   = boost::any_cast< std::string >(args_[2]);
-		const std::string& sink_port    = boost::any_cast< std::string >(args_[3]);
+		typename VectorT::const_iterator arg_iter = args_.begin();
 
-		sys.connect_ports(source_block, source_port, sink_block, sink_port);
+		const std::string& source_block = boost::any_cast< std::string >(*arg_iter++);
+		const std::string& source_port  = boost::any_cast< std::string >(*arg_iter++);
+		const std::string& sink_block   = boost::any_cast< std::string >(*arg_iter++);
+		const std::string& sink_port    = boost::any_cast< std::string >(*arg_iter++);
+		assert(arg_iter == args_.end());
+	
+		Systems::instance().get_root()->connect_ports(source_block, source_port, sink_block, sink_port);
 	}
 
 	typedef void result_type;
 
-	const VectorT< boost::any > args_;
+	const VectorT& args_;
 };
 
 
 
-template< template< typename > class VectorT >
-inline ConnectAction< VectorT > connect_a(VectorT< boost::any >& v)
+template< class VectorT >
+inline ConnectAction< VectorT > connect_a(VectorT& v)
 {
 	return ConnectAction< VectorT >(v);
+}
+
+
+
+template< class VectorT >
+struct VariableDeclarationAction
+{
+	VariableDeclarationAction(const VectorT& args) : args_(args) { }
+
+	template< typename SystemT >
+	void operator()(SystemT &) const
+	{
+		typename VectorT::const_iterator arg_iter = args_.begin();
+
+		const std::string& var_name = boost::any_cast< std::string >(*arg_iter++);
+		const Variable& var = boost::any_cast< Variable >(*arg_iter++);
+		assert(arg_iter == args_.end());
+
+		Systems::instance().get_root()->add_variable(var_name, var);
+	}
+
+	typedef void result_type;
+
+	const VectorT& args_;
+};
+
+
+
+template< class VectorT >
+inline VariableDeclarationAction< VectorT > var_decl_a(VectorT& v)
+{
+	return VariableDeclarationAction< VectorT >(v);
+}
+
+
+
+template< class VectorT >
+struct VariableLookupAction
+{
+	VariableLookupAction(VectorT& args) : args_(args) { }
+
+	void operator()(const std::string& var_name) const
+	{
+		typename VectorT::const_iterator arg_iter = args_.begin();
+#ifndef NDEBUG
+		std::cout << "Variable to look up: '" << var_name << "'." << std::endl;
+#endif
+		const Variable& vv = Systems::instance().get_root()->get_variable(var_name);
+		assert(vv == true);
+		args_.push_back(vv);
+	}
+
+	typedef void result_type;
+
+	VectorT& args_;
+};
+
+
+
+template< class VectorT >
+inline VariableLookupAction< VectorT > var_lookup_a(VectorT& v)
+{
+	return VariableLookupAction< VectorT >(v);
 }
 
 
@@ -159,25 +231,25 @@ inline ConnectAction< VectorT > connect_a(VectorT< boost::any >& v)
 template< template< typename > class VectorT >
 struct RunAction
 {
-	RunAction(const VectorT< boost::any >& args) : args_(args.begin(), args.end()) { }
+	RunAction(const VectorT< boost::any >& args) : args_(args) { }
 
 	template< typename SystemT >
-	void operator()(SystemT & sys) const
+	void operator()(SystemT &) const
 	{
 		const uint32_t times = args_.empty() ? 1 : boost::any_cast< uint32_t >(args_[0]);
 #ifndef NDEBUG
 		std::cout << "initializing..." << std::endl;
 #endif
-		sys.initialize();
+		Systems::instance().get_root()->initialize();
 #ifndef NDEBUG
 		std::cout << "starting system..." << std::endl;
 #endif
-		sys.wakeup_sys(times);
+		Systems::instance().get_root()->wakeup_sys(times);
 	}
 
 	typedef void result_type;
 
-	const VectorT< boost::any > args_;
+	const VectorT< boost::any >& args_;
 };
 
 

@@ -58,7 +58,7 @@ bool Block_1out::setup_output_ports()
 void Block_1out::configure_parameters()
 {
 /* calls to "add_parameter()" go here */
-// 	add_parameter(&framesize_, integer, "Framesize");
+	add_parameter(&framesize_, integer, "Framesize");
 }
 
 
@@ -83,7 +83,7 @@ Block_1out::Block_1out()
 	name_ = BLOCK_NAME;
 	set_description("This is a block for testing purposes. It has 1 output.");
 	configure_parameters();
-	framesize_.push_back(5);
+// 	framesize_.push_back(5);
 }
 
 

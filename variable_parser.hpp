@@ -21,13 +21,9 @@
 
 using namespace boost::spirit;
 using boost::ref;
-
-
-
-struct value_closure : boost::spirit::closure< value_closure, complex_t >
-{
-    member1 val;
-};
+using phoenix::arg1;
+using phoenix::arg2;
+using phoenix::construct_;
 
 
 
@@ -121,6 +117,229 @@ inline DimensionAddAction< ActorT, IntT > add_dimension_a(const ActorT& v, const
 }
 
 
+namespace
+{
+
+
+template< typename ResultT >
+struct ResultClosure : boost::spirit::closure< ResultClosure< ResultT >, ResultT >
+{
+    typedef boost::spirit::closure< ResultClosure< ResultT >, ResultT > base_t;
+    typename base_t::member1 result_;
+};
+
+
+
+struct INTEGER : grammar< INTEGER, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        definition(INTEGER const& self);
+    };
+} INTEGER_g;
+
+
+
+struct REAL : grammar< REAL, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        definition(REAL const& self);
+    };
+} REAL_g;
+
+
+
+struct IMAG : grammar< IMAG, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        definition(IMAG const& self);
+    };
+} IMAG_g;
+
+
+
+struct FACTOR : grammar< FACTOR, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        subrule< 0 > first;
+        subrule< 1 > group;
+
+        definition(FACTOR const& self);
+    };
+} FACTOR_g;
+
+
+
+struct EXPRESSION : grammar< EXPRESSION, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        definition(EXPRESSION const& self);
+    };
+} EXPRESSION_g;
+
+
+
+struct TERM : grammar< TERM, ResultClosure< complex_t >::context_t >
+{
+    template< typename ScannerT >
+    struct definition
+    {
+        typedef rule< ScannerT > rule_t;
+        rule_t main;
+
+        rule_t const& start() const
+        {
+            return main;
+        }
+
+        definition(TERM const& self);
+    };
+} TERM_g;
+
+
+
+template< typename ScannerT >
+EXPRESSION::definition< ScannerT >::definition(EXPRESSION const& self)
+{
+    main =
+        ( TERM_g[ self.result_ = arg1 ]
+          >>  *( ( '+' >> TERM_g[ self.result_ += arg1 ] )
+               | ( '-' >> TERM_g[ self.result_ -= arg1 ] )
+               )
+        );
+
+    BOOST_SPIRIT_DEBUG_RULE(main);
+    BOOST_SPIRIT_DEBUG_NODE(TERM_g);
+}
+
+
+
+template< typename ScannerT >
+INTEGER::definition< ScannerT >::definition(INTEGER const& self)
+{
+    main = int_p[ self.result_ = construct_< complex_t >(arg1) ];
+    BOOST_SPIRIT_DEBUG_RULE(main);
+}
+
+
+
+template< typename ScannerT >
+REAL::definition< ScannerT >::definition(REAL const& self)
+{
+    main = strict_real_p[ self.result_ = construct_< complex_t >(arg1) ];
+    BOOST_SPIRIT_DEBUG_RULE(main);
+}
+
+
+
+template< typename ScannerT >
+IMAG::definition< ScannerT >::definition(IMAG const& self)
+{
+    main
+        = lexeme_d
+          [
+              real_p[ self.result_ = construct_< complex_t >(0, arg1) ]
+              >> !ch_p('*') >> ch_p('j')
+          ]
+          |   ch_p('j')[ self.result_ = construct_< complex_t >(0,1) ]
+        ;
+    BOOST_SPIRIT_DEBUG_RULE(main);
+}
+
+
+
+template< typename ScannerT >
+FACTOR::definition< ScannerT >::definition(FACTOR const& self)
+{
+    main =
+        ( first
+              =    group
+                   | IMAG_g    [ self.result_ = arg1 ]
+                   | REAL_g    [ self.result_ = arg1 ]
+                   | INTEGER_g [ self.result_ = arg1 ]
+              ,
+          group
+              =    ch_p('(')
+                   >> EXPRESSION_g[ self.result_ = arg1 ]
+                   >> ch_p(')')
+        );
+
+    BOOST_SPIRIT_DEBUG_RULE(main);
+    BOOST_SPIRIT_DEBUG_RULE(first);
+    BOOST_SPIRIT_DEBUG_RULE(group);
+    BOOST_SPIRIT_DEBUG_NODE(INTEGER_g);
+    BOOST_SPIRIT_DEBUG_NODE(REAL_g);
+    BOOST_SPIRIT_DEBUG_NODE(IMAG_g);
+}
+
+
+
+template< typename ScannerT >
+TERM::definition< ScannerT >::definition(TERM const& self)
+{
+    main =
+        (
+            FACTOR_g[ self.result_ = arg1 ]
+            >>  *( ( '*' >> FACTOR_g[ self.result_ *= arg1 ] )
+                 | ( '/' >> FACTOR_g[ self.result_ /= arg1 ] )
+                 )
+        );
+
+    BOOST_SPIRIT_DEBUG_RULE(main);
+    BOOST_SPIRIT_DEBUG_NODE(FACTOR_g);
+}
+
+
+
 
 struct VariableParser : public grammar< VariableParser, var_closure::context_t >
 {
@@ -140,7 +359,7 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
                              [var(count)=0]
                              [var(dim1)=0]
                              [var(dim2)=0]
-                         >> expression
+                         >> EXPRESSION_g
                                 [append_value_a(self.v)]
                                 [add_dimension_a(self.v, 1)]
                                 [add_dimension_a(self.v, 1)]
@@ -159,11 +378,11 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
                     ,
 
                 list_head
-                    =    expression
+                    =    EXPRESSION_g
                              [var(dim2)++]
                              [append_value_a(self.v)]
                          >>   *(   !ch_p(",")
-                                   >> expression
+                                   >> EXPRESSION_g
                                       [
                                           append_value_a(self.v)
                                       ]
@@ -187,98 +406,12 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
                              var(count)++
                          )
                          [
-                             expression
+                             EXPRESSION_g
                              [
                                  append_value_a(self.v)
                              ]
                              >> !ch_p(",")
                          ]
-                    ,
-
-                group
-                    =    '('
-                         >> expression
-                            [
-                                factor.val=arg1
-                            ]
-                         >> ')'
-                    ,
-
-                factor
-                    =      group
-                         | imag
-                         | real_num
-                         | int_num
-                    ,
-
-                 term
-                    =    factor
-                         [
-                             term.val=arg1
-                         ]
-                         >>  *( (  '*'
-                                   >> factor
-                                      [
-                                          term.val*=arg1
-                                      ]
-                                )
-                              | (  '/'
-                                   >> factor
-                                      [
-                                          term.val/=arg1
-                                      ]
-                                )
-                              )
-                    ,
-
-                expression
-                    =    term
-                         [
-                             expression.val=arg1
-                         ]
-                         >>  *( (  '+'
-                                    >> term
-                                       [
-                                           expression.val+=arg1
-                                       ]
-                                )
-                              | (  '-'
-                                   >> term
-                                      [
-                                          expression.val-=arg1
-                                      ]
-                                )
-                              )
-                    ,
-
-                real_num
-                    =    strict_real_p
-                         [
-                             factor.val=construct_< complex_t >(arg1)
-                         ]
-                    ,
-
-                int_num
-                    =    int_p
-                         [
-                             factor.val=construct_< complex_t >(arg1)
-                         ]
-                    ,
-
-                imag
-                    =    lexeme_d
-                         [
-                             real_p
-                             [
-                                 factor.val=construct_< complex_t >(0,arg1)
-                             ]
-                             >> !ch_p('*') 
-                             >>  ch_p("j")
-                         ]
-                         |   ch_p("j")
-                             [
-                                 factor.val=construct_< complex_t >(0,1)
-                             ]
                     );
 
             BOOST_SPIRIT_DEBUG_RULE(self);
@@ -287,13 +420,7 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
             BOOST_SPIRIT_DEBUG_RULE(list);
             BOOST_SPIRIT_DEBUG_RULE(list_head);
             BOOST_SPIRIT_DEBUG_RULE(list_tail);
-            BOOST_SPIRIT_DEBUG_RULE(factor);
-            BOOST_SPIRIT_DEBUG_RULE(group);
-            BOOST_SPIRIT_DEBUG_RULE(term);
-            BOOST_SPIRIT_DEBUG_RULE(int_num);
-            BOOST_SPIRIT_DEBUG_RULE(real_num);
-            BOOST_SPIRIT_DEBUG_RULE(imag);
-            BOOST_SPIRIT_DEBUG_RULE(expression);
+            BOOST_SPIRIT_DEBUG_NODE(EXPRESSION_g);
         }
 
         rule< ScannerT > first;
@@ -302,21 +429,15 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
         subrule< 1 > list;
         subrule< 2 > list_head;
         subrule< 3 > list_tail;
-        subrule< 4, value_closure::context_t > factor;
-        subrule< 5, value_closure::context_t > term;
-        subrule< 6, value_closure::context_t > expression;
-        subrule< 7 > int_num;
-        subrule< 8 > real_num;
-        subrule< 9 > imag;
-        subrule< 10 > group;
 
         rule< ScannerT > const& start() const
         {
             return first;
         }
     };
-};
+} VARIABLE_g;
 
-#undef BOOST_SPIRIT_DEBUG
+}
+
 
 #endif // _VARIABLE_PARSER_HPP

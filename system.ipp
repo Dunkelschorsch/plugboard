@@ -16,7 +16,7 @@ struct SystemImpl
 
 	void register_basic_types();
 
-	void add_block_impl(Block *b, const std::string& name_sys);	
+	void add_block_impl(Block * const b, const std::string& name_sys);	
 
 	uint32_t create_signal_buffer(type_t type, uint32_t size);
 

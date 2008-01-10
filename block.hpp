@@ -145,7 +145,7 @@ protected:
 
 	virtual void configure_parameters() = 0;
 
-	void add_parameter(void *var, type_t t, std::string description);
+	void add_parameter(void* var, type_t t, std::string description);
 
 	InPort::store_t & get_inport_list();
 

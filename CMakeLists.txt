@@ -19,7 +19,8 @@ add_executable(
 	block.cpp
 	port_in.cpp
 	port_out.cpp
-	input/console.cpp
+# 	input/console.cpp
+	input/file.cpp
 )
 
 
@@ -67,14 +68,14 @@ if (NOT READLINE_FOUND)
 endif (NOT READLINE_FOUND)
 
 
-#find and link against the boost::fileysytem library
+# find and link against the boost::fileysytem library
 find_library(BOOST_FILESYSTEM boost_filesystem)
 if(NOT BOOST_FILESYSTEM)
 	message(fatal_error 'Could not find the boost::filesystem library!')
 endif(NOT BOOST_FILESYSTEM)
 
 
-#find and link against the boost::thread library
+# find and link against the boost::thread library
 find_library(BOOST_THREAD boost_thread)
 if(NOT BOOST_THREAD)
 	message(fatal_error 'Could not find the boost::thread library!')
