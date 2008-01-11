@@ -33,6 +33,9 @@ private:
 
 /* member variable declarations go here */
 	InPort *sig_in_;
+
+	int_vec_t framesize_;
+	real_vec_t Ts_;
 };
 
 
@@ -40,7 +43,7 @@ private:
 bool Block_1in::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
-	sig_in_ = add_port(new InPort("in1", empty, 0, 0));
+	sig_in_ = add_port(new InPort("in1", empty, Ts_[0], framesize_[0]));
 
 	return true;
 }
@@ -59,6 +62,8 @@ bool Block_1in::setup_output_ports()
 void Block_1in::configure_parameters()
 {
 	/* calls to "add_parameter()" go here */
+	add_parameter(&Ts_, real, "Sample Time");
+	add_parameter(&framesize_, integer, "Frame Size");
 }
 
 
@@ -71,7 +76,7 @@ void Block_1in::process()
 	v_in = get_data_ptr< integer_t >(sig_in_);
 
 #ifndef NDEBUG
-	for(uint16_t i=0; i<sig_in_->get_frame_size(); i++)
+	for(uint32_t i=0; i<sig_in_->get_frame_size(); i++)
 	{
 		std::cout << v_in[i] << " ";
 	}
