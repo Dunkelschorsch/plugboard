@@ -29,7 +29,7 @@ bool Symtab::add_var(const std::string& name, const Variable& v)
 
 
 
-Variable Symtab::get_var(const std::string& name) const
+const Variable& Symtab::get_var(const std::string& name) const throw(UndefinedVariableException)
 {
 #ifndef NDEBUG
 	std::cout << "Symtab::get_var(). currently holding " << ht_.size() << " variables." << std::endl;
@@ -52,7 +52,7 @@ Variable Symtab::get_var(const std::string& name) const
 		}
 		else
 		{
-			return Variable();
+			throw UndefinedVariableException(name.c_str());
 		}
 	}
 	return it->second;

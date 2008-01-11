@@ -170,6 +170,19 @@ public:
 
 
 
+class UndefinedVariableException : public HumpException< std::string >
+{
+public:
+	UndefinedVariableException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Variable not defined";
+	}
+};
+
+
+
 template < class IdentifierType, class ProductType >
 class BlockFactoryError
 {
