@@ -8,12 +8,6 @@ Symtab::Symtab(const Symtab* parent) : parent_(parent)
 {
 }
 
-/*
-bool Symtab::eqstr::operator()(const char* s1, const char* s2) const
-{
-	return strcmp(s1, s2) == 0;
-}*/
-
 
 
 Symtab::Symtab() : parent_(NULL) { }

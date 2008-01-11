@@ -1,6 +1,5 @@
-#include "variable_parser.hpp"
 #include "types.hpp"
-
+#include "variable.hpp"
 #include <iostream>
 #include <boost/any.hpp>
 
@@ -208,24 +207,6 @@ Variable::iterator Variable::end()
 void Variable::add_dimension(uint16_t size)
 {
 	dims_.push_back(size);
-}
-
-
-
-void Variable::parse_input(const std::string& s)
-{
-	VariableParser h;
-	
-	parse_info<> info;
-	info = parse(s.c_str(), h[assign(*this)], space_p);
-
-	if (not info.full)
-	{
-		std::cout << "-------------------------\n";
-		std::cout << "Parsing failed\n";
-		std::cout << "stopped at: \"" << info.stop << "\"\n";
-		std::cout << "-------------------------\n";
-	}
 }
 
 

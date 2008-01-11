@@ -8,11 +8,11 @@ class Variable;
 class Parameter
 {
 public:
-	Parameter(void* data, type_t type, const std::string& description);
+	Parameter(void * data, type_t type, const std::string& description);
 
 	type_t get_type() const;
 
-	void *get_data() const;
+	void * get_data() const;
 
 	const std::string& get_description() const;
 

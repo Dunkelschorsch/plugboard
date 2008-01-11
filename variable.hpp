@@ -24,8 +24,6 @@ public:
 
 	explicit Variable(std::vector< uint16_t > dimensions);
 
-	void parse_input(const std::string& s);
-
 	void append(const boost::any& value);
 
 	void add_dimension(uint16_t size);

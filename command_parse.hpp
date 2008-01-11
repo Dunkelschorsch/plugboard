@@ -6,16 +6,24 @@
 #endif
 
 #include <vector>
-#include <list>
 #include <boost/any.hpp>
 #include <boost/function.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/lambda/lambda.hpp>
+#include <boost/spirit/actor/clear_actor.hpp>
 
 #include "variable_parser.hpp"
 #include "input/actions.hpp"
+
+
+
+using namespace boost::spirit;
+using phoenix::construct_;
+using phoenix::arg1;
+using phoenix::arg2;
+using boost::ref;
+
 
 
 namespace hump
@@ -28,29 +36,9 @@ namespace hump
 
 
 
-using namespace boost::spirit;
-using phoenix::construct_;
-using phoenix::arg1;
-using phoenix::arg2;
-using boost::ref;
-
-
-
 #ifndef NDEBUG
 namespace std
 {
-    template< typename C, typename E, typename T >
-    basic_ostream< C, E > & operator<<(basic_ostream< C, E > & out, std::vector< T > const & what)
-    {
-        for_each
-        (
-            what.begin(),
-            what.end(),
-            out << boost::lambda::_1 << " "
-        );
-        return out;
-    }
-
     template< typename C, typename E >
     basic_ostream< C, E > & operator<<(basic_ostream< C, E > & out, std::vector< boost::any > const & what)
     {
@@ -62,7 +50,7 @@ namespace std
 
 
 
-struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function< void(System &) > >
+struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function< void() > >
 {
     member1 command;
 };
@@ -175,15 +163,15 @@ struct CommandParser : public grammar< CommandParser< ArgContT >, CommandClosure
         {
             using namespace phoenix;
             main = (
-                comm
-                    =    (    eps_p[ clear_a(self.args_) ]
-                              >>  block_add            [ self.command = block_add_a_interactive(self.args_) ]
-                               |  block_describe       [ self.command = block_describe_a(self.args_) ]
-                               |  ports_connect        [ self.command = connect_a(self.args_) ]
-                               |  run                  [ self.command = run_a(self.args_) ]
-                               |  variable_declaration [ self.command = var_decl_a(self.args_) ]
+                submain
+                    =    (    eps_p[ clear_a(self.args_) ] >> !comment
+                              >>  block_add            [ self.command = commands::add_block(self.args_) ]
+                               |  block_describe       [ self.command = commands::describe_block(self.args_) ]
+                               |  ports_connect        [ self.command = commands::connect(self.args_) ]
+                               |  run                  [ self.command = commands::run(self.args_) ]
+                               |  variable_declaration [ self.command = commands::declare_variable(self.args_) ]
                          )
-                         >> ch_p(';')
+                         >> ch_p(';') >> !comment
                     ,
 
                 block_add
@@ -218,11 +206,17 @@ struct CommandParser : public grammar< CommandParser< ArgContT >, CommandClosure
                     =    VARIABLE_NAME_g[ push_back_a(self.args_) ]
                          >> '='
                          >> VARIABLE_g  [ push_back_a(self.args_) ]
+                    ,
+
+                skip_until_eol = *(('\\' >> eol_p) | (anychar_p - eol_p))
+                    ,
+
+                comment = '#' >> skip_until_eol
                     );
 
             BOOST_SPIRIT_DEBUG_RULE(main);
             BOOST_SPIRIT_DEBUG_NODE(self);
-            BOOST_SPIRIT_DEBUG_RULE(comm);
+            BOOST_SPIRIT_DEBUG_RULE(submain);
             BOOST_SPIRIT_DEBUG_NODE(block_add);
             BOOST_SPIRIT_DEBUG_RULE(block_describe);
             BOOST_SPIRIT_DEBUG_RULE(ports_connect);
@@ -236,12 +230,14 @@ struct CommandParser : public grammar< CommandParser< ArgContT >, CommandClosure
 
         rule< ScannerT > main;
 
-        subrule< 0 > comm;
+        subrule< 0 > submain;
         subrule< 1 > block_add;
         subrule< 2 > block_describe;
         subrule< 3 > ports_connect;
         subrule< 4 > run;
         subrule< 5 > variable_declaration;
+        subrule< 6 > skip_until_eol;
+        subrule< 7 > comment;
 
         rule< ScannerT > const& start() const
         {

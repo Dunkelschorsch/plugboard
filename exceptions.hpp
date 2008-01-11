@@ -144,6 +144,32 @@ public:
 
 
 
+class IncompatibleTypesException : public HumpException< std::string >
+{
+public:
+	IncompatibleTypesException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Incompatible types in assignement";
+	}
+};
+
+
+
+class ParameterCountMismatchException : public HumpException< std::string >
+{
+public:
+	ParameterCountMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
+
+	const char* what()
+	{
+		return "Wrong number of parameters";
+	}
+};
+
+
+
 template < class IdentifierType, class ProductType >
 class BlockFactoryError
 {

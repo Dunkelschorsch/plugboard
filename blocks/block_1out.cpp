@@ -29,16 +29,18 @@ private:
 	bool setup_output_ports() __attribute__ ((visibility("hidden")));
 #endif
 
-/* member variable declarations go here */
+	/* member variable declarations go here */
 	OutPort *sig_out_;
 	int_vec_t framesize_;
+	int_vec_t constant_;
+	real_vec_t Ts_;
 };
 
 
 #ifdef HAS_INPUTS
 bool Block_1out::setup_input_ports()
 {
-/* calls to "add_port(InPort &) go here */
+	/* calls to "add_port(InPort &) go here */
 	return true;
 }
 #endif
@@ -47,8 +49,8 @@ bool Block_1out::setup_input_ports()
 #ifdef HAS_OUTPUTS
 bool Block_1out::setup_output_ports()
 {
-/* calls to "add_port(OutPort &) go here */
-	sig_out_ = add_port(new OutPort("out1", integer, 1.0, framesize_[0]));
+	/* calls to "add_port(OutPort &) go here */
+	sig_out_ = add_port(new OutPort("out1", integer, Ts_[0], framesize_[0]));
 
 	return true;
 }
@@ -57,8 +59,10 @@ bool Block_1out::setup_output_ports()
 
 void Block_1out::configure_parameters()
 {
-/* calls to "add_parameter()" go here */
-	add_parameter(&framesize_, integer, "Framesize");
+	/* calls to "add_parameter()" go here */
+	add_parameter(&Ts_, real, "Sample Time");
+	add_parameter(&framesize_, integer, "Frame Size");
+	add_parameter(&constant_, integer, "Output Constant");
 }
 
 
@@ -72,7 +76,7 @@ void Block_1out::process()
 	
 	v = get_data_ptr< integer_t >(sig_out_);
 
-	std::fill(v, v+sig_out_->get_frame_size(), 1);
+	std::fill(v, v+sig_out_->get_frame_size(), constant_[0]);
 
 	sig_out_->send();
 }
@@ -83,7 +87,6 @@ Block_1out::Block_1out()
 	name_ = BLOCK_NAME;
 	set_description("This is a block for testing purposes. It has 1 output.");
 	configure_parameters();
-// 	framesize_.push_back(5);
 }
 
 

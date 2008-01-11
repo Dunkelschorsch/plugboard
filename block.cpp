@@ -161,6 +161,9 @@ bool Block::set_parameter(const Variable& p)
 		{
 			configured_ = true;
 		}
+	} else
+	{
+		throw IncompatibleTypesException(get_name_sys());
 	}
 	return true;
 }

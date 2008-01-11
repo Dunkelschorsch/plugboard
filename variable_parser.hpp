@@ -1,6 +1,10 @@
 #ifndef _VARIABLE_PARSER_HPP
 #define _VARIABLE_PARSER_HPP
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -8,16 +12,12 @@
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
 #include <boost/spirit/dynamic/for.hpp>
-#include <boost/spirit/actor/increment_actor.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/any.hpp>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
-#include "variable.hpp"
 #include "types.hpp"
+#include "variable.hpp"
+
 
 using namespace boost::spirit;
 using boost::ref;
@@ -340,7 +340,6 @@ TERM::definition< ScannerT >::definition(TERM const& self)
 
 
 
-
 struct VariableParser : public grammar< VariableParser, var_closure::context_t >
 {
     template < typename ScannerT >
@@ -437,7 +436,7 @@ struct VariableParser : public grammar< VariableParser, var_closure::context_t >
     };
 } VARIABLE_g;
 
-}
+} // namespace
 
 
 #endif // _VARIABLE_PARSER_HPP

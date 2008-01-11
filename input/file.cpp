@@ -1,4 +1,3 @@
-// #include <algorithm>
 #include <iostream>
 #include <deque>
 #include <boost/function.hpp>
@@ -6,7 +5,8 @@
 
 #include "command_parse.hpp"
 #include "file.hpp"
-#include "systems.hpp"
+
+
 
 struct HumpFile::HumpFileImpl
 {
@@ -62,17 +62,17 @@ bool HumpFile::execute_command(const std::string& file_name)
 
 	scanner_t scan(first, last, policies);
 
-	boost::function< void(System&) > f;
+	boost::function< void() > f;
 	while(first != last && d->parser_[::phoenix::var(f)=::phoenix::arg1].parse(scan))
 	{
-		f(*Systems::instance());
+		f();
 	}
 
 	if(first != last)
 	{
 		std::cout << "-------------------------" << std::endl;
-		std::cout << "Parsing failed" << std::endl;
-		std::cout << "stopped at: \"" << *first << "\"" << std::endl;
+		std::cout << "Parsing failed"            << std::endl;
+		std::cout << "stopped at: \""            << *first << "\"" << std::endl;
 		std::cout << "-------------------------" << std::endl;
 		return false;
 	}
