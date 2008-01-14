@@ -1,10 +1,11 @@
 #ifndef _PORT_OUT_HPP
 #define _PORT_OUT_HPP
 
+
 #include "port_base.hpp"
-#include <deque>
 #include "message.hpp"
 class InPort;
+
 
 
 class OutPort : public BasePort< OutPort >
@@ -17,8 +18,6 @@ public:
 	void disconnect(const InPort& other);
 
 	boost::function< Message() > send;
-
-	typedef std::deque< OutPort > store_t;
 };
 
 #endif // _PORT_OUT_HPP

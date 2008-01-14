@@ -2,7 +2,6 @@
 #define _PORT_IN_HPP
 
 #include "port_base.hpp"
-#include <deque>
 class Message;
 
 
@@ -13,8 +12,6 @@ public:
 	InPort(const string_t& name, const type_t type=empty, const real_t Ts=0, const uint32_t frame_size=0);
 
 	const Message receive(uint32_t buff_num);
-
-	typedef std::deque< InPort > store_t;
 };
 
 

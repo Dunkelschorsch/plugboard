@@ -3,6 +3,9 @@
 
 #include "types.hpp"
 #include <boost/function.hpp>
+#include <list>
+
+
 
 template< class DerivedPortT >
 class BasePort
@@ -31,6 +34,8 @@ public:
 	void set_owner_block_name (const string_t& owner_name);
 
 	boost::function< void*() > get_buffer_ptr;
+
+	typedef std::list< DerivedPortT > store_t;
 
 protected:
 	BasePort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size);
