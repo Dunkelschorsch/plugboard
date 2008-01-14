@@ -1,5 +1,4 @@
 #include <iostream>
-#include <deque>
 #include <boost/function.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
 

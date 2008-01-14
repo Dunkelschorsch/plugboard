@@ -16,6 +16,7 @@ class Variable;
 
 #include <map>
 #include <set>
+#include <deque>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
