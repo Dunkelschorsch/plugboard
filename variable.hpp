@@ -14,9 +14,9 @@ class Variable
 public:
 	Variable();
 
-	Variable(const integer_t& value);
+	Variable(integer_t value);
 
-	Variable(const real_t& value);
+	Variable(real_t value);
 
 	Variable(const string_t& value);
 
@@ -34,9 +34,9 @@ public:
 
 	type_t get_type() const;
 
-	void set_type(const type_t t);
+	void set_type(type_t t);
 
-	void save_type_change(const type_t t);
+	void save_type_change(type_t t);
 
 	operator bool() const;
 

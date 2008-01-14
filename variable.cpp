@@ -14,7 +14,7 @@ Variable::Variable() :
 
 
 
-Variable::Variable(const integer_t& value)
+Variable::Variable(integer_t value)
 {
 	type_ = integer;
 	values_.push_back(value);
@@ -29,7 +29,7 @@ Variable::Variable(const integer_t& value)
  * \param value a constant real_t reference to initialize the variable
  *
  */
-Variable::Variable(const real_t& value)
+Variable::Variable(real_t value)
 {
 	type_ = real;
 	values_.push_back(value);
@@ -211,7 +211,7 @@ void Variable::add_dimension(uint16_t size)
 
 
 
-void Variable::set_type(const type_t t)
+void Variable::set_type(type_t t)
 {
 	type_ = t;
 }
@@ -220,7 +220,7 @@ void Variable::set_type(const type_t t)
 
 struct ChangeTypeAction
 {
-	ChangeTypeAction(const type_t& old_type, const type_t& new_type) : old_(old_type), new_(new_type) { }
+	ChangeTypeAction(type_t old_type, type_t new_type) : old_(old_type), new_(new_type) { }
 
 	template< typename ElementT >
 	void operator()(ElementT& e)
@@ -260,14 +260,14 @@ struct ChangeTypeAction
 		}
 	}
 
-	const type_t &old_, &new_;
+	type_t old_, new_;
 
 	typedef void reslt_type;
 };
 
 
 
-void Variable::save_type_change(const type_t t)
+void Variable::save_type_change(type_t t)
 {
 	// we change
 	if(t > this->get_type())
