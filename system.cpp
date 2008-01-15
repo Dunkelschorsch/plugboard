@@ -22,7 +22,6 @@
 
 
 using boost::bind;
-using boost::function;
 using boost::lambda::new_ptr;
 using boost::lambda::delete_ptr;
 
