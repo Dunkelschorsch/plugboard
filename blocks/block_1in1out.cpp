@@ -2,6 +2,8 @@
 #include "types.hpp"
 #include <iostream>
 #include <unistd.h>
+#include <algorithm>
+
 
 #define HAS_INPUTS
 #define HAS_OUTPUTS
@@ -50,8 +52,11 @@ bool Block_1in1out::setup_input_ports()
 #ifdef HAS_OUTPUTS
 bool Block_1in1out::setup_output_ports()
 {
-	sig_out1_ = add_port(new OutPort("out1", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
+	type_t out_type = sig_in1_->get_type();
+	real_t out_Ts = sig_in1_->get_Ts();
+	uint32_t out_size = sig_in1_->get_frame_size();
 
+	sig_out1_ = add_port( new OutPort("out1", out_type, out_Ts, out_size) );
 	return true;
 }
 #endif
@@ -74,11 +79,17 @@ void Block_1in1out::process()
 	v_in = get_data_ptr< integer_t >(sig_in1_);
 	v_out = get_data_ptr< integer_t >(sig_out1_);
 
-	
-	for(uint32_t i=0; i<sig_out1_->get_frame_size(); i++)
-	{
-		v_out[i] = 1+v_in[i];
-	}
+	std::transform
+	(
+		v_in,
+		v_in + sig_in1_->get_frame_size(),
+		v_out,
+		std::bind1st
+		(
+			std::plus< integer_t >(),
+			1
+		)
+	);
 	
 	sig_out1_->send();
 }
