@@ -15,7 +15,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/any.hpp>
 
-#include "types.hpp"
+#include "types/base.hpp"
 #include "variable.hpp"
 
 

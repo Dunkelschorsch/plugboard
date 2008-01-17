@@ -19,11 +19,6 @@
 #include <boost/preprocessor/facilities/empty.hpp>
 
 
-/** \file types.hpp
-
-   \brief A documented file
-*/
-
 
 #define SIGNAL_TYPE(I) BOOST_PP_CAT(SIGNAL_TYPE, I)
 
@@ -65,36 +60,6 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 #undef BOOST_PP_DEF
 
 
-#define vector_t std::vector
-
-typedef vector_t< empty_t > empty_vec_t;
-typedef vector_t< real_t > real_vec_t;
-typedef vector_t< integer_t > int_vec_t;
-typedef vector_t< complex_t > complex_vec_t;
-typedef vector_t< logical_t > bit_vec_t;
-typedef vector_t< string_t > string_vec_t;
-
-#undef vector_t
-
-namespace
-{
-
-template< typename T >
-struct typeinfo;
-
-#define BOOST_PP_DEF(z, I, _) \
-	template< > \
-	struct  typeinfo< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
-	{	\
-		static const type_t value = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)); \
-		static const size_t size = sizeof(BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I))); \
-	};
-
-BOOST_PP_REPEAT_FROM_TO(0, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1), BOOST_PP_DEF, _)
-
-#undef BOOST_PP_DEF
-
-}
 
 // these assertions make sure the Variable::save_type_change methods works as expected
 namespace type_ordering

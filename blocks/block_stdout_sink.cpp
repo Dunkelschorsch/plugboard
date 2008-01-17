@@ -1,5 +1,5 @@
 #include "block.hpp"
-#include "types.hpp"
+#include "types/base.hpp"
 #include <iostream>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>

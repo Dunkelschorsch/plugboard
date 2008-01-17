@@ -5,7 +5,7 @@
 #include "variable.hpp"
 #include "port.hpp"
 #include "symtab.hpp"
-#include "types.hpp"
+#include "types/base.hpp"
 #include "exec_matrix.hpp"
 
 #include <boost/preprocessor/repetition.hpp>

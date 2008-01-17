@@ -2,8 +2,8 @@
 #include <boost/function.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
 
-#include "command_parse.hpp"
-#include "file.hpp"
+#include "input/command_parse.hpp"
+#include "input/file.hpp"
 
 
 
@@ -11,16 +11,13 @@ struct HumpFile::HumpFileImpl
 {
 	HumpFileImpl();
 
-	std::vector< boost::any > v;
-	CommandParser< std::vector > parser_;
+	arg_storage_t v;
+	CommandParser parser_;
 };
 
 
 
-HumpFile::HumpFileImpl::HumpFileImpl() : parser_(v)
-{
-
-}
+HumpFile::HumpFileImpl::HumpFileImpl() : parser_(v) { }
 
 
 

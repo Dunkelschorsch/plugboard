@@ -5,7 +5,9 @@
 #include <iostream>
 #endif
 
-#include "types.hpp"
+#include "types/base.hpp"
+#include "types/typeinfo.hpp"
+
 #include <algorithm>
 #include <boost/any.hpp>
 
@@ -43,8 +45,10 @@ public:
 
 	bool save_type_change(type_t t);
 
-	// just for the iterator. use only if you must!
+	// just for the iterator. use at your own risk!
+	// no. wait. don't use it at all...
 	void* data() const;
+
 	size_t size() const;
 
 protected:

@@ -20,6 +20,7 @@ add_executable(
 	port_in.cpp
 	port_out.cpp
 # 	input/console.cpp
+	input/actions.cpp
 	input/file.cpp
 )
 

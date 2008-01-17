@@ -5,8 +5,6 @@
 #include <iostream>
 #endif
 
-#include <vector>
-#include <boost/any.hpp>
 #include <boost/function.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute.hpp>
@@ -151,10 +149,10 @@ PARAMETER_LIST< std::vector > PARAMETER_LIST_g;
 }
 
 
-template< template< typename > class ArgContT >
-struct CommandParser : public grammar< CommandParser< ArgContT >, CommandClosure::context_t >
+
+struct CommandParser : public grammar< CommandParser, CommandClosure::context_t >
 {
-    CommandParser(ArgContT< boost::any >& v) : args_(v) { }
+    CommandParser(arg_storage_t& v) : args_(v) { }
 
     template < typename ScannerT >
     struct definition
@@ -245,7 +243,7 @@ struct CommandParser : public grammar< CommandParser< ArgContT >, CommandClosure
         }
     };
 
-    ArgContT< boost::any >& args_;
+    arg_storage_t& args_;
 } ;
 
 #endif // _COMMAND_PARSE_HPP

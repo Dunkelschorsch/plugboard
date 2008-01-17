@@ -2,7 +2,7 @@
 #define _BLOCK_LOADER_HPP
 
 class Block;
-#include "types.hpp"
+#include "types/base.hpp"
 #include <string>
 #include <boost/pool/detail/singleton.hpp>
 

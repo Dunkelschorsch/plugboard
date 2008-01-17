@@ -1,7 +1,7 @@
 #ifndef _PORT_BASE_HPP
 #define _PORT_BASE_HPP
 
-#include "types.hpp"
+#include "types/base.hpp"
 #include <boost/function.hpp>
 #include <list>
 

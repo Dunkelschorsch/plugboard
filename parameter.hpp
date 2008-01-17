@@ -1,7 +1,7 @@
 #ifndef _PARAMETER_HPP
 #define _PARAMETER_HPP
 
-#include "types.hpp"
+#include "types/base.hpp"
 class Variable;
 
 

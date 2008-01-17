@@ -1,7 +1,7 @@
 #ifndef _SIGNAL_HPP
 #define _SIGNAL_HPP
 
-#include "types.hpp"
+#include "types/base.hpp"
 
 #include <algorithm>
 

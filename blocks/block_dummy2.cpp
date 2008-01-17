@@ -1,5 +1,6 @@
 #include "block.hpp"
-#include "types.hpp"
+#include "types/base.hpp"
+#include "types/vectors.hpp"
 #include <iostream>
 
 static const std::string BLOCK_NAME = "Dummy2";

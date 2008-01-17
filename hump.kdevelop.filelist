@@ -39,7 +39,6 @@ port_base.hpp
 input
 input/console.hpp
 input/console.cpp
-command_parse.hpp
 swift/SReadline.h
 exec_matrix.hpp
 exec_matrix.cpp
@@ -57,3 +56,9 @@ systems.cpp
 input/file.cpp
 input/file.hpp
 variable_iterator.hpp
+typeinfo.hpp
+types/typeinfo.hpp
+types/vectors.hpp
+types/base.hpp
+input/command_parse.hpp
+input/actions.cpp
