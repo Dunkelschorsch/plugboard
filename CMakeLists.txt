@@ -2,7 +2,7 @@ project (HUMP)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
-include_directories (${HUMP_SOURCE_DIR} ${HUMP_SOURCE_DIR}/swift ${HUMP_SOURCE_DIR}/input)
+include_directories (${HUMP_SOURCE_DIR} ${HUMP_SOURCE_DIR}/input)
 
 add_executable(
 	main
@@ -52,13 +52,13 @@ if(NOT BOOST_THREAD)
 endif(NOT BOOST_THREAD)
 
 
-include_directories (${Boost_INCLUDE_DIRS} ${READLINE_INCLUDE_DIR})
+include_directories (${Boost_INCLUDE_DIRS})
 link_directories (${Boost_LIBRARY_DIRS})
 
 
-SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS} ${READLINE_INCLUDE_DIR})
+SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${READLINE_LIBRARY} block_common ltdl)
+target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} block_common ltdl)
 
 add_library (block_common SHARED block.cpp)
 
