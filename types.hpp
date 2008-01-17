@@ -6,7 +6,9 @@
 #include <boost/cstdint.hpp>
 #include <boost/static_assert.hpp>
 
-#include <boost/preprocessor/repetition.hpp>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/repetition/repeat_from_to.hpp>
 #include <boost/preprocessor/array/elem.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <boost/preprocessor/comparison/less.hpp>
@@ -23,7 +25,7 @@
 */
 
 
-#define SIGNAL_TYPE(I) SIGNAL_TYPE ## I
+#define SIGNAL_TYPE(I) BOOST_PP_CAT(SIGNAL_TYPE, I)
 
 //			name of C++ type	name in type_t	signal name	typedef'ed from
 #define SIGNAL_TYPE0	(4, (empty_t,		empty,		EmptySignal,	void*))
@@ -78,16 +80,17 @@ namespace
 {
 
 template< typename T >
-type_t set_types() { return empty; }
+struct typeinfo;
 
 #define BOOST_PP_DEF(z, I, _) \
-	template< >	\
-	type_t set_types< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >() \
+	template< > \
+	struct  typeinfo< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
 	{	\
-		return BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)); \
-	}
+		static const type_t value = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)); \
+		static const size_t size = sizeof(BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I))); \
+	};
 
-BOOST_PP_REPEAT(BOOST_PP_SUB(SIGNAL_TYPE_CNT, 2), BOOST_PP_DEF, _)
+BOOST_PP_REPEAT_FROM_TO(0, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1), BOOST_PP_DEF, _)
 
 #undef BOOST_PP_DEF
 

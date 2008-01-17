@@ -69,12 +69,12 @@ template< typename ElementT >
 void Variable::push_back(const ElementT e)
 {
 	if(type_ == empty)
-		type_ = set_types< ElementT >();
+		type_ = typeinfo< ElementT >::value;
 		
-	data_ = realloc(data_, sizeof(ElementT) * (numel_+1));
+	data_ = realloc(data_, typeinfo< ElementT >::size * (numel_+1));
 	static_cast< ElementT* >(data_)[numel_++] = static_cast< const ElementT >(e);
 
-	size_ += sizeof(ElementT);
+	size_ += typeinfo< ElementT >::size;
 }
 
 
@@ -82,7 +82,7 @@ void Variable::push_back(const ElementT e)
 template< typename oldT, typename newT >
 void Variable::cast()
 {
-	void* new_data = malloc(sizeof(newT) * this->numel_);
+	void* new_data = malloc(typeinfo< newT >::size * this->numel_);
 	for(size_t i=0; i<this->numel_; ++i)
 	{
 		static_cast< newT* >(new_data)[i] =
@@ -91,7 +91,7 @@ void Variable::cast()
 	free(data_);
 	data_ = new_data;
 
-	size_ = numel_ * sizeof(newT);
+	size_ = numel_ * typeinfo< newT >::size;
 #ifndef NDEBUG
 	std::cout << "new variable size (bytes): " << size_ << std::endl;
 #endif
