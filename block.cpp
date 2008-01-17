@@ -100,7 +100,7 @@ struct CopyAction
 	template< typename ElementT >
 	void operator()(ElementT e) const
 	{
-		reinterpret_cast< std::vector< TargetT >* >(out_)->push_back(e);
+		static_cast< std::vector< TargetT >* >(out_)->push_back(e);
 	}
 
 	void * const out_;
@@ -145,9 +145,9 @@ bool Block::set_parameter(const Variable& p)
 	if (params_[param_curr_].is_convertible_to(p))
 	{
 		// we do not want to typecast the original variable
-		Variable var_tmp = p;
+		Variable var_tmp(p);
 
-		if(not params_[param_curr_].is_of_same_type_as(var_tmp))
+		if(not params_[param_curr_].is_of_same_type_as(p))
 		{
 #ifndef NDEBUG
 			std::cout << "changing type of variable." << std::endl;
