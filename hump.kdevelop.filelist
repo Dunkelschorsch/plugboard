@@ -56,3 +56,4 @@ systems.hpp
 systems.cpp
 input/file.cpp
 input/file.hpp
+variable_iterator.hpp

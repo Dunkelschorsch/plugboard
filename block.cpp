@@ -1,6 +1,7 @@
 #include "block.hpp"
 #include "port.hpp"
 #include "variable.hpp"
+#include "variable_iterator.hpp"
 #include "exceptions.hpp"
 
 #include <boost/any.hpp>
@@ -99,7 +100,7 @@ struct CopyAction
 	template< typename ElementT >
 	void operator()(ElementT e) const
 	{
-		reinterpret_cast< std::vector< TargetT >* >(out_)->push_back(boost::any_cast< TargetT >(e));
+		reinterpret_cast< std::vector< TargetT >* >(out_)->push_back(e);
 	}
 
 	void * const out_;
@@ -110,10 +111,13 @@ struct CopyAction
 template< typename T >
 void Block::copy_parameter(void *out, Variable& p)
 {
+	variable_iterator< T > begin = variable_iterator< T >(p);
+	variable_iterator< T > end = begin.make_end();
+
 	std::for_each
 	(
-		p.begin(),
-		p.end(),
+		begin,
+		end,
 		CopyAction< T >(out)
 	);
 	param_curr_++;
@@ -143,7 +147,7 @@ bool Block::set_parameter(const Variable& p)
 		// we do not want to typecast the original variable
 		Variable var_tmp = p;
 
-		if(not params_[param_curr_].is_of_same_type_as(p));
+		if(not params_[param_curr_].is_of_same_type_as(var_tmp))
 		{
 #ifndef NDEBUG
 			std::cout << "changing type of variable." << std::endl;

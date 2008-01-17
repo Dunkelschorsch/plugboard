@@ -6,7 +6,7 @@
 #include "exceptions.hpp"
 
 template< class PortT >
-class PortTypeSpecificActions;
+class PortTraits;
 
 class Variable;
 
@@ -44,8 +44,8 @@ class Block
 friend class System;
 friend class SystemImpl;
 friend class SubsystemImpl;
-friend class PortTypeSpecificActions< InPort >;
-friend class PortTypeSpecificActions< OutPort >;
+friend class PortTraits< InPort >;
+friend class PortTraits< OutPort >;
 
 public:
 	Block();
@@ -193,12 +193,12 @@ private:
 
 
 template< class PortT >
-struct PortTypeSpecificActions { };
+struct PortTraits { };
 
 
 
 template< >
-struct PortTypeSpecificActions< OutPort >
+struct PortTraits< OutPort >
 {
 	template< class IteratorT, typename PointerT >
 	OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT * const this_p)
@@ -233,7 +233,7 @@ struct PortTypeSpecificActions< OutPort >
 
 
 template< >
-struct PortTypeSpecificActions< InPort >
+struct PortTraits< InPort >
 {
 	template< class IteratorT, typename PointerT >
 	InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT * const this_p)
@@ -254,7 +254,7 @@ struct PortTypeSpecificActions< InPort >
 template< class PortT, class IteratorT, typename PointerT >
 inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT * const this_p)
 {
-	return PortTypeSpecificActions< PortT >().name_exists_action(it, p, this_p);
+	return PortTraits< PortT >().name_exists_action(it, p, this_p);
 }
 
 
@@ -262,7 +262,7 @@ inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT * const 
 template< class PortT, typename PointerT >
 inline void increment_no_of_ports(PortT * const, PointerT * const this_p)
 {
-	PortTypeSpecificActions< PortT >().increment_no_of_ports(this_p);
+	PortTraits< PortT >().increment_no_of_ports(this_p);
 }
 
 

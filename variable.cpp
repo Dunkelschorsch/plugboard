@@ -1,23 +1,54 @@
-#include "types.hpp"
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
 #include "variable.hpp"
-#include <iostream>
-#include <boost/any.hpp>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+
+using std::malloc;
+using std::realloc;
+using std::free;
+using std::memcpy;
 
 
 Variable::Variable() :
 	dims_(std::vector< uint16_t >()),
-	type_(empty),
-	values_(std::vector< boost::any >())
+	numel_(0),
+	size_(0),
+	data_(NULL),
+	type_(empty)
 {
 }
 
 
 
-Variable::Variable(integer_t value)
+Variable::Variable(const Variable & other) :
+	dims_(other.dims_),
+	numel_(other.numel_),
+	size_(other.size_),
+	data_(NULL),
+	type_(other.type_)
+{
+	this->data_ = malloc(this->size_);
+	this->data_ = memcpy(this->data_, other.data_, this->size_);
+}
+
+
+
+Variable::Variable(integer_t value) :
+	dims_(std::vector< uint16_t >()),
+	numel_(1),
+	size_(sizeof(integer_t)),
+	data_(NULL),
+	type_(empty)
 {
 	type_ = integer;
-	values_.push_back(value);
+	data_ = malloc(sizeof(integer_t));
+	static_cast< integer_t* >(data_)[0] = value;
+
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
@@ -29,10 +60,17 @@ Variable::Variable(integer_t value)
  * \param value a constant real_t reference to initialize the variable
  *
  */
-Variable::Variable(real_t value)
+Variable::Variable(real_t value) :
+	dims_(std::vector< uint16_t >()),
+	numel_(1),
+	size_(sizeof(real_t)),
+	data_(NULL),
+	type_(empty)
 {
 	type_ = real;
-	values_.push_back(value);
+	data_ = malloc(sizeof(real_t));
+	static_cast< real_t* >(data_)[0] = value;
+
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
@@ -44,29 +82,48 @@ Variable::Variable(real_t value)
  * \param value a constant string_t reference to initialize the variable
  *
  */
-Variable::Variable(const string_t& value)
+Variable::Variable(const string_t& value) :
+	dims_(std::vector< uint16_t >()),
+	numel_(1),
+	size_(sizeof(string_t)),
+	data_(NULL),
+	type_(empty)
 {
 	type_ = string;
-	values_.push_back(value);
+	data_ = malloc(sizeof(value));
+	static_cast< string_t* >(data_)[0] = string_t(value);
+
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
 
 
 
-Variable::Variable(const complex_t& value)
+Variable::Variable(const complex_t& value) :
+	dims_(std::vector< uint16_t >()),
+	numel_(1),
+	size_(sizeof(complex_t)),
+	data_(NULL),
+	type_(empty)
 {
 	type_ = complex;
-	values_.push_back(value);
+	data_ = malloc(sizeof(complex_t));
+	static_cast< complex_t* >(data_)[0] = complex_t(value);
+
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
 
 
 
-void Variable::append(const boost::any& value)
+Variable & Variable::operator =(const Variable & other)
 {
-	values_.push_back(value);
+	if(this != &other)
+	{
+		Variable tmp(other);
+		swap(tmp);
+	}
+	return *this;
 }
 
 
@@ -95,111 +152,9 @@ Variable::operator bool() const
 
 
 
-uint64_t Variable::size() const
+size_t Variable::size() const
 {
-	switch (get_type())
-	{
-	case (integer) :
-		return sizeof(integer_t) * values_.size();
-		break;
-	case (real) :
-		return sizeof(real_t) * values_.size();
-		break;
-	case (complex) :
-		return sizeof(complex_t) *8*values_.size();
-		break;
-	case (string) :
-		return sizeof(char) *8*values_.size();
-		break;
-	default	:
-		return 0;
-	}
-}
-
-
-
-std::vector<boost::any>::reference Variable::iterator::operator*() const
-{
-	return *it_;
-}
-
-
-
-bool Variable::iterator::operator== (const
-                                     iterator& x) const
-{
-	return it_ == x.it_;
-}
-
-
-
-bool Variable::iterator::operator!= (const
-                                     iterator& x) const
-{
-	return !(*this == x);
-}
-
-
-
-Variable::iterator& Variable::iterator::operator++()
-{
-	++it_;
-	return *this;
-}
-
-
-
-Variable::iterator Variable::iterator::operator++(int)
-{
-	iterator tmp = *this;
-	++*this;
-	return tmp;
-}
-
-
-
-Variable::iterator& Variable::iterator::operator--()
-{
-	--it_;
-	return *this;
-}
-
-
-
-Variable::iterator Variable::iterator::operator-- (int)
-{
-	iterator tmp = *this;
-	--*this;
-	return tmp;
-}
-
-
-
-Variable::iterator Variable::iterator::insert(const
-          boost::any& x)
-{
-	return iterator(*r_, r_->insert(it_, x));
-}
-
-
-
-Variable::iterator Variable::iterator::erase()
-{
-	return iterator(*r_, r_->erase(it_));
-}
-
-
-
-Variable::iterator Variable::begin()
-{
-	return iterator(values_, values_.begin());
-}
-
-
-
-Variable::iterator Variable::end()
-{
-	return iterator(values_, values_.end());
+	return numel_;
 }
 
 
@@ -218,73 +173,51 @@ void Variable::set_type(type_t t)
 
 
 
-struct ChangeTypeAction
+bool Variable::save_type_change(type_t new_type)
 {
-	ChangeTypeAction(type_t old_type, type_t new_type) : old_(old_type), new_(new_type) { }
+	assert(new_type != empty);
 
-	template< typename ElementT >
-	void operator()(ElementT& e)
+	type_t old_type = this->type_;
+
+	if(new_type < old_type)
+		return false;
+	else if(new_type == old_type)
+		return true;
+
+	if(old_type == integer)
 	{
-		if(old_ == integer)
+#ifndef NDEBUG
+		std::cout << "converting integer->";
+#endif
+		if(new_type == real)
 		{
 #ifndef NDEBUG
-			std::cout << "converting integer->";
+			std::cout << "real" << std::endl;
 #endif
-			if(new_ == real)
-			{
-#ifndef NDEBUG
-				std::cout << "real" << std::endl;
-#endif
-				e = static_cast< real_t >(boost::any_cast< integer_t >(e));
-			}
-			else if(new_ == complex)
-			{
-#ifndef NDEBUG
-				std::cout << "complex" << std::endl;
-#endif
-				e = static_cast< complex_t >(boost::any_cast< integer_t >(e));
-			}
+			cast< integer_t, real_t >();
 		}
-		else if(old_ == real)
+		else if(new_type == complex)
 		{
 #ifndef NDEBUG
-			std::cout << "converting real->";
+			std::cout << "complex" << std::endl;
 #endif
-			if(new_ == complex)
-			{
-#ifndef NDEBUG
-				std::cout << "complex" << std::endl;
-#endif
-				e = static_cast< complex_t >(boost::any_cast< real_t >(e));
-			}
+			cast< integer_t, complex_t >();
 		}
 	}
-
-	type_t old_, new_;
-
-	typedef void reslt_type;
-};
-
-
-
-void Variable::save_type_change(type_t t)
-{
-	// we change
-	if(t > this->get_type())
+	else if(old_type == real)
 	{
-		try
+#ifndef NDEBUG
+		std::cout << "converting real->";
+#endif
+		if(new_type == complex)
 		{
-			std::for_each
-			(
-				values_.begin(),
-				values_.end(),
-				ChangeTypeAction(this->get_type(), t)
-			);
+#ifndef NDEBUG
+			std::cout << "complex" << std::endl;
+#endif
+			cast< real_t, complex_t >();
 		}
-		catch(boost::bad_any_cast &e) { };
-
-		type_ = t;
 	}
+	return true;
 }
 
 
@@ -292,4 +225,29 @@ void Variable::save_type_change(type_t t)
 const std::vector< uint16_t >& Variable::get_dimensions( ) const
 {
 	return dims_;
+}
+
+
+
+Variable::~ Variable()
+{
+	free(data_);
+}
+
+
+
+void* Variable::data() const
+{
+	return data_;
+}
+
+
+
+void Variable::swap(Variable & other)
+{
+	std::swap(this->type_, other.type_);
+	std::swap(this->dims_, other.dims_);
+	std::swap(this->numel_, other.numel_);
+	std::swap(this->size_, other.size_);
+	std::swap(this->data_, other.data_);
 }

@@ -12,6 +12,7 @@
 #include <boost/preprocessor/comparison/less.hpp>
 #include <boost/preprocessor/comparison/equal.hpp>
 #include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/arithmetic/add.hpp>
 #include <boost/preprocessor/control/if.hpp>
 #include <boost/preprocessor/facilities/empty.hpp>
 
@@ -72,6 +73,25 @@ typedef vector_t< logical_t > bit_vec_t;
 typedef vector_t< string_t > string_vec_t;
 
 #undef vector_t
+
+namespace
+{
+
+template< typename T >
+type_t set_types() { return empty; }
+
+#define BOOST_PP_DEF(z, I, _) \
+	template< >	\
+	type_t set_types< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >() \
+	{	\
+		return BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)); \
+	}
+
+BOOST_PP_REPEAT(BOOST_PP_SUB(SIGNAL_TYPE_CNT, 2), BOOST_PP_DEF, _)
+
+#undef BOOST_PP_DEF
+
+}
 
 // these assertions make sure the Variable::save_type_change methods works as expected
 namespace type_ordering
