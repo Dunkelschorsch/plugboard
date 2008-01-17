@@ -128,8 +128,8 @@ void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 
 	f = get_buffer_factory_[out.get_type()];
 
-	out.get_buffer_ptr = bind(f, s);
-	in.get_buffer_ptr = bind(f, s);
+	out.buffer_access = bind(f, s);
+	in.buffer_access = bind(f, s);
 }
 
 
