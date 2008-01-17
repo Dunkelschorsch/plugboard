@@ -74,7 +74,7 @@ void Variable::push_back(const ElementT e)
 {
 	if(type_ == empty)
 		type_ = typeinfo< ElementT >::value;
-		
+
 	data_ = realloc(data_, typeinfo< ElementT >::size * (numel_+1));
 	static_cast< ElementT* >(data_)[numel_++] = static_cast< const ElementT >(e);
 
@@ -92,11 +92,14 @@ void Variable::cast()
 		static_cast< newT* >(new_data)[i] =
 			static_cast< newT >(static_cast< oldT* >(this->data_)[i]);
 	}
-	free(data_);
-	data_ = new_data;
+	free(this->data_);
+	this->data_ = new_data;
 
 	size_ = numel_ * typeinfo< newT >::size;
+
+	type_ = typeinfo< newT >::value;
 #ifndef NDEBUG
+	std::cout << "number of variable elements: " << numel_ << std::endl;
 	std::cout << "new variable size (bytes): " << size_ << std::endl;
 #endif
 }
