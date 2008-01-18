@@ -2,7 +2,7 @@
 #include "exceptions.hpp"
 #include "signal.hpp"
 #include "block.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 #include "port.hpp"
 #include "symtab.hpp"
 #include "types/base.hpp"

@@ -1,11 +1,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-#include "variable.hpp"
 
 #ifndef NDEBUG
 #include <iostream>
 #endif
+
+#include "variable/variable.hpp"
 
 
 using std::malloc;

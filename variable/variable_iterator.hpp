@@ -1,5 +1,5 @@
-#ifndef _VARIABLE_ITERATOR_HPP
-#define _VARIABLE_ITERATOR_HPP
+#ifndef VARIABLE_ITERATOR_HPP
+#define VARIABLE_ITERATOR_HPP
 
 #include <cassert>
 #include <boost/iterator/iterator_facade.hpp>
@@ -49,4 +49,4 @@ private:
 	size_t pos_;
 };
 
-#endif // _VARIABLE_ITERATOR_HPP
+#endif // VARIABLE_ITERATOR_HPP

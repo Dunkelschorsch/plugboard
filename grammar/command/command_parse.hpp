@@ -1,5 +1,5 @@
-#ifndef _COMMAND_PARSE_HPP
-#define _COMMAND_PARSE_HPP
+#ifndef COMMAND_PARSE_HPP
+#define COMMAND_PARSE_HPP
 
 #ifndef NDEBUG
 #include <iostream>
@@ -11,15 +11,15 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
 
-#include "variable_parser.hpp"
-#include "input/actions.hpp"
+#include "grammar/variable/variable_parser.hpp"
+#include "grammar/command/identifier.hpp"
+#include "grammar/command/variable_name.hpp"
+#include "grammar/command/parameter_list.hpp"
+#include "grammar/command/actions.hpp"
 
 
 
 using namespace boost::spirit;
-using phoenix::construct_;
-using phoenix::arg1;
-using phoenix::arg2;
 using boost::ref;
 
 
@@ -52,101 +52,6 @@ struct CommandClosure : boost::spirit::closure< CommandClosure, boost::function<
 {
     member1 command;
 };
-
-
-
-namespace {
-
-struct IDENTIFIER : grammar< IDENTIFIER, ResultClosure< std::string >::context_t >
-{
-    template< typename ScannerT >
-    struct definition {
-        typedef rule< ScannerT > rule_t;
-        rule_t main;
-
-        rule_t const& start() const
-        {
-            return main;
-        }
-
-        definition(IDENTIFIER const& self)
-        {
-            main = (
-                lexeme_d
-                [
-                    (+(alnum_p | '_'))
-                    [
-                        self.result_ = construct_< std::string >(arg1, arg2)
-                    ]
-                ]
-            );
-            BOOST_SPIRIT_DEBUG_RULE(main);
-        }
-    };
-} IDENTIFIER_g;
-
-
-
-struct VARIABLE_NAME : grammar< VARIABLE_NAME, ResultClosure< std::string >::context_t >
-{
-    template< typename ScannerT >
-    struct definition {
-        typedef rule< ScannerT > rule_t;
-        rule_t main;
-
-        rule_t const& start() const
-        {
-            return main;
-        }
-
-        definition(VARIABLE_NAME const& self)
-        {
-            main =
-                lexeme_d
-                [
-                    ch_p('$')
-                    >> IDENTIFIER_g[ self.result_ = construct_< std::string >(arg1) ]
-                ]
-                ;
-            BOOST_SPIRIT_DEBUG_RULE(main);
-        }
-    };
-} VARIABLE_NAME_g;
-
-
-
-template< template< typename > class VectorT >
-struct PARAMETER_LIST : grammar< PARAMETER_LIST< VectorT >, typename ResultClosure< VectorT< boost::any > >::context_t >
-{
-    template< typename ScannerT >
-    struct definition {
-        typedef rule< ScannerT > rule_t;
-        rule_t main;
-
-        rule_t const& start() const
-        {
-            return main;
-        }
-
-        definition(PARAMETER_LIST const& self)
-        {
-            main
-                =
-                    ch_p('(')
-                    >> !(
-                           ( VARIABLE_NAME_g[ var_lookup_a(self.result_()) ]
-                           | VARIABLE_g[ push_back_a(self.result_()) ]
-                           )  % ch_p(',')
-                        )
-                    >> ch_p(')')
-                ;
-            BOOST_SPIRIT_DEBUG_RULE(main);
-        }
-    };
-};
-
-PARAMETER_LIST< std::vector > PARAMETER_LIST_g;
-}
 
 
 
@@ -246,4 +151,4 @@ struct CommandParser : public grammar< CommandParser, CommandClosure::context_t 
     arg_storage_t& args_;
 } ;
 
-#endif // _COMMAND_PARSE_HPP
+#endif // COMMAND_PARSE_HPP

@@ -2,7 +2,7 @@
 #include <boost/function.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
 
-#include "input/command_parse.hpp"
+#include "grammar/command/command_parse.hpp"
 #include "input/file.hpp"
 
 

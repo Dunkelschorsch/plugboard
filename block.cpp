@@ -1,10 +1,9 @@
 #include "block.hpp"
 #include "port.hpp"
-#include "variable.hpp"
-#include "variable_iterator.hpp"
+#include "variable/variable.hpp"
+#include "variable/variable_iterator.hpp"
 #include "exceptions.hpp"
 
-#include <boost/any.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
 

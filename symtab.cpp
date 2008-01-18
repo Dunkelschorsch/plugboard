@@ -1,8 +1,12 @@
-#include "symtab.hpp"
 #include <cassert>
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
+
+#include "symtab.hpp"
+#include "variable/variable.hpp"
+
 
 Symtab::Symtab(const Symtab* parent) : parent_(parent)
 {

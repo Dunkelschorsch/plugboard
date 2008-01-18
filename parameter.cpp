@@ -1,5 +1,5 @@
 #include "parameter.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 
 Parameter::Parameter(void * data, type_t type, const std::string & description) :

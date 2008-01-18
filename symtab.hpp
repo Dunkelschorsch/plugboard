@@ -2,8 +2,9 @@
 #define _SYMTAB_HPP
 
 #include "exceptions.hpp"
-#include "variable.hpp"
 #include <map>
+class Variable;
+
 
 /** The Symtab class
  */

@@ -5,16 +5,11 @@
 #include <iostream>
 #endif
 
-#include "types/base.hpp"
-#include "types/typeinfo.hpp"
-
-#include <algorithm>
-#include <boost/any.hpp>
+#include "../types/base.hpp"
+#include "../types/typeinfo.hpp"
 
 
-/** The Variable class.
- *
- */
+
 class Variable
 {
 public:
