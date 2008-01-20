@@ -1,15 +1,14 @@
-#ifndef _VECTORS_HPP
-#define _VECTORS_HPP
+#ifndef VECTORS_HPP
+#define VECTORS_HPP
 
-#define vector_t std::vector
+#include "types/base.hpp"
 
-typedef vector_t< empty_t > empty_vec_t;
-typedef vector_t< real_t > real_vec_t;
-typedef vector_t< integer_t > int_vec_t;
-typedef vector_t< complex_t > complex_vec_t;
-typedef vector_t< logical_t > bit_vec_t;
-typedef vector_t< string_t > string_vec_t;
+#define BOOST_PP_DEF(z, I, _) \
+	typedef std::vector< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
+		BOOST_PP_CAT(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)), _vec_t);
 
-#undef vector_t
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-#endif // _VECTORS_HPP
+#undef BOOST_PP_DEF
+
+#endif // VECTORS_HPP

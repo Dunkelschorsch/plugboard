@@ -32,8 +32,8 @@ private:
 
 	/* member variable declarations go here */
 	OutPort *sig_out_;
-	int_vec_t framesize_;
-	int_vec_t constant_;
+	int32_vec_t framesize_;
+	int32_vec_t constant_;
 	real_vec_t Ts_;
 };
 

@@ -35,7 +35,7 @@ private:
 /* member variable declarations go here */
 	InPort *sig_in_;
 
-	int_vec_t framesize_;
+	int32_vec_t framesize_;
 	real_vec_t Ts_;
 };
 

@@ -1,7 +1,5 @@
 foreach(
 	blockname
-	dummy2
-	dummy3
 	stdout_sink
 	2in2out
 	2in1out
