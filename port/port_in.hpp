@@ -1,7 +1,7 @@
-#ifndef _PORT_IN_HPP
-#define _PORT_IN_HPP
+#ifndef PORT_IN_HPP
+#define PORT_IN_HPP
 
-#include "port_base.hpp"
+#include "port/port_base.hpp"
 class Message;
 
 

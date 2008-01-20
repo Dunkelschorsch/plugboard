@@ -1,6 +1,9 @@
-#include "port_in.hpp"
+#include "port/port_in.hpp"
 #include "message.hpp"
+
+#ifndef NDEBUG
 #include <iostream>
+#endif
 
 
 

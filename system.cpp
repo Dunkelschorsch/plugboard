@@ -3,7 +3,7 @@
 #include "signal.hpp"
 #include "block.hpp"
 #include "variable/variable.hpp"
-#include "port.hpp"
+#include "port/port.hpp"
 #include "symtab.hpp"
 #include "types/base.hpp"
 #include "exec_matrix.hpp"

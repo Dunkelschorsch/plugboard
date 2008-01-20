@@ -1,8 +1,8 @@
-#ifndef _PORT_OUT_HPP
-#define _PORT_OUT_HPP
+#ifndef PORT_OUT_HPP
+#define PORT_OUT_HPP
 
 
-#include "port_base.hpp"
+#include "port/port_base.hpp"
 #include "message.hpp"
 class InPort;
 
@@ -20,4 +20,4 @@ public:
 	boost::function< Message() > send;
 };
 
-#endif // _PORT_OUT_HPP
+#endif // PORT_OUT_HPP

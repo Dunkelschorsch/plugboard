@@ -1,5 +1,5 @@
-#ifndef _PORT_BASE_HPP
-#define _PORT_BASE_HPP
+#ifndef PORT_BASE_HPP
+#define PORT_BASE_HPP
 
 #include "types/base.hpp"
 #include <boost/function.hpp>
@@ -148,4 +148,4 @@ void BasePort< DerivedPortT >::set_frame_size(uint32_t frame_size)
 	frame_size_ = frame_size;
 }
 
-#endif // _PORT_BASE_HPP
+#endif // PORT_BASE_HPP

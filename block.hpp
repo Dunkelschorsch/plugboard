@@ -1,8 +1,8 @@
-#ifndef _BLOCK_HPP
-#define _BLOCK_HPP
+#ifndef BLOCK_HPP
+#define BLOCK_HPP
 
 #include "parameter.hpp"
-#include "port.hpp"
+#include "port/port.hpp"
 #include "exceptions.hpp"
 
 template< class PortT >
@@ -10,15 +10,15 @@ class PortTraits;
 
 class Variable;
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include <map>
 #include <set>
 #include <deque>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 #define DEFINE_ACCESS_FUNCTIONS(NAME)	\
 extern "C"				\
@@ -341,4 +341,4 @@ namespace
 	}
 }
 
-#endif //_BLOCK_HPP
+#endif // BLOCK_HPP

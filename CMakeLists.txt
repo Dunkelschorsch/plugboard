@@ -9,8 +9,6 @@ add_executable(
 	main.cpp
 	symtab.cpp
 	variable/variable.cpp
-	grammar/variable/actions.cpp
-	grammar/command/actions.cpp
 	system.cpp
 	systems.cpp
 	subsystem.cpp
@@ -18,10 +16,11 @@ add_executable(
 	exec_stage.cpp
 	block_loader.cpp
 	parameter.cpp
-# 	block.cpp
-	port_in.cpp
-	port_out.cpp
+	port/port_in.cpp
+	port/port_out.cpp
 # 	input/console.cpp
+	grammar/variable/actions.cpp
+	grammar/command/actions.cpp
 	input/file.cpp
 )
 
