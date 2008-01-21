@@ -4,7 +4,7 @@
 #include "types/base.hpp"
 #include <boost/function.hpp>
 #include <list>
-
+#include <algorithm>
 
 
 template< class DerivedPortT >
@@ -34,11 +34,13 @@ public:
 
 	inline void* get_buffer_ptr() const
 	{
-		return buffer_access();
+		return buffer_access_();
 	}
 
 protected:
 	BasePort(const string_t&, const type_t, const real_t, const uint32_t);
+
+	void swap(BasePort&);
 
 	string_t name_;
 
@@ -52,7 +54,7 @@ protected:
 
 	uint32_t signal_buffer_id_;
 
-	boost::function< void*() > buffer_access;
+	boost::function< void*() > buffer_access_;
 };
 
 
@@ -65,9 +67,24 @@ BasePort< DerivedPortT >::BasePort(const string_t& name, const type_t type, cons
 	Ts_(Ts),
 	frame_size_(frame_size),
 	signal_buffer_id_(0),
-	buffer_access(0)
+	buffer_access_(0)
 {
 
+}
+
+
+template< class DerivedPortT >
+void BasePort< DerivedPortT >::swap(BasePort& other)
+{
+	using std::swap;
+
+	swap(this->name_, other.name_);
+	swap(this->owner_block_name_, other.owner_block_name_);
+	swap(this->type_, other.type_);
+	swap(this->Ts_, other.Ts_);
+	swap(this->frame_size_, other.frame_size_);
+	swap(this->signal_buffer_id_, other.signal_buffer_id_);
+	swap(this->buffer_access_, other.buffer_access_);
 }
 
 
@@ -125,7 +142,6 @@ uint32_t BasePort< DerivedPortT >::get_signal_buffer_id() const
 {
 	return signal_buffer_id_;
 }
-
 
 
 template< class DerivedPortT >

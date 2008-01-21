@@ -61,5 +61,5 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 void OutPort::disconnect(const InPort & other)
 {
 	send = 0;
-	buffer_access = 0;
+	buffer_access_ = 0;
 }

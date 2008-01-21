@@ -128,8 +128,8 @@ void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 
 	f = get_buffer_factory_[out.get_type()];
 
-	out.buffer_access = bind(f, s);
-	in.buffer_access = bind(f, s);
+	out.buffer_access_ = bind(f, s);
+	in.buffer_access_ = bind(f, s);
 }
 
 
@@ -253,7 +253,6 @@ struct SignalAttributePropagationAction
 			b->connect_calls.end(),
 			make_connections_a(sys_)
 		);
-// 		b->connect_calls.clear();
 	}
 
 	SystemT sys_;
