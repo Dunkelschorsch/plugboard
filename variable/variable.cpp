@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <algorithm>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -246,9 +247,10 @@ void* Variable::data() const
 
 void Variable::swap(Variable & other)
 {
-	std::swap(this->type_, other.type_);
-	std::swap(this->dims_, other.dims_);
-	std::swap(this->numel_, other.numel_);
-	std::swap(this->size_, other.size_);
-	std::swap(this->data_, other.data_);
+	using std::swap;
+	swap(this->type_, other.type_);
+	swap(this->dims_, other.dims_);
+	swap(this->numel_, other.numel_);
+	swap(this->size_, other.size_);
+	swap(this->data_, other.data_);
 }
