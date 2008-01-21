@@ -137,15 +137,8 @@ void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 void System::add_block(Block * const b, const std::string& name_sys)
 {
 	H_D(System)
-	d->add_block_impl(b, name_sys);
-}
 
-
-
-void SystemImpl::add_block_impl(Block * const b, const std::string& name_sys)
-{
-
-	if(exec_m_.block_exists(name_sys))
+	if(d->exec_m_.block_exists(name_sys))
 	{
 		delete b;
 		throw DuplicateBlockNameException(name_sys);
@@ -164,7 +157,7 @@ void SystemImpl::add_block_impl(Block * const b, const std::string& name_sys)
 	b->setup_input_ports();	
 	b->setup_output_ports();
 
-	exec_m_.store_block(b, name_sys);
+	d->exec_m_.store_block(b, name_sys);
 }
 
 
@@ -225,7 +218,6 @@ struct MakeConnectionAction
 		source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
 
 		sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-
 		sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1]);
 	}
 
