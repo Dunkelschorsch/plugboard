@@ -48,45 +48,45 @@ void Block::advance()
 
 
 
-// const std::string& Block::get_name() const
-// {
-// 	return name_;
-// }
-// 
-// 
-// 
-// const std::string& Block::get_name_sys() const
-// {
-// 	return name_sys_;
-// }
-// 
-// 
-// 
-// void Block::set_name_sys(const std::string & name_sys)
-// {
-// 	name_sys_ = name_sys;
-// }
-// 
-// 
-// 
-// const std::string& Block::get_description() const
-// {
-// 	return description_;
-// }
-// 
-// 
-// 
-// void Block::set_description(const std::string& description)
-// {
-// 	description_ = description;
-// }
-// 
-// 
-// 
-// bool Block::is_configured() const
-// {
-// 	return configured_;
-// }
+const std::string& Block::get_name() const
+{
+	return name_;
+}
+
+
+
+const std::string& Block::get_name_sys() const
+{
+	return name_sys_;
+}
+
+
+
+void Block::set_name_sys(const std::string & name_sys)
+{
+	name_sys_ = name_sys;
+}
+
+
+
+const std::string& Block::get_description() const
+{
+	return description_;
+}
+
+
+
+void Block::set_description(const std::string& description)
+{
+	description_ = description;
+}
+
+
+
+bool Block::is_configured() const
+{
+	return configured_;
+}
 
 
 
@@ -172,17 +172,17 @@ bool Block::set_parameter(const Variable& p)
 
 
 
-// const std::string& Block::get_parameter_description() const
-// {
-// 	return params_[param_curr_].get_description();
-// }
-// 
-// 
-// 
-// type_t Block::get_parameter_type() const
-// {
-// 	return params_[param_curr_].get_type();
-// }
+const std::string& Block::get_parameter_description() const
+{
+	return params_[param_curr_].get_description();
+}
+
+
+
+type_t Block::get_parameter_type() const
+{
+	return params_[param_curr_].get_type();
+}
 
 
 
@@ -200,63 +200,49 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 
 
-// bool Block::setup_output_ports()
-// {
-// 	return false;
-// }
-// 
-// 
-// 
-// bool Block::setup_input_ports()
-// {
-// 	return false;
-// }
-// 
-// 
-// 
-// uint16_t Block::get_num_input_ports() const
-// {
-// 	return num_input_ports_;
-// }
-// 
-// 
-// 
-// uint16_t Block::get_num_output_ports() const
-// {
-// 	return num_output_ports_;
-// }
-// 
-// 
-// 
-// InPort::store_t & Block::get_inport_list()
-// {
-// 	return ports_in_;
-// }
-// 
-// 
-// 
-// OutPort::store_t & Block::get_outport_list()
-// {
-// 	return ports_out_;
-// }
-// 
-// 
-// 
-// const std::vector< Parameter >& Block::get_params() const
-// {
-// 	return params_;
-// }
-// 
-// 
-// 
-// void Block::add_connection(const std::string & name)
-// {
-// 	connected_blocks_.insert(name);
-// }
-// 
-// 
-// 
-// const std::set< std::string >& Block::get_connections() const
-// {
-// 	return connected_blocks_;
-// }
+bool Block::setup_output_ports()
+{
+	return false;
+}
+
+
+
+bool Block::setup_input_ports()
+{
+	return false;
+}
+
+
+
+uint16_t Block::get_num_input_ports() const
+{
+	return num_input_ports_;
+}
+
+
+
+uint16_t Block::get_num_output_ports() const
+{
+	return num_output_ports_;
+}
+
+
+
+const std::vector< Parameter >& Block::get_params() const
+{
+	return params_;
+}
+
+
+
+void Block::add_connection(const std::string & name)
+{
+	connected_blocks_.insert(name);
+}
+
+
+
+const std::set< std::string >& Block::get_connections() const
+{
+	return connected_blocks_;
+}

@@ -45,72 +45,26 @@ public:
 
 	virtual void advance();
 
-	const std::string& get_name() const
-	{
-		return name_;
-	}
+	const std::string& get_name() const;
+	const std::string& get_name_sys() const;
+	const std::string& get_description() const;
 
-	const std::string& get_name_sys() const
-	{
-		return name_sys_;
-	}
-
-	const std::string& get_description() const
-	{
-		return description_;
-	}
-
-	bool is_configured() const
-	{
-		return configured_;
-	}
-
-	void set_description(const std::string& description)
-	{
-		description_ = description;
-	}
+	void set_description(const std::string& description);
 
 	bool set_parameter(const Variable& p);
+	const std::vector< Parameter >& get_params() const;
+	const std::string& get_parameter_description() const;
+	type_t get_parameter_type() const;
 
-	const std::string& get_parameter_description() const
-	{
-		return params_[param_curr_].get_description();
-	}
+	bool is_configured() const;
 
-	type_t get_parameter_type() const
-	{
-		return params_[param_curr_].get_type();
-	}
+	const std::set< std::string >& get_connections() const;
 
-	const std::vector< Parameter >& get_params() const
-	{
-		return params_;
-	}
+	uint16_t get_num_input_ports() const;
+	uint16_t get_num_output_ports() const;
 
-	const std::set< std::string >& get_connections() const
-	{
-		return connected_blocks_;
-	}
-
-	uint16_t get_num_input_ports() const
-	{
-		return num_input_ports_;
-	}
-
-	uint16_t get_num_output_ports() const
-	{
-		return num_output_ports_;
-	}
-
-	virtual bool setup_output_ports()
-	{
-		return false;
-	}
-
-	virtual bool setup_input_ports()
-	{
-		return false;
-	}
+	virtual bool setup_output_ports();
+	virtual bool setup_input_ports();
 
 	template < typename T >
 	void copy_parameter(void*, Variable&);
@@ -125,54 +79,38 @@ public:
 
 protected:
 
+	virtual void configure_parameters() = 0;
+
 	template< class PortT >
 	PortT* add_port(PortT * const p);
 
 	void register_parameter_types();
 
-	virtual void configure_parameters() = 0;
-
 	void add_parameter(void* var, type_t t, std::string description);
-
-	InPort::store_t & get_inport_list();
-
-	OutPort::store_t & get_outport_list();
 
 	typedef std::map< type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
 
 	parameter_factory_t parameter_factory_;
-
 	std::vector< Parameter > params_;
-
 	uint16_t param_curr_;
 
 	bool configured_;
 
 	std::string name_;
-
 	std::string description_;
 
 	InPort::store_t ports_in_;
-
 	OutPort::store_t ports_out_;
 
 	std::set< std::string > connected_blocks_;
 
 private:
-	void set_name_sys(const std::string& name_sys)
-	{
-		name_sys_ = name_sys;
-	}
-
-	void add_connection(const std::string& name)
-	{
-		connected_blocks_.insert(name);
-	}
+	void set_name_sys(const std::string& name_sys);
+	void add_connection(const std::string& name);
 
 	std::string name_sys_;
 
 	uint16_t num_output_ports_;
-
 	uint16_t num_input_ports_;
 };
 
