@@ -73,11 +73,11 @@ void Block_1in1out::process()
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
-	integer_t *v_out;
-	const integer_t *v_in;
+	int32_t *v_out;
+	const int32_t *v_in;
 	
-	v_in = get_data_ptr< integer_t >(sig_in1_);
-	v_out = get_data_ptr< integer_t >(sig_out1_);
+	v_in = get_data_ptr< int32_t >(sig_in1_);
+	v_out = get_data_ptr< int32_t >(sig_out1_);
 
 	std::transform
 	(
@@ -86,7 +86,7 @@ void Block_1in1out::process()
 		v_out,
 		std::bind1st
 		(
-			std::plus< integer_t >(),
+			std::plus< int32_t >(),
 			1
 		)
 	);

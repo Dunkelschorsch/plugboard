@@ -51,7 +51,7 @@ bool Block_1out::setup_input_ports()
 bool Block_1out::setup_output_ports()
 {
 	/* calls to "add_port(OutPort &) go here */
-	sig_out_ = add_port(new OutPort("out1", integer, Ts_[0], framesize_[0]));
+	sig_out_ = add_port(new OutPort("out1", int32, Ts_[0], framesize_[0]));
 
 	return true;
 }
@@ -62,8 +62,8 @@ void Block_1out::configure_parameters()
 {
 	/* calls to "add_parameter()" go here */
 	add_parameter(&Ts_, real, "Sample Time");
-	add_parameter(&framesize_, integer, "Frame Size");
-	add_parameter(&constant_, integer, "Output Constant");
+	add_parameter(&framesize_, int32, "Frame Size");
+	add_parameter(&constant_, int32, "Output Constant");
 }
 
 
@@ -73,9 +73,9 @@ void Block_1out::process()
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
 
-	integer_t *v;
+	int32_t *v;
 	
-	v = get_data_ptr< integer_t >(sig_out_);
+	v = get_data_ptr< int32_t >(sig_out_);
 
 	std::fill(v, v+sig_out_->get_frame_size(), constant_[0]);
 

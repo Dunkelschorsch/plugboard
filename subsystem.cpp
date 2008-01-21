@@ -153,10 +153,10 @@ struct SubsystemImpl::PortAddAction
 	template< typename TupleT >
 	void operator()(const TupleT& c) const
 	{
-		PortT* port_tmp = new PortT(c.first, integer, 1, 2);
+		PortT* port_tmp = new PortT(c.first, int32, 1, 2);
 		v_.push_back(b_->add_port(port_tmp));
 #ifndef NDEBUG
-		std::cout << "type of subsystem's " << c.first << ": " << integer << std::endl;
+		std::cout << "type of subsystem's " << c.first << ": " << int32 << std::endl;
 #endif
 	}
 

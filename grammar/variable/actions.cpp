@@ -17,13 +17,13 @@ ValueAppendAction::operator()(const variable_value_t& val_curr) const
 #ifndef NDEBUG
         std::cout << "variable is not complex." << std::endl;
 #endif
-        if(static_cast< integer_t >(val_curr.real()) == val_curr.real())
+        if(static_cast< int32_t >(val_curr.real()) == val_curr.real())
         {
 #ifndef NDEBUG
             std::cout << "variable is integer valued." << std::endl;
 #endif
-            v_().save_type_change(integer);
-            v_().push_back(static_cast< integer_t >(val_curr.real()));
+            v_().save_type_change(int32);
+            v_().push_back(static_cast< int32_t >(val_curr.real()));
         }
         else
         {

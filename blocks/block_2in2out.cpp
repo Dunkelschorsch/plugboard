@@ -71,14 +71,14 @@ void Block_2in2out::process()
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
 
-	integer_t *v_out1, *v_out2;
-	const integer_t *v_in1, *v_in2;
+	int32_t *v_out1, *v_out2;
+	const int32_t *v_in1, *v_in2;
 	
-	v_in1 = get_data_ptr< integer_t >(sig_in1_);
-	v_in2 = get_data_ptr< integer_t >(sig_in2_);
+	v_in1 = get_data_ptr< int32_t >(sig_in1_);
+	v_in2 = get_data_ptr< int32_t >(sig_in2_);
 
-	v_out1 = get_data_ptr< integer_t >(sig_out1_);
-	v_out2 = get_data_ptr< integer_t >(sig_out2_);
+	v_out1 = get_data_ptr< int32_t >(sig_out1_);
+	v_out2 = get_data_ptr< int32_t >(sig_out2_);
 
 	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
 	{

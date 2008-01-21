@@ -50,7 +50,7 @@ bool Block_Dummy2::setup_output_ports()
 void Block_Dummy2::configure_parameters()
 {
 	add_parameter(&Ts_, real, "Sample time");
-	add_parameter(&framesize_, integer, "Frame size");
+	add_parameter(&framesize_, int32, "Frame size");
 }
 
 void Block_Dummy2::process()

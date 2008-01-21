@@ -39,16 +39,16 @@ Variable::Variable(const Variable & other) :
 
 
 
-Variable::Variable(integer_t value) :
+Variable::Variable(int32_t value) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
-	size_(sizeof(integer_t)),
+	size_(sizeof(int32_t)),
 	data_(NULL),
 	type_(empty)
 {
-	type_ = integer;
-	data_ = malloc(sizeof(integer_t));
-	static_cast< integer_t* >(data_)[0] = value;
+	type_ = int32;
+	data_ = malloc(sizeof(int32_t));
+	static_cast< int32_t* >(data_)[0] = value;
 
 	dims_.push_back(1);
 	dims_.push_back(1);
@@ -185,7 +185,7 @@ bool Variable::save_type_change(type_t new_type)
 	else if(new_type == old_type)
 		return true;
 
-	if(old_type == integer)
+	if(old_type == int32)
 	{
 #ifndef NDEBUG
 		std::cout << "converting integer->";
@@ -195,14 +195,14 @@ bool Variable::save_type_change(type_t new_type)
 #ifndef NDEBUG
 			std::cout << "real" << std::endl;
 #endif
-			cast< integer_t, real_t >();
+			cast< int32_t, real_t >();
 		}
 		else if(new_type == complex)
 		{
 #ifndef NDEBUG
 			std::cout << "complex" << std::endl;
 #endif
-			cast< integer_t, complex_t >();
+			cast< int32_t, complex_t >();
 		}
 	}
 	else if(old_type == real)

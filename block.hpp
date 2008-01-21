@@ -208,7 +208,7 @@ struct PortTraits< OutPort >
 #endif
 		type_t t = p->get_type();
 		real_t Ts = p->get_Ts();
-		integer_t framesize = p->get_frame_size();
+		int32_t framesize = p->get_frame_size();
 
 		// propagating a default value is certainly an error
 		assert(t != empty);

@@ -90,8 +90,8 @@ void SystemImpl::register_basic_types()
 {
 // 	this macro inserts entries for all Singal types
 //	for integer valued signals, the expansion would look like this:
-// 	get_buffer_factory_.insert(std::make_pair(integer, &get_buffer< IntegerSignal >));
-// 	signal_factory_.insert(std::make_pair(integer, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+// 	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
+// 	signal_factory_.insert(std::make_pair(int32, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
 
 #define BOOST_PP_DEF(z, I, _) 									\
 	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\

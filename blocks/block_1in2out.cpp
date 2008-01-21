@@ -69,12 +69,12 @@ void Block_1in2out::process()
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
-	integer_t *v_out1, *v_out2;
-	const integer_t *v_in;
+	int32_t *v_out1, *v_out2;
+	const int32_t *v_in;
 	
-	v_in = get_data_ptr< integer_t >(sig_in1_);
-	v_out1 = get_data_ptr< integer_t >(sig_out1_);
-	v_out2 = get_data_ptr< integer_t >(sig_out2_);
+	v_in = get_data_ptr< int32_t >(sig_in1_);
+	v_out1 = get_data_ptr< int32_t >(sig_out1_);
+	v_out2 = get_data_ptr< int32_t >(sig_out2_);
 
 	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
 	{

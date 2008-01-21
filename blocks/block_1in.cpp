@@ -64,7 +64,7 @@ void Block_1in::configure_parameters()
 {
 	/* calls to "add_parameter()" go here */
 	add_parameter(&Ts_, real, "Sample Time");
-	add_parameter(&framesize_, integer, "Frame Size");
+	add_parameter(&framesize_, int32, "Frame Size");
 }
 
 
@@ -73,8 +73,8 @@ void Block_1in::process()
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
-	const integer_t *v_in;
-	v_in = get_data_ptr< integer_t >(sig_in_);
+	const int32_t *v_in;
+	v_in = get_data_ptr< int32_t >(sig_in_);
 
 #ifndef NDEBUG
 	for(uint32_t i=0; i<sig_in_->get_frame_size(); i++)
