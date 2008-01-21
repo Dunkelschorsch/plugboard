@@ -1,4 +1,6 @@
-#include "block.hpp"
+#include "block/block.hpp"
+#include "block/create.hpp"
+#include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include <iostream>
@@ -77,4 +79,4 @@ Block_Dummy2::~Block_Dummy2()
 
 }
 
-DEFINE_ACCESS_FUNCTIONS(Dummy2)
+ACCESS_FUNCS(Dummy2)

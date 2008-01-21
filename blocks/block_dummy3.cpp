@@ -1,4 +1,6 @@
-#include "block.hpp"
+#include "block/block.hpp"
+#include "block/create.hpp"
+#include "block/buffer_access.hpp"
 #include <iostream>
 
 #define BLOCK_NAME "Dummy3"
@@ -41,4 +43,4 @@ Block_Dummy3::~Block_Dummy3()
 #endif
 }
 
-DEFINE_ACCESS_FUNCTIONS(Dummy3)
+ACCESS_FUNCS(Dummy3)

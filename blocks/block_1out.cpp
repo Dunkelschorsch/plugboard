@@ -1,4 +1,6 @@
-#include "block.hpp"
+#include "block/block.hpp"
+#include "block/create.hpp"
+#include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include <iostream>
@@ -98,4 +100,4 @@ Block_1out::~Block_1out()
 #endif
 }
 
-DEFINE_ACCESS_FUNCTIONS(1out)
+ACCESS_FUNCS(1out)

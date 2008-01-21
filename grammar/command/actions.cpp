@@ -1,8 +1,9 @@
 #include <cassert>
 #include <iostream>
 
+#include "exceptions.hpp"
 #include "actions.hpp"
-#include "block.hpp"
+#include "block/block.hpp"
 #include "block_loader.hpp"
 #include "system.hpp"
 #include "systems.hpp"

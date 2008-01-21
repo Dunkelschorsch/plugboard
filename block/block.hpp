@@ -3,12 +3,9 @@
 
 #include "parameter.hpp"
 #include "port/port.hpp"
-#include "exceptions.hpp"
-
-template< class PortT >
-class PortTraits;
-
+#include "block/port_traits.hpp"
 class Variable;
+
 
 #include <map>
 #include <set>
@@ -20,18 +17,6 @@ class Variable;
 #ifndef NDEBUG
 #include <iostream>
 #endif
-
-#define DEFINE_ACCESS_FUNCTIONS(NAME)	\
-extern "C"				\
-Block* create()				\
-{					\
-	return new Block_##NAME;	\
-}					\
-extern "C"				\
-const string_t name()			\
-{					\
-	return #NAME;			\
-}
 
 
 
@@ -193,80 +178,6 @@ private:
 
 
 
-template< class PortT >
-struct PortTraits { };
-
-
-
-template< >
-struct PortTraits< OutPort >
-{
-	template< class IteratorT, typename PointerT >
-	OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT * const this_p)
-	{
-#ifndef NDEBUG
-		std::cout << "    " << this_p->get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
-#endif
-		type_t t = p->get_type();
-		real_t Ts = p->get_Ts();
-		int32_t framesize = p->get_frame_size();
-
-		// propagating a default value is certainly an error
-		assert(t != empty);
-		assert(Ts > 0.0);
-		assert(framesize > 0);
-
-		it->set_type(t);
-		it->set_frame_size(framesize);
-		it->set_Ts(Ts);
-		
-		delete p;
-		return &(*it);
-	}
-
-	template< typename PointerT >
-	void increment_no_of_ports(PointerT* const this_p)
-	{
-		this_p->num_output_ports_++;
-	}
-};
-
-
-
-template< >
-struct PortTraits< InPort >
-{
-	template< class IteratorT, typename PointerT >
-	InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT * const this_p)
-	{
-		throw DuplicatePortNameException(this_p->get_name() + "::" + p->get_name());
-		return NULL;
-	}
-
-	template< typename PointerT >
-	void increment_no_of_ports(PointerT * const this_p)
-	{
-		this_p->num_input_ports_++;
-	}
-};
-
-
-
-template< class PortT, class IteratorT, typename PointerT >
-inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT * const this_p)
-{
-	return PortTraits< PortT >().name_exists_action(it, p, this_p);
-}
-
-
-
-template< class PortT, typename PointerT >
-inline void increment_no_of_ports(PortT * const, PointerT * const this_p)
-{
-	PortTraits< PortT >().increment_no_of_ports(this_p);
-}
-
-
 
 template< class PortT >
 PortT* Block::add_port(PortT * const p)
@@ -325,21 +236,5 @@ inline const OutPort::store_t * Block::get_port_list< OutPort >() const
 	return &ports_out_;
 }
 
-
-
-namespace
-{
-	template< class SignalT >
-	inline const SignalT* get_data_ptr(const InPort *p)
-	{
-		return static_cast< const SignalT* >(p->get_buffer_ptr());
-	}
-	
-	template< class SignalT >
-	inline SignalT* get_data_ptr(const OutPort *p)
-	{
-		return static_cast< SignalT* >(p->get_buffer_ptr());
-	}
-}
 
 #endif // BLOCK_HPP

@@ -1,7 +1,7 @@
 #include "system.hpp"
 #include "exceptions.hpp"
 #include "signal.hpp"
-#include "block.hpp"
+#include "block/block.hpp"
 #include "variable/variable.hpp"
 #include "port/port.hpp"
 #include "symtab.hpp"

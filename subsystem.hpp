@@ -1,7 +1,7 @@
 #ifndef _SUBSYSTEM_HPP
 #define _SUBSYSTEM_HPP
 
-#include "block.hpp"
+#include "block/block.hpp"
 #include "system.hpp"
 
 

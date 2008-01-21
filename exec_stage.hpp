@@ -4,7 +4,7 @@
 #include <deque>
 #include <iosfwd>
 
-#include "block.hpp"
+#include "block/block.hpp"
 
 namespace boost { class thread; }
 
