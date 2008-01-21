@@ -1,12 +1,13 @@
-#ifndef _VARIABLE_HPP
-#define _VARIABLE_HPP
+#ifndef VARIABLE_HPP
+#define VARIABLE_HPP
 
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
-#include "../types/base.hpp"
-#include "../types/typeinfo.hpp"
+#include <vector>
+#include "types/base.hpp"
+#include "types/typeinfo.hpp"
 
 
 
@@ -99,4 +100,4 @@ void Variable::cast()
 #endif
 }
 
-#endif // _VARIABLE_HPP
+#endif // VARIABLE_HPP

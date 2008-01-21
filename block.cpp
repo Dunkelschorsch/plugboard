@@ -188,9 +188,10 @@ bool Block::set_parameter(const Variable& p)
 
 void Block::register_parameter_types()
 {
-#define BOOST_PP_DEF(z, I, _) /* this macro creates mapping between types and parameters */	\
-	parameter_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
-	boost::bind(&Block::copy_parameter< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >, this, _1, _2)));
+/* this macro creates mapping between types and parameters */
+#define BOOST_PP_DEF(z, I, _) \
+	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
+	boost::bind(&Block::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 

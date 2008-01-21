@@ -1,7 +1,15 @@
-#ifndef _TYPEINFO_HPP
-#define _TYPEINFO_HPP
+#ifndef TYPEINFO_HPP
+#define TYPEINFO_HPP
 
 #include "types/base.hpp"
+
+// declare neccessary singal classes
+#define BOOST_PP_DEF(z, I, _) \
+	class SIG_TYPE(I); \
+
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+
+#undef BOOST_PP_DEF
 
 namespace
 {
@@ -11,16 +19,17 @@ struct typeinfo;
 
 #define BOOST_PP_DEF(z, I, _) \
 	template< > \
-	struct  typeinfo< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
+	struct typeinfo< CPP_TYPE(I) > \
 	{	\
-		static const type_t value = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)); \
-		static const size_t size = sizeof(BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I))); \
+		typedef SIG_TYPE(I) signal_type; \
+		static const type_t value = TYPE_VALUE(I); \
+		static const size_t size = sizeof(CPP_TYPE(I)); \
 	};
 
-BOOST_PP_REPEAT_FROM_TO(0, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1), BOOST_PP_DEF, _)
+BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 #undef BOOST_PP_DEF
 
 }
 
-#endif // _TYPEINFO_HPP
+#endif // TYPEINFO_HPP

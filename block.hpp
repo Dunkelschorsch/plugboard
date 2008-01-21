@@ -13,6 +13,7 @@ class Variable;
 #include <map>
 #include <set>
 #include <deque>
+#include <vector>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 

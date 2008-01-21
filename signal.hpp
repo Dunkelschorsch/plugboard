@@ -1,8 +1,10 @@
-#ifndef _SIGNAL_HPP
-#define _SIGNAL_HPP
+#ifndef SIGNAL_HPP
+#define SIGNAL_HPP
 
 #include "types/base.hpp"
+#include "types/typeinfo.hpp"
 
+#include <vector>
 #include <algorithm>
 
 
@@ -72,21 +74,17 @@ public:
 
 // this macro creates all necessary Signal-derived classes
 #define BOOST_PP_DEF(z, I, _)  \
-	class BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) :			\
-		public Signal, public SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) > \
-	{								\
-		public:							\
-									\
-		BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))(uint32_t size) :	\
-			SignalStore< BOOST_PP_ARRAY_ELEM(0, SIGNAL_TYPE(I)) >(size)	\
-		{							\
- 			signal_type_ = BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I));		\
-		};							\
-		~BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))() {};		\
-		typedef BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* result_type;		\
+	class SIG_TYPE(I) : public Signal, public SignalStore< CPP_TYPE(I) > \
+	{						\
+		public:					\
+		SIG_TYPE(I)(uint32_t size) : SignalStore< CPP_TYPE(I) >(size)\
+		{					\
+	 		signal_type_ = TYPE_VALUE(I);	\
+		};					\
+		typedef SIG_TYPE(I)* result_type;	\
 	};
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 #undef BOOST_PP_DEF
 
-#endif // _SIGNAL_HPP
+#endif // SIGNAL_HPP

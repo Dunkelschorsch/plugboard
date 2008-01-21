@@ -88,16 +88,16 @@ namespace
 
 void SystemImpl::register_basic_types()
 {
-// 	this macro inserts entries for all Singal types
+//	this macro inserts entries for all Singal types
 //	for integer valued signals, the expansion would look like this:
-// 	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
-// 	signal_factory_.insert(std::make_pair(int32, bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+//	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
+//	signal_factory_.insert(std::make_pair(int32,
+//	bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
 
-#define BOOST_PP_DEF(z, I, _) 									\
-	get_buffer_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),	\
-		&get_buffer< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >)); 			\
-	signal_factory_.insert(std::make_pair(BOOST_PP_ARRAY_ELEM(1, SIGNAL_TYPE(I)),		\
-		bind< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I))* >(new_ptr< BOOST_PP_ARRAY_ELEM(2, SIGNAL_TYPE(I)) >(), _1)));
+#define BOOST_PP_DEF(z, I, _) \
+	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_buffer< SIG_TYPE(I) >)); \
+	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
+		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), _1)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 

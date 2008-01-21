@@ -3,6 +3,7 @@
 
 class Block;
 #include "types/base.hpp"
+#include <vector>
 #include <string>
 #include <boost/pool/detail/singleton.hpp>
 
