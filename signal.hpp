@@ -2,7 +2,6 @@
 #define SIGNAL_HPP
 
 #include "types/base.hpp"
-#include "types/typeinfo.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -34,21 +33,30 @@ class SignalStore
 public:
 	typedef ElementT element_t;
 
-	SignalStore(uint32_t size) : size_(size), data_array_()
+	SignalStore(size_t size) : size_(size), data_array_()
 	{
 		data_array_ = new element_t[size_];
 	}
 	
-	SignalStore(SignalStore &other)
+	SignalStore(const SignalStore& other) : size_(other.size_)
 	{
-		size_ = other.size_;
-		std::copy(other.data_array_, other.data_array_ + other.size_, data_array_);
+		this->data_array_ = new element_t[size_];
+		std::copy
+		(
+			other.data_array_,
+			other.data_array_ + other.size_,
+			this->data_array_
+		);
 	}
 
-	/* maybe that's wrong, but it's never used anyway */
 	SignalStore& operator=(const SignalStore& other)
 	{
-		return SignalStore(other);
+		if(this != &other)
+		{
+			SignalStore tmp(other);
+			swap(tmp);
+		}
+		return *this;
 	}
 
 	~SignalStore()
@@ -61,13 +69,16 @@ public:
 		return data_array_;
 	}
 
-	void put(std::vector< element_t >& v)
-	{
-		copy(v.begin(), v.end(), data_array_);
-	}
-
-	uint32_t size_;
+protected:
+	size_t size_;
 	element_t* data_array_;
+
+	void swap(SignalStore& other)
+	{
+		using std::swap;
+		swap(this->size_, other.size_);
+		swap(this->data_array_, other.data_array_);
+	}
 };
 
 
@@ -77,7 +88,7 @@ public:
 	class SIG_TYPE(I) : public Signal, public SignalStore< CPP_TYPE(I) > \
 	{						\
 		public:					\
-		SIG_TYPE(I)(uint32_t size) : SignalStore< CPP_TYPE(I) >(size)\
+		SIG_TYPE(I)(size_t size) : SignalStore< CPP_TYPE(I) >(size)\
 		{					\
 	 		signal_type_ = TYPE_VALUE(I);	\
 		};					\
