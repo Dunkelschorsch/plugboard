@@ -1,5 +1,5 @@
-#ifndef _SYSTEM_HPP
-#define _SYSTEM_HPP
+#ifndef SYSTEM_HPP
+#define SYSTEM_HPP
 
 #include <string>
 #include "macros.hpp"
@@ -37,4 +37,4 @@ private:
 	H_DECLARE_PRIVATE(System)
 };
 
-#endif // _SYSTEM_HPP
+#endif // SYSTEM_HPP

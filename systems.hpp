@@ -1,5 +1,5 @@
-#ifndef _SYSTEMS_HPP
-#define _SYSTEMS_HPP
+#ifndef SYSTEMS_HPP
+#define SYSTEMS_HPP
 
 #include <boost/pool/detail/singleton.hpp>
 #include <map>
@@ -34,4 +34,4 @@ public:
 };
 
 
-#endif // _SYSTEMS_HPP
+#endif // SYSTEMS_HPP

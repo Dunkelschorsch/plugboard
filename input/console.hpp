@@ -1,5 +1,5 @@
-#ifndef _CONSOLE_HPP
-#define _CONSOLE_HPP
+#ifndef CONSOLE_HPP
+#define CONSOLE_HPP
 
 #include <string>
 class BlockLoader;
@@ -22,4 +22,4 @@ private:
 	HumpShellImpl * d;
 };
 
-#endif // _CONSOLE_HPP
+#endif // CONSOLE_HPP

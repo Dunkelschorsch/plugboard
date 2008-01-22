@@ -1,5 +1,5 @@
-#ifndef _CONSOLE_HPP
-#define _CONSOLE_HPP
+#ifndef FILE_HPP
+#define FILE_HPP
 
 #include <string>
 class BlockLoader;
@@ -20,4 +20,4 @@ private:
 	HumpFileImpl * d;
 };
 
-#endif // _CONSOLE_HPP
+#endif // FILE_HPP

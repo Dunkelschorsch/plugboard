@@ -1,5 +1,5 @@
-#ifndef _MACROS_HPP
-#define _MACROS_HPP
+#ifndef MACROS_HPP
+#define MACROS_HPP
 
 #define H_D(CLASS) CLASS##Impl * const d = d_func();
 
@@ -12,4 +12,4 @@ inline const CLASS##Impl *d_func() const { return reinterpret_cast< CLASS##Impl*
 CLASS##Impl * const d_ptr;\
 CLASS(CLASS##Impl &dd);
 
-#endif // _MACROS_HPP
+#endif // MACROS_HPP

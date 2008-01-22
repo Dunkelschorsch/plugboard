@@ -1,5 +1,5 @@
-#ifndef _EXEC_MATRIX
-#define _EXEC_MATRIX
+#ifndef EXEC_MATRIX_HPP
+#define EXEC_MATRIX_HPP
 
 #include "exec_stage.hpp"
 
@@ -77,4 +77,4 @@ namespace std
 	}
 }
 
-#endif // _EXEC_MATRIX
+#endif // EXEC_MATRIX_HPP

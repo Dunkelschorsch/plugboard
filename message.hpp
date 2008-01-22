@@ -1,5 +1,5 @@
-#ifndef _MESSAGE_HPP
-#define _MESSAGE_HPP
+#ifndef MESSAGE_HPP
+#define MESSAGE_HPP
 
 class Message
 {
@@ -7,4 +7,4 @@ public:
 	virtual ~Message() { }
 };
 
-#endif // _MESSAGE_HPP
+#endif // MESSAGE_HPP

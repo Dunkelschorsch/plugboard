@@ -1,5 +1,5 @@
-#ifndef _FACTORY_HPP
-#define _FACTORY_HPP
+#ifndef FACTORY_HPP
+#define FACTORY_HPP
 
 #include <map>
 #include <stdexcept>
@@ -75,4 +75,4 @@ private:
 	factory_map_t f_;
 };
 
-#endif // _FACTORY_HPP
+#endif // FACTORY_HPP

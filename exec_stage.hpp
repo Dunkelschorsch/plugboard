@@ -1,5 +1,5 @@
-#ifndef _EXEC_STAGE
-#define _EXEC_STAGE
+#ifndef EXEC_STAGE_HPP
+#define EXEC_STAGE_HPP
 
 #include <deque>
 #include <iosfwd>
@@ -61,4 +61,4 @@ namespace std
 	}
 }
 
-#endif // _EXEC_STAGE
+#endif // EXEC_STAGE_HPP

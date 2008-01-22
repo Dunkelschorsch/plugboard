@@ -1,5 +1,5 @@
-#ifndef _SUBSYSTEM_HPP
-#define _SUBSYSTEM_HPP
+#ifndef SUBSYSTEM_HPP
+#define SUBSYSTEM_HPP
 
 #include "block/block.hpp"
 #include "system.hpp"
@@ -30,4 +30,4 @@ private:
 	H_DECLARE_PRIVATE(Subsystem);
 };
 
-#endif // _SUBSYSTEM_HPP
+#endif // SUBSYSTEM_HPP

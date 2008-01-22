@@ -1,5 +1,5 @@
-#ifndef _ACTIONS_HPP
-#define _ACTIONS_HPP
+#ifndef COMMAND_ACTIONS_HPP
+#define COMMAND_ACTIONS_HPP
 
 #include <boost/any.hpp>
 #include <vector>
@@ -125,4 +125,4 @@ inline VariableDeclarationCommand declare_variable(arg_storage_t& v)
 }
 
 } // namespace commands
-#endif // _ACTIONS_HPP
+#endif // COMMAND_ACTIONS_HPP

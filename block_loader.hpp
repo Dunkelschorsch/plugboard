@@ -1,5 +1,5 @@
-#ifndef _BLOCK_LOADER_HPP
-#define _BLOCK_LOADER_HPP
+#ifndef BLOCK_LOADER_HPP
+#define BLOCK_LOADER_HPP
 
 class Block;
 #include "types/base.hpp"
@@ -37,4 +37,4 @@ private:
 	BlockLoaderImpl *d;
 };
 
-#endif //_BLOCK_LOADER_HPP
+#endif //BLOCK_LOADER_HPP

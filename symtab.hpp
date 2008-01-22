@@ -1,5 +1,5 @@
-#ifndef _SYMTAB_HPP
-#define _SYMTAB_HPP
+#ifndef SYMTAB_HPP
+#define SYMTAB_HPP
 
 #include "exceptions.hpp"
 #include <map>
@@ -27,4 +27,4 @@ private:
 	const Symtab* parent_;
 };
 
-#endif
+#endif // SYMTAB_HPP

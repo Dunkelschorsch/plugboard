@@ -1,5 +1,5 @@
-#ifndef _EXCEPTIONS_HPP
-#define _EXCEPTIONS_HPP
+#ifndef EXCEPTIONS_HPP
+#define EXCEPTIONS_HPP
 
 #include <stdexcept>
 
@@ -193,4 +193,4 @@ protected:
 	}
 };
 
-#endif
+#endif // EXCEPTIONS_HPP
