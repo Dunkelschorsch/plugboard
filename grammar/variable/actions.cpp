@@ -53,17 +53,6 @@ DimensionAddAction::DimensionAddAction(const variable_actor& v, size_t size) : v
 
 
 DimensionAddAction::result_type
-DimensionAddAction::operator()(const iterator_t&, const iterator_t&) const
-{
-#ifndef NDEBUG
-    std::cout << "BLOODY HELL!!" << std::endl;
-    bool spirit_does_not_suck = false;
-    assert(spirit_does_not_suck);
-#endif
-}
-
-
-DimensionAddAction::result_type
 DimensionAddAction::operator()(const complex_t&) const
 {
     v_().add_dimension(size_);

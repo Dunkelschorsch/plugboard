@@ -4,10 +4,11 @@
 #include <boost/spirit/phoenix/actor.hpp>
 #include <boost/spirit/phoenix/closures.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
+#include <boost/spirit/iterator/position_iterator.hpp>
+
 #include "variable/variable.hpp"
 
 
-typedef boost::spirit::file_iterator< char > iterator_t;
 
 typedef phoenix::actor<
     phoenix::closure_member<
@@ -41,7 +42,15 @@ struct DimensionAddAction
     result_type operator()(const complex_t&) const;
 
     // i don't have the slightest clue why this overload is neccessary
-    result_type operator()(const iterator_t&, const iterator_t&) const;
+    template< typename StangeIteratorT >
+    result_type operator()(const StangeIteratorT&, const StangeIteratorT&) const
+    {
+#ifndef NDEBUG
+        std::cout << "BLOODY HELL!!" << std::endl;
+        bool spirit_does_not_suck = false;
+        assert(spirit_does_not_suck);
+#endif
+    }
 
     const variable_actor& v_;
     const size_t size_;

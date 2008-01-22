@@ -1,6 +1,7 @@
 #include <iostream>
 #include <boost/function.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
+#include <boost/spirit/iterator/position_iterator.hpp>
 
 #include "grammar/command/command_parse.hpp"
 #include "input/file.hpp"
@@ -37,8 +38,8 @@ HumpFile::~HumpFile()
 
 bool HumpFile::execute_command(const std::string& file_name)
 {
-	typedef char char_t;
-	typedef file_iterator< char_t > iterator_t;
+	typedef file_iterator< char > file_iter_t;
+	typedef position_iterator2< file_iter_t > iterator_t;
 	typedef skip_parser_iteration_policy< space_parser > iter_policy_t;
 	typedef scanner_policies< iter_policy_t > scanner_policies_t;
 	typedef scanner< iterator_t, scanner_policies_t > scanner_t;
@@ -47,14 +48,20 @@ bool HumpFile::execute_command(const std::string& file_name)
 	iter_policy_t iter_policy(space_p);
 	scanner_policies_t policies(iter_policy);
 
-	iterator_t first(file_name);
-	if (!first)
+	// create a file_iterator
+	file_iter_t file_first(file_name);
+	if (!file_first)
 	{
 		std::cout << "Unable to open file!" << std::endl;
 		// Clean up, throw an exception, whatever
 		return false;
 	}
-	iterator_t last = first.make_end();
+	file_iter_t file_last = file_first.make_end();
+
+	// create a position_iterator wrapping the file_iterator
+	iterator_t first(file_first, file_last, file_name);
+	first.set_tabchars(8);
+	iterator_t last;
 
 	scanner_t scan(first, last, policies);
 
@@ -66,10 +73,9 @@ bool HumpFile::execute_command(const std::string& file_name)
 
 	if(first != last)
 	{
-		std::cout << "-------------------------" << std::endl;
-		std::cout << "Parsing failed"            << std::endl;
-		std::cout << "stopped at: \""            << *first << "\"" << std::endl;
-		std::cout << "-------------------------" << std::endl;
+		file_position pos(first.get_position());
+		std::cout << "Syntax error in input file!" << std::endl;
+		std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline() << std::endl;
 		return false;
 	}
 	return true;
