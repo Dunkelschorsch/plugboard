@@ -1,26 +1,30 @@
 #ifndef PORT_TRAITS_HPP
 #define PORT_TRAITS_HPP
 
-#include "exceptions.hpp"
-class Block;
-
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
+#include "exceptions.hpp"
+#include "block/source.hpp"
+#include "block/sink.hpp"
+
+class Block;
+class OutPort;
 
 
-template< class PortT >
-class PortTraits;
+template< class PortT > class PortTraits;
+
 
 template< >
 struct PortTraits< OutPort >
 {
 	template< class IteratorT, typename PointerT >
-	OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT * const this_p)
+	static OutPort* name_exists_action(IteratorT it, OutPort * const p, const PointerT * const this_p)
 	{
 #ifndef NDEBUG
-		std::cout << "    " << this_p->get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
+		std::cout << "    " << this_p->get_name_sys() <<
+			".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
 #endif
 		type_t t = p->get_type();
 		real_t Ts = p->get_Ts();
@@ -40,9 +44,10 @@ struct PortTraits< OutPort >
 	}
 
 	template< typename PointerT >
-	void increment_no_of_ports(PointerT* const this_p)
+	static void increment_no_of_ports(PointerT* const this_p)
 	{
-		this_p->num_output_ports_++;
+		// this can go unchecked due to the specialization of PortT to OutPort
+		dynamic_cast< Source* >(this_p)->num_output_ports_++;
 	}
 };
 
@@ -52,34 +57,20 @@ template< >
 struct PortTraits< InPort >
 {
 	template< class IteratorT, typename PointerT >
-	InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT * const this_p)
+	static InPort* name_exists_action(IteratorT it, InPort * const p, const PointerT * const this_p)
 	{
 		throw DuplicatePortNameException(this_p->get_name() + "::" + p->get_name());
 		return NULL;
 	}
 
 	template< typename PointerT >
-	void increment_no_of_ports(PointerT * const this_p)
+	static void increment_no_of_ports(PointerT * const this_p)
 	{
-		this_p->num_input_ports_++;
+		// this can go unchecked due to the specialization of PortT to InPort
+		dynamic_cast< Sink* >(this_p)->num_input_ports_++;
 	}
 };
 
-
-
-template< class PortT, class IteratorT, typename PointerT >
-inline PortT* name_exists(PortT * const p, IteratorT it, const PointerT * const this_p)
-{
-	return PortTraits< PortT >().name_exists_action(it, p, this_p);
-}
-
-
-
-template< class PortT, typename PointerT >
-inline void increment_no_of_ports(PortT * const, PointerT * const this_p)
-{
-	PortTraits< PortT >().increment_no_of_ports(this_p);
-}
 
 
 #endif // PORT_TRAITS_HPP

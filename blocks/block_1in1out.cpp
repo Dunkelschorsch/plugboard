@@ -7,51 +7,40 @@
 #include <algorithm>
 
 
-#define HAS_INPUTS
-#define HAS_OUTPUTS
-
 static const std::string BLOCK_NAME = "1in1out";
 
-class Block_1in1out : public Block
+class Block_1in1out : public Block, public Source, public Sink
 {
 public:
 
 	Block_1in1out();
-
 	~Block_1in1out();
 
 	void process();
 
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters();
 
-#ifdef HAS_INPUTS
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
-#endif
+	bool setup_input_ports();
+	bool setup_output_ports();
 
-#ifdef HAS_OUTPUTS
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
-#endif
-
-/* member variable declarations go here */
+	/* member variable declarations go here */
 	OutPort *sig_out1_;
 	InPort *sig_in1_;
 };
 
 
-#ifdef HAS_INPUTS
+
 bool Block_1in1out::setup_input_ports()
 {
 	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
 
 	return true;
 }
-#endif
 
 
 
-#ifdef HAS_OUTPUTS
 bool Block_1in1out::setup_output_ports()
 {
 	type_t out_type = sig_in1_->get_type();
@@ -61,7 +50,7 @@ bool Block_1in1out::setup_output_ports()
 	sig_out1_ = add_port( new OutPort("out1", out_type, out_Ts, out_size) );
 	return true;
 }
-#endif
+
 
 
 void Block_1in1out::configure_parameters()

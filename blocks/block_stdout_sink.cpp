@@ -14,7 +14,7 @@ using namespace boost::lambda;
 static const std::string BLOCK_NAME = "stdout_sink";
 
 
-class Block_stdout_sink : public Block
+class Block_stdout_sink : public Block, public Sink
 {
 public:
 

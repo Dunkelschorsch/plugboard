@@ -11,66 +11,72 @@
 using boost::bind;
 
 
-namespace
+template< typename SequenceT >
+bool is_left_terminated(const SequenceT& v)
 {
-	template< typename SequenceT >
-	bool is_left_terminated(const SequenceT& v)
+	assert(not v.empty());
+
+	if(dynamic_cast< const Sink* >(v.front()))
 	{
-		assert(not v.empty());
-		return v.front()->get_num_input_ports() > 1 || v.front()->get_num_input_ports() == 0;
+		if(dynamic_cast< Sink* >(v.front())->get_num_input_ports() > 1)
+			return true;
+		else 
+			return false;
+	} else
+		return true;
+}
+
+
+template< typename SequenceT >
+bool is_right_terminated(const SequenceT& v)
+{
+	assert(not v.empty());
+
+	if(dynamic_cast< const Source* >(v.back()))
+	{
+		if(dynamic_cast< Source* >(v.back())->get_num_output_ports() > 1)
+			return true;
+		else 
+			return false;
+	} else
+		return true;
+}
+
+
+struct FindStartBlock
+{
+	template< typename PairT >
+	bool operator()(const PairT& b) const
+	{
+		return dynamic_cast< const Source* >(b.second) ? true : false;
 	}
 
+	typedef bool result_type;
+};
 
-	template< typename SequenceT >
-	bool is_right_terminated(const SequenceT& v)
+
+template< class ContainerT >
+struct UnwrapPair
+{
+	UnwrapPair(ContainerT& c) : vec_(c) { }
+
+	template< typename PairT >
+	void operator()(const PairT& b)
 	{
-		assert(not v.empty());
-		return v.back()->get_num_output_ports() > 1 || v.back()->get_num_output_ports() == 0;
+			vec_.push_back(b.second);
 	}
 
+	ContainerT& vec_;
 
-	struct FindStartBlock
-	{
-		template< typename PairT >
-		bool operator()(const PairT& b) const
-		{
-			if(b.second->get_num_input_ports() == 0)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		typedef bool result_type;
-	};
+	typedef void result_type;
+};
 
 
-	template< class ContainerT >
-	struct UnwrapPair
-	{
-		UnwrapPair(ContainerT& c) : vec_(c) { }
 
-		template< typename PairT >
-		void operator()(const PairT& b)
-		{
- 			vec_.push_back(b.second);
-		}
-
-		ContainerT& vec_;
-
-		typedef void result_type;
-	};
-
-
-	// automatically deduce the type of the container to save typing
-	template< typename ContainerT >
-	inline UnwrapPair< ContainerT > pair_unwrapper(ContainerT& c)
-	{
-		return UnwrapPair< ContainerT >(c);
-	}
+template< typename ContainerT >
+inline UnwrapPair< ContainerT > pair_unwrapper(ContainerT& c)
+{
+	return UnwrapPair< ContainerT >(c);
 }
 
 
@@ -130,7 +136,7 @@ void ExecutionMatrix::swap_stages< int >(int s1, int s2)
 void ExecutionMatrix::add_block(Block *b)
 {
 	assert(b != NULL);
-	if(b->get_num_input_ports() == 0)
+	if(dynamic_cast< Source* >(b))
 	{
 #ifndef NDEBUG
 		std::cout << "  This is a source block!" << std::endl;
@@ -270,8 +276,10 @@ void ExecutionMatrix::combine_stages()
 	{
 		// that is the rightmost block of the first (and only) path in the currently examined execution stage
 		Block* block_curr = (stage_curr)->get_paths().front().back();
-		assert(block_curr != NULL);
+		assert(dynamic_cast< Source* >(block_curr));
 
+		const std::set< std::string > connections_curr
+			= dynamic_cast< Source* >(block_curr)->get_connections();
 #ifndef NDEBUG
 		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to its successors." << std::endl;
 #endif
@@ -285,10 +293,10 @@ void ExecutionMatrix::combine_stages()
 		assert(block_succ != NULL);
 
 		// maybe this needs some explanation ... later
-		conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
+		conn_it = connections_curr.find(block_succ->get_name_sys());
 		while
 		(
-			conn_it != block_curr->get_connections().end() &&
+			conn_it != connections_curr.end() &&
 			!is_right_terminated(stage_curr->get_paths().front()) &&
 			!is_left_terminated((stage_curr+1)->get_paths().front())
 		)
@@ -315,7 +323,7 @@ void ExecutionMatrix::combine_stages()
 
 			assert(block_succ != block_curr);
 
-			conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
+			conn_it = connections_curr.find(block_succ->get_name_sys());
 		}
 	}
 }
@@ -359,10 +367,10 @@ void ExecutionMatrix::parallelize()
 				{
 					return;
 				}
-				conn_it = block_curr->get_connections().find(block_succ->get_name_sys());
+				conn_it = dynamic_cast< Source* >(block_curr)->get_connections().find(block_succ->get_name_sys());
 
 				// if block_curr and block_succ ARE connected ...
-				if(conn_it != block_curr->get_connections().end())
+				if(conn_it != dynamic_cast< Source* >(block_curr)->get_connections().end())
 				{
 #ifndef NDEBUG
 					std::cout << " Yes.";

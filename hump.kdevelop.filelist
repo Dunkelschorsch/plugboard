@@ -99,3 +99,7 @@ block/block.hpp
 block/create.hpp
 block/port_traits.hpp
 block/buffer_access.hpp
+block/source.hpp
+block/source.cpp
+block/sink.cpp
+block/sink.hpp

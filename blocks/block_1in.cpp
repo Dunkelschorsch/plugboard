@@ -5,14 +5,13 @@
 #include "types/vectors.hpp"
 #include <iostream>
 
-#define HAS_INPUTS
-#undef  HAS_OUTPUTS
+
 
 static const std::string BLOCK_NAME = "1in";
 
 /* please replace all occurences of '1in' with BLOCK_NAME */
 
-class Block_1in : public Block
+class Block_1in : public Block, public Sink
 {
 public:
 
@@ -24,15 +23,11 @@ public:
 
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters();
 
-#ifdef HAS_INPUTS
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
-#endif
+	bool setup_input_ports();
+	bool setup_output_ports();
 
-#ifdef HAS_OUTPUTS
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
-#endif
 
 /* member variable declarations go here */
 	InPort *sig_in_;
@@ -42,7 +37,7 @@ private:
 };
 
 
-#ifdef HAS_INPUTS
+
 bool Block_1in::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
@@ -50,16 +45,7 @@ bool Block_1in::setup_input_ports()
 
 	return true;
 }
-#endif
 
-
-#ifdef HAS_OUTPUTS
-bool Block_1in::setup_output_ports()
-{
-	/* calls to "add_port(OutPort &) go here */
-	return true;
-}
-#endif
 
 
 void Block_1in::configure_parameters()

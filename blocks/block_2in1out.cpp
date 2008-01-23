@@ -9,7 +9,7 @@
 
 static const std::string BLOCK_NAME = "2in1out";
 
-class Block_2in1out : public Block
+class Block_2in1out : public Block, public Source, public Sink
 {
 public:
 

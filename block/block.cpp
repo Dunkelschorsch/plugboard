@@ -9,42 +9,28 @@
 
 
 Block::Block() :
-	parameter_factory_(),
-	params_(),
-	param_curr_(0),
-	configured_(true),
 	name_(),
 	description_(),
-	ports_in_(),
-	ports_out_(),
-	connected_blocks_(),
 	name_sys_(),
-	num_output_ports_(0),
-	num_input_ports_(0)
+	configured_(true),
+	params_(),
+	param_curr_(0),
+	parameter_factory_()
 {
 	register_parameter_types();
 }
 
 
 
-Block::~Block()
-{
-
-}
+Block::~Block() { }
 
 
 
-void Block::initialize()
-{
-
-}
+void Block::initialize() { }
 
 
 
-void Block::advance()
-{
-
-}
+void Block::advance() { }
 
 
 
@@ -123,7 +109,7 @@ void Block::copy_parameter(void *out, Variable& p)
 
 
 
-void Block::add_parameter(void* var, type_t t, std::string description)
+void Block::add_parameter(void* var, type_t t, const std::string& description)
 {
 	configured_ = false;
 	params_.push_back(Parameter(var, t, description));
@@ -200,49 +186,8 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 
 
-bool Block::setup_output_ports()
-{
-	return false;
-}
-
-
-
-bool Block::setup_input_ports()
-{
-	return false;
-}
-
-
-
-uint16_t Block::get_num_input_ports() const
-{
-	return num_input_ports_;
-}
-
-
-
-uint16_t Block::get_num_output_ports() const
-{
-	return num_output_ports_;
-}
-
-
-
 const std::vector< Parameter >& Block::get_params() const
 {
 	return params_;
 }
 
-
-
-void Block::add_connection(const std::string & name)
-{
-	connected_blocks_.insert(name);
-}
-
-
-
-const std::set< std::string >& Block::get_connections() const
-{
-	return connected_blocks_;
-}

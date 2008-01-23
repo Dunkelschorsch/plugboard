@@ -10,7 +10,7 @@
 
 static const std::string BLOCK_NAME = "1out";
 
-class Block_1out : public Block
+class Block_1out : public Block, public Source
 {
 public:
 

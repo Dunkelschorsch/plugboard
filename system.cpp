@@ -154,8 +154,15 @@ void System::add_block(Block * const b, const std::string& name_sys)
 	// give it its unique name
 	b->set_name_sys(name_sys);
 
-	b->setup_input_ports();	
-	b->setup_output_ports();
+	if(dynamic_cast< Sink* >(b))
+	{
+		dynamic_cast< Sink* >(b)->setup_input_ports();
+	}
+
+	if(dynamic_cast< Source* >(b))
+	{
+		dynamic_cast< Source* >(b)->setup_output_ports();
+	}
 
 	d->exec_m_.store_block(b, name_sys);
 }
@@ -244,15 +251,19 @@ struct SignalAttributePropagationAction
 	template< typename StageT >
 	void operator()(const StageT& stage_curr) const
 	{
-		Block * const b = stage_curr.get_paths().front().front();
-		b->setup_output_ports();
+		Source * const src =
+			dynamic_cast< Source* const >(stage_curr.get_paths().front().front());
 
-		std::for_each
-		(
-			b->connect_calls.begin(),
-			b->connect_calls.end(),
-			make_connections_a(sys_)
-		);
+		if(src)
+		{
+			src->setup_output_ports();
+			std::for_each
+			(
+				src->connect_calls.begin(),
+				src->connect_calls.end(),
+				make_connections_a(sys_)
+			);
+		}
 	}
 
 	SystemT sys_;
@@ -270,10 +281,12 @@ inline SignalAttributePropagationAction< SystemT > create_buffers_and_stuff_a(Sy
 
 void SystemImpl::linearize(const std::string& block_start)
 {
+	Source * src = dynamic_cast< Source* >(exec_m_[block_start]);
+	if(src)
 	std::for_each
 	(
-		exec_m_[block_start]->get_connections().begin(),
-		exec_m_[block_start]->get_connections().end(),
+		src->get_connections().begin(),
+		src->get_connections().end(),
 		place_block_a(block_start, this)
 	);
 }
@@ -361,8 +374,8 @@ void System::connect_ports(const std::string & block_source,
 	 *  all provided block- and port names were valid, now let's connect them
 	 */
 
-	d->exec_m_[block_source]->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
-	d->exec_m_[block_source]->add_connection(block_sink);
+	dynamic_cast< Source* >(d->exec_m_[block_source])->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
+	dynamic_cast< Source* >(d->exec_m_[block_source])->add_connection(block_sink);
 }
 
 

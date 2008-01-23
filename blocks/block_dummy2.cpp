@@ -11,7 +11,7 @@ static const std::string BLOCK_NAME = "Dummy2";
 #define HAS_OUTPUTS
 
 
-class Block_Dummy2 : public Block
+class Block_Dummy2 : public Block, public Source
 {
 public:
 
