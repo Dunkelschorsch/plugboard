@@ -87,7 +87,7 @@ void Block_1out::process()
 
 Block_1out::Block_1out()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("This is a block for testing purposes. It has 1 output.");
 	configure_parameters();
 }

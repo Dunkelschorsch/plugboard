@@ -82,7 +82,7 @@ void Block_1in2out::process()
 
 Block_1in2out::Block_1in2out()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("This is a block for testing purposes. It has 1 inputs and 2 outputs.");
 	configure_parameters();
 }

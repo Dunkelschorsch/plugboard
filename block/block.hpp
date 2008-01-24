@@ -1,14 +1,8 @@
 #ifndef BLOCK_HPP
 #define BLOCK_HPP
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
-#include <map>
 #include <deque>
 #include <vector>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
 
 #include "block/port_traits.hpp"
@@ -26,6 +20,8 @@ class Variable;
 
 class Block
 {
+struct BlockImpl;
+
 // the subsystem plays some funny games with ports
 friend class SubsystemImpl;
 
@@ -44,6 +40,7 @@ public:
 	const std::string& get_description() const;
 
 	void set_description(const std::string& description);
+	void set_name(const std::string& name);
 
 	bool set_parameter(const Variable& p);
 	const std::vector< Parameter >& get_params() const;
@@ -61,31 +58,16 @@ public:
 	void set_name_sys(const std::string& name_sys);
 
 protected:
-	void register_parameter_types();
-
 	virtual void configure_parameters() = 0;
 
 	void add_parameter(void* var, type_t t, const std::string& description);
 
 	template< class PortT >
 	PortT* add_port(PortT * const p);
-
-	std::string name_;
-	std::string description_;
 	
 private:
-	typedef std::map< type_t, boost::function< void(void*, Variable&) > > parameter_factory_t;
-
-	template < typename T >
-	void copy_parameter(void*, Variable&);
-
-	std::string name_sys_;
-	bool configured_;
-	std::vector< Parameter > params_;
-	uint16_t param_curr_;
-	parameter_factory_t parameter_factory_;
+	BlockImpl* d;
 };
-
 
 
 

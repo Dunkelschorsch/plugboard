@@ -69,7 +69,7 @@ void Block_Dummy2::process()
 
 Block_Dummy2::Block_Dummy2()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("This is a dummy block for testing purposes.");
 	configure_parameters();
 }

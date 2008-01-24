@@ -42,7 +42,7 @@ private:
 
 Block_stdout_sink::Block_stdout_sink()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	configure_parameters();
 }
 

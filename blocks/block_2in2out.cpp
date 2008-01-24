@@ -95,7 +95,7 @@ void Block_2in2out::process()
 
 Block_2in2out::Block_2in2out()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("This is a block for testing purposes. It has 2 inputs and 2 outputs.");
 	configure_parameters();
 }

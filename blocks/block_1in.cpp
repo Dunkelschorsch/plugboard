@@ -9,8 +9,6 @@
 
 static const std::string BLOCK_NAME = "1in";
 
-/* please replace all occurences of '1in' with BLOCK_NAME */
-
 class Block_1in : public Block, public Sink
 {
 public:
@@ -76,7 +74,7 @@ void Block_1in::process()
 
 Block_1in::Block_1in()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("This is a block for testing purposes. It has 1 input.");
 	configure_parameters();
 #ifndef NDEBUG
@@ -91,5 +89,6 @@ Block_1in::~Block_1in()
 	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
 }
+
 
 ACCESS_FUNCS(1in)
