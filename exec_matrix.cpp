@@ -272,12 +272,18 @@ void ExecutionMatrix::combine_stages()
 	ExecutionStage::store_t::iterator stage_curr;
 	std::set< std::string >::const_iterator conn_it;
 	
-	for(stage_curr = stages_.begin(); stage_curr != stages_.end(); stage_curr++)
+	for(stage_curr = stages_.begin(); stage_curr != stages_.end(); ++stage_curr)
 	{
-		// that is the rightmost block of the first (and only) path in the currently examined execution stage
-		Block* block_curr = (stage_curr)->get_paths().front().back();
-		assert(dynamic_cast< Source* >(block_curr));
+		// if its not a source block we reached a dead end
+		if(is_right_terminated(stage_curr->get_paths()[0]))
+		{
+			continue;
+		}
 
+		// that is the rightmost block of the first (and only) path in the currently examined execution stage
+		Block* block_curr = (stage_curr)->get_paths()[0].back();
+
+		// we already know we are dealing with a source block
 		const std::set< std::string > connections_curr
 			= dynamic_cast< Source* >(block_curr)->get_connections();
 #ifndef NDEBUG
@@ -286,25 +292,28 @@ void ExecutionMatrix::combine_stages()
 
 		if(stage_curr+1 == stages_.end())
 		{
+#ifndef NDEBUG
+			std::cout << "last stage reached. exiting." << std::endl;
+#endif
 			break;
 		}
 		// that is the leftmost block of the first (and only) path in the next execution stage
-		Block* block_succ = (stage_curr+1)->get_paths().front().front();
+		Block* block_succ = (stage_curr+1)->get_paths()[0].front();
 		assert(block_succ != NULL);
 
-		// maybe this needs some explanation ... later
+		// move as many blocks as possible from the next stage to the current one
 		conn_it = connections_curr.find(block_succ->get_name_sys());
 		while
 		(
 			conn_it != connections_curr.end() &&
-			!is_right_terminated(stage_curr->get_paths().front()) &&
-			!is_left_terminated((stage_curr+1)->get_paths().front())
+			!is_right_terminated(stage_curr->get_paths()[0]) &&
+			!is_left_terminated((stage_curr+1)->get_paths()[0])
 		)
 		{
 #ifndef NDEBUG
 			std::cout << "moving: " << block_succ->get_name_sys() << std::endl;
 #endif
-			stage_curr->get_paths().front().push_back(block_succ);
+			stage_curr->get_paths()[0].push_back(block_succ);
 			stages_.erase(stage_curr+1);
 #ifndef NDEBUG
 			std::cout << *this;
@@ -313,13 +322,13 @@ void ExecutionMatrix::combine_stages()
 			{
 				break;
 			}
-			else if (stage_curr+2 != stages_.end())
-			{
-				stage_curr++;
-			}
+// 			else if (stage_curr+2 != stages_.end())
+// 			{
+// 				stage_curr++;
+// 			}
 
-			block_curr = (stage_curr)->get_paths().front().back();
-			block_succ = (stage_curr+1)->get_paths().front().front();
+			block_curr = (stage_curr)->get_paths()[0].back();
+			block_succ = (stage_curr+1)->get_paths()[0].front();
 
 			assert(block_succ != block_curr);
 
