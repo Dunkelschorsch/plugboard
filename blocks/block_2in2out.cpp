@@ -82,11 +82,29 @@ void Block_2in2out::process()
 	v_out1 = get_data_ptr< int32_t >(sig_out1_);
 	v_out2 = get_data_ptr< int32_t >(sig_out2_);
 
-	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
-	{
-		v_out1[i] = v_in1[i]+1;
-		v_out2[i] = v_in1[i]+2;
-	}
+	std::transform
+	(
+		v_in1,
+		v_in1 + sig_in1_->get_frame_size(),
+		v_out1,
+		std::bind1st
+		(
+			std::plus< int32_t >(),
+			1
+		)
+	);
+
+	std::transform
+	(
+		v_in2,
+		v_in2 + sig_in2_->get_frame_size(),
+		v_out2,
+		std::bind1st
+		(
+			std::plus< int32_t >(),
+			2
+		)
+	);
 	
 	sig_out1_->send();
 	sig_out2_->send();
