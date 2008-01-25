@@ -425,6 +425,7 @@ void System::initialize()
 
 
 #ifndef NDEBUG
+	std::cout << d->exec_m_ << std::endl;
 	std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
 #endif
 
@@ -436,13 +437,17 @@ void System::initialize()
 
 	d->exec_m_.combine_stages();
 
-#ifndef NDEBUG
-	std::cout << "parallelizing..." << std::endl;
-#endif
+// #ifndef NDEBUG
+// 	std::cout << "parallelizing..." << std::endl;
+// #endif
 
-	d->exec_m_.parallelize();
+	//d->exec_m_.parallelize();
 
 	d->exec_m_.init();
+#ifndef NDEBUG
+	std::cout << d->exec_m_ << std::endl;
+#endif
+
 }
 
 
