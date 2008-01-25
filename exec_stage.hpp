@@ -1,7 +1,7 @@
 #ifndef EXEC_STAGE_HPP
 #define EXEC_STAGE_HPP
 
-#include <deque>
+#include <list>
 #include <iosfwd>
 
 #include "block/block.hpp"
@@ -14,9 +14,9 @@ class ExecutionStage
 {
 friend class ExecutionMatrix;
 public:
-	typedef std::deque< ExecutionStage > store_t;
+	typedef std::list< ExecutionStage > store_t;
 	typedef Block::store_t path_t;
-	typedef std::deque< path_t > stage_t;
+	typedef std::list< path_t > stage_t;
 
 	ExecutionStage();
 
@@ -29,6 +29,8 @@ public:
 	stage_t& get_paths();
 
 	Block* operator[](const std::string& name) const;
+
+	void print(std::ostream&) const;
 
 protected:
 	stage_t paths_;
@@ -43,22 +45,5 @@ protected:
 
 
 
-namespace std
-{
-	template< typename C, typename E >
-	basic_ostream< C, E > & operator<<(basic_ostream< C, E > & out, const ExecutionStage& what)
-	{
-		for(uint32_t j=0; j<what.get_paths().size(); ++j)
-		{
-			out << "  Path: " << j << std::endl;
-			for(uint32_t k=0; k<what.get_paths()[j].size(); ++k)
-			{
-				out << "   " << what.get_paths()[j][k]->get_name_sys();
-			}
-			out << std::endl;
-		}
-		return out;
-	}
-}
-
+std::ostream& operator<<(std::ostream&, const ExecutionStage&);
 #endif // EXEC_STAGE_HPP

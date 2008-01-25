@@ -1,10 +1,18 @@
 #include "exec_stage.hpp"
 
+#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/pool/object_pool.hpp>
 
 using boost::bind;
+
+
+std::ostream& operator<<(std::ostream& out, const ExecutionStage& what)
+{
+	what.print(out);
+	return out;
+}
 
 
 
@@ -116,8 +124,8 @@ void ExecutionStage::exec()
 		// iterate through paths
 		for(uint32_t path_num_curr=0; path_num_curr<num_paths; ++path_num_curr)
 		{
-			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, paths_[path_num_curr]));
-			thread_group_.push_back(t);
+// 			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, paths_[path_num_curr]));
+// 			thread_group_.push_back(t);
 		}
 		std::for_each(thread_group_.begin(), thread_group_.end(), bind(&boost::thread::join, _1));
  		thread_group_.clear();
@@ -143,4 +151,31 @@ void ExecutionStage::exec_path(const path_t& p)
 		p.end(),
 		bind(&Block::process, _1)
 	);
+}
+
+
+
+void ExecutionStage::print(std::ostream& out) const
+{
+	uint32_t path_num=0;
+	for
+	(
+		ExecutionStage::stage_t::const_iterator path_it = get_paths().begin();
+		path_it != get_paths().end();
+		++path_it
+	)
+	{
+		out << "  Path: " << path_num++ << std::endl;
+		for
+		(
+			ExecutionStage::path_t::const_iterator block_it = path_it->begin();
+			block_it != path_it->end();
+			++block_it
+		)
+		{
+			out << "   " << (*block_it)->get_name_sys();
+		}
+		out << std::endl;
+
+	}
 }

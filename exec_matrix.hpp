@@ -2,7 +2,7 @@
 #define EXEC_MATRIX_HPP
 
 #include "exec_stage.hpp"
-
+#include <iosfwd>
 #include <map>
 #include <boost/function.hpp>
 
@@ -25,9 +25,6 @@ public:
 
 	Block* operator[](const std::string& name) const;
 
-	template< typename IteratorT >
-	void swap_stages(IteratorT s1, IteratorT s2);
-
 	const ExecutionStage::store_t& get_stages() const;
 
 	ExecutionStage::store_t& get_stages();
@@ -41,6 +38,8 @@ public:
 	void init();
 
 	void exec();
+
+	void print(std::ostream&) const;
 
 protected:
 	void add_block(Block * b);
@@ -57,24 +56,6 @@ protected:
 
 
 
-namespace std
-{
-	template< typename C, typename E >
-	basic_ostream< C, E >& operator<<(basic_ostream< C, E >& out, const ExecutionMatrix& what)
-	{
-#ifndef NDEBUG
-		out << std::endl << "-------------" << std::endl;
-#endif
-		for(uint32_t j=0; j<what.get_stages().size(); ++j)
-		{
-			out << "Stage: " << j << std::endl;
-			out << what.get_stages()[j];
-		}
-#ifndef NDEBUG
-		out << "-------------" << std::endl << std::endl;
-#endif
-		return out;
-	}
-}
+std::ostream& operator<<(std::ostream&, const ExecutionMatrix&);
 
 #endif // EXEC_MATRIX_HPP

@@ -3,12 +3,17 @@
 
 #include <boost/bind.hpp>
 #include <algorithm>
-
-#ifndef NDEBUG
 #include <iostream>
-#endif
 
 using boost::bind;
+
+
+std::ostream& operator<<(std::ostream& out, const ExecutionMatrix& what)
+{
+	what.print(out);
+	return out;
+}
+
 
 
 template< typename SequenceT >
@@ -100,9 +105,7 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 
 
 
-ExecutionMatrix::ExecutionMatrix() : stages_(), blocks_()
-{
-}
+ExecutionMatrix::ExecutionMatrix() : stages_(), blocks_() { }
 
 
 
@@ -113,22 +116,6 @@ ExecutionMatrix::~ExecutionMatrix()
 	{
 		delete curr_block->second;
 	}
-}
-
-
-
-template< typename IteratorT >
-void ExecutionMatrix::swap_stages(IteratorT s1, IteratorT s2)
-{
-	std::swap(s1, s2);
-}
-
-
-
-template< >
-void ExecutionMatrix::swap_stages< int >(int s1, int s2)
-{
-	std::swap(stages_[s1], stages_[s2]);
 }
 
 
@@ -147,14 +134,6 @@ void ExecutionMatrix::add_block(Block *b)
 	{
 		stages_.insert(stages_.end(), ExecutionStage(b));
 	}
-}
-
-
-
-void ExecutionMatrix::add_block(Block * b, uint32_t insert_where)
-{
-	assert(b != NULL);
-	stages_.insert(stages_.begin()+insert_where+1, ExecutionStage(b));
 }
 
 
@@ -221,7 +200,7 @@ void ExecutionMatrix::add_block(Block * b, const std::string & insert_after)
 			);
 			if(block_curr != path_curr->end())
 			{
-				stages_.insert(stage_curr+1, ExecutionStage(b));
+				stages_.insert(++stage_curr, ExecutionStage(b));
 				return;
 			}
 		}
@@ -269,70 +248,45 @@ bool ExecutionMatrix::block_exists(const std::string & name) const
 
 void ExecutionMatrix::combine_stages()
 {
-	ExecutionStage::store_t::iterator stage_curr;
-	std::set< std::string >::const_iterator conn_it;
-	
-	for(stage_curr = stages_.begin(); stage_curr != stages_.end(); ++stage_curr)
+	ExecutionStage::store_t::iterator stage_curr = stages_.begin();
+	ExecutionStage::store_t::iterator stage_next;
+
+	while(1)
 	{
-		// if its not a source block we reached a dead end
-		if(is_right_terminated(stage_curr->get_paths()[0]))
+		stage_next = stage_curr;
+		++stage_next;
+#ifndef NDEBUG
+		std::cout << *this << std::endl;
+#endif
+		if(stage_next == stages_.end())
+			break;
+
+		if(is_right_terminated(stage_curr->get_paths().back())
+			or is_left_terminated((stage_next)->get_paths().front()))
 		{
+			// nothing more to do here
+			++stage_curr;
 			continue;
 		}
 
-		// that is the rightmost block of the first (and only) path in the currently examined execution stage
-		Block* block_curr = (stage_curr)->get_paths()[0].back();
+		Block* block_curr = (stage_curr)->get_paths().front().back();
+		Block* block_next = (stage_next)->get_paths().front().front();
+		assert(block_next != NULL);
 
-		// we already know we are dealing with a source block
 		const std::set< std::string > connections_curr
 			= dynamic_cast< Source* >(block_curr)->get_connections();
 #ifndef NDEBUG
-		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to its successors." << std::endl;
+		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
+		std::cout << block_next->get_name_sys() << "' " << std::endl;
 #endif
-
-		if(stage_curr+1 == stages_.end())
+		// if there is a connection move the block on the next stage to the current one
+		if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 		{
-#ifndef NDEBUG
-			std::cout << "last stage reached. exiting." << std::endl;
-#endif
-			break;
-		}
-		// that is the leftmost block of the first (and only) path in the next execution stage
-		Block* block_succ = (stage_curr+1)->get_paths()[0].front();
-		assert(block_succ != NULL);
-
-		// move as many blocks as possible from the next stage to the current one
-		conn_it = connections_curr.find(block_succ->get_name_sys());
-		while
-		(
-			conn_it != connections_curr.end() &&
-			!is_right_terminated(stage_curr->get_paths()[0]) &&
-			!is_left_terminated((stage_curr+1)->get_paths()[0])
-		)
+			stage_curr->get_paths().front().push_back(block_next);
+			stages_.erase(stage_next);
+		} else
 		{
-#ifndef NDEBUG
-			std::cout << "moving: " << block_succ->get_name_sys() << std::endl;
-#endif
-			stage_curr->get_paths()[0].push_back(block_succ);
-			stages_.erase(stage_curr+1);
-#ifndef NDEBUG
-			std::cout << *this;
-#endif
-			if (stage_curr+1 == stages_.end())
-			{
-				break;
-			}
-// 			else if (stage_curr+2 != stages_.end())
-// 			{
-// 				stage_curr++;
-// 			}
-
-			block_curr = (stage_curr)->get_paths()[0].back();
-			block_succ = (stage_curr+1)->get_paths()[0].front();
-
-			assert(block_succ != block_curr);
-
-			conn_it = connections_curr.find(block_succ->get_name_sys());
+			++stage_curr;
 		}
 	}
 }
@@ -341,6 +295,7 @@ void ExecutionMatrix::combine_stages()
 
 void ExecutionMatrix::parallelize()
 {
+#if 0
 	ExecutionStage::store_t::iterator stage_curr;
 	ExecutionStage::stage_t::iterator path_curr;
 	std::set< std::string >::const_iterator conn_it;
@@ -436,6 +391,7 @@ void ExecutionMatrix::parallelize()
 			}
 		}
 	}
+#endif
 }
 
 
@@ -470,16 +426,26 @@ std::vector< Block * > ExecutionMatrix::find_start_blocks()
 void ExecutionMatrix::init()
 {
 	// iterate over all stages
-	for(uint32_t i=0; i<stages_.size(); ++i)
-		// iterate over all paths
-		for(uint32_t j=0; j<stages_[i].paths_.size(); ++j)
-			// iterate over all blocks
-			std::for_each
-			(
-				stages_[i].paths_[j].begin(),
-				stages_[i].paths_[j].end(),
-				bind(&Block::initialize, _1)
-			);
+	for
+	(
+		ExecutionStage::store_t::iterator stage_it = stages_.begin();
+		stage_it != stages_.end();
+		++stage_it
+	)
+	// iterate over all paths in current stage
+	for
+	(
+		ExecutionStage::stage_t::iterator path_it = stage_it->get_paths().begin();
+		path_it != stage_it->get_paths().end();
+		++path_it
+	)
+	// iterate over all blocks in current path
+	std::for_each
+	(
+		path_it->begin(),
+		path_it->end(),
+		bind(&Block::initialize, _1)
+	);
 }
 
 
@@ -492,4 +458,25 @@ void ExecutionMatrix::exec()
 		stages_.end(),
 		bind(&ExecutionStage::exec, _1)
 	);
+}
+
+void ExecutionMatrix::print(std::ostream& out) const
+{
+#ifndef NDEBUG
+		out << std::endl << "-------------" << std::endl;
+#endif
+		uint32_t j=0;
+		for
+		(
+			ExecutionStage::store_t::const_iterator stage_it = get_stages().begin();
+			stage_it != get_stages().end();
+			++stage_it
+		)
+		{
+			out << "Stage: " << j++ << std::endl;
+			out << *stage_it;
+		}
+#ifndef NDEBUG
+		out << "-------------" << std::endl << std::endl;
+#endif
 }
