@@ -44,6 +44,7 @@ protected:
 };
 
 
+
 std::ostream& operator<<(std::ostream&, const ExecutionStage&);
 
 #endif // EXEC_STAGE_HPP
