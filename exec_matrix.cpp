@@ -254,23 +254,23 @@ bool ExecutionMatrix::block_exists(const std::string & name) const
 void ExecutionMatrix::combine_stages()
 {
 	ExecutionStage::store_t::iterator stage_curr = stages_.begin();
-	ExecutionStage::store_t::iterator stage_next;
+	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	while(1)
+	while(++stage_next != stages_.end())
 	{
-		stage_next = stage_curr;
-		++stage_next;
 #ifndef NDEBUG
 		std::cout << *this << std::endl;
 #endif
-		if(stage_next == stages_.end())
-			break;
-
-		if(is_right_terminated(stage_curr->get_paths().back())
-			or is_left_terminated((stage_next)->get_paths().front()))
+		if(is_right_terminated(stage_curr->get_paths().back()))
 		{
 			// nothing more to do here
 			++stage_curr;
+			continue;
+		}
+
+		if(is_left_terminated((stage_next)->get_paths().front()))
+		{
+			// more luck with the next stage?
 			continue;
 		}
 
@@ -289,9 +289,7 @@ void ExecutionMatrix::combine_stages()
 		{
 			stage_curr->get_paths().front().push_back(block_next);
 			stages_.erase(stage_next);
-		} else
-		{
-			++stage_curr;
+			stage_next = stage_curr;
 		}
 	}
 }
