@@ -437,11 +437,11 @@ void System::initialize()
 
 	d->exec_m_.combine_stages();
 
-// #ifndef NDEBUG
-// 	std::cout << "parallelizing..." << std::endl;
-// #endif
+#ifndef NDEBUG
+ 	std::cout << "parallelizing..." << std::endl;
+#endif
 
-	//d->exec_m_.parallelize();
+	d->exec_m_.parallelize();
 
 	d->exec_m_.init();
 #ifndef NDEBUG

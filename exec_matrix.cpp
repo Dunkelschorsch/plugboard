@@ -274,12 +274,12 @@ void ExecutionMatrix::combine_stages()
 			continue;
 		}
 
-		Block* block_curr = (stage_curr)->get_paths().front().back();
+		const Block* block_curr = (stage_curr)->get_paths().front().back();
 		Block* block_next = (stage_next)->get_paths().front().front();
 		assert(block_next != NULL);
 
 		const std::set< std::string > connections_curr
-			= dynamic_cast< Source* >(block_curr)->get_connections();
+			= dynamic_cast< const Source* >(block_curr)->get_connections();
 #ifndef NDEBUG
 		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
 		std::cout << block_next->get_name_sys() << "' " << std::endl;
@@ -298,103 +298,71 @@ void ExecutionMatrix::combine_stages()
 
 void ExecutionMatrix::parallelize()
 {
-#if 0
-	ExecutionStage::store_t::iterator stage_curr;
-	ExecutionStage::stage_t::iterator path_curr;
-	std::set< std::string >::const_iterator conn_it;
+	ExecutionStage::store_t::iterator stage_curr = stages_.begin();
+	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	Block *block_curr, *block_succ;
-
-	bool parallelizeable, proceed_to_next_stage;
-
-	for(stage_curr = stages_.begin(); stage_curr != stages_.end()-1; stage_curr++)
+	while(++stage_next != stages_.end())
 	{
-		proceed_to_next_stage = false;
-		parallelizeable = true;
+		// iterator through all paths of stage_curr to
+		// find a path that inhibits parallelization
+		ExecutionStage::stage_t::const_iterator path_it = stage_curr->get_paths().begin();
 
-		// that is the leftmost block of the first (and only) path in the next execution stage
-		block_succ = (stage_curr+1)->get_paths().front().front();
-#ifndef NDEBUG
-		std::cout << "checking against block '" << block_succ->get_name_sys() << "'" << std::endl;
-#endif
-		while(!proceed_to_next_stage)
+		do
 		{
-			proceed_to_next_stage = false;
-
-			for(path_curr = (stage_curr)->get_paths().begin(); path_curr != (stage_curr)->get_paths().end(); path_curr++)
+			const Block* block_curr = path_it->back();
+			assert(block_curr != NULL);
+#ifndef NDEBUG
+			std::cout << "'" << block_curr->get_name_sys() << "' connected to ";
+#endif
+			const Block* block_next = (stage_next)->get_paths().front().front();
+			assert(block_next != NULL);
+#ifndef NDEBUG
+			std::cout << "'" << block_next->get_name_sys() << "'? " << std::endl;
+#endif
+			if(not dynamic_cast< const Source* >(block_curr))
 			{
-				// that is the rightmost block of the currently investigated path in the currently examined execution stage
-				block_curr = path_curr->back();
 #ifndef NDEBUG
-				std::cout << "parallelize(): '";
-				std::cout << block_curr->get_name_sys() << "' connected to '";
-				std::cout << block_succ->get_name_sys() << "'?";
+				std::cout << "No. Continue checking..." << std::endl;
 #endif
-				if(block_curr == block_succ)
-				{
-					return;
-				}
-				conn_it = dynamic_cast< Source* >(block_curr)->get_connections().find(block_succ->get_name_sys());
-
-				// if block_curr and block_succ ARE connected ...
-				if(conn_it != dynamic_cast< Source* >(block_curr)->get_connections().end())
-				{
-#ifndef NDEBUG
-					std::cout << " Yes.";
-#endif
-					parallelizeable = false;
-					break;
-				}
-#ifndef NDEBUG
-				else
-				{
-					std::cout << " No.";
-				}
-#endif
+				++path_it;
+				continue;
 			}
 
-			if(parallelizeable)
+			const std::set< std::string > connections_curr
+				= dynamic_cast< const Source* >(block_curr)->get_connections();
+			
+			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
+				// no parallelization possible
 #ifndef NDEBUG
-				std::cout << std::endl << "parallelize(): moving stage: " << std::endl << *(stage_curr+1);
+				std::cout << "Yes. Proceed to next stage." << std::endl;
 #endif
-				stage_curr->threading_enabled_ = true;
-				stage_curr->add_path((stage_curr+1)->get_paths().front());
-				stages_.erase(stage_curr+1);
-#ifndef NDEBUG
-				std::cout << *this;
-#endif
-				if(get_stages().size() == 1)
-				{
-#ifndef NDEBUG
-					std::cout << "parallelize(): system now only consists of a single stage" << std::endl;
-#endif
-					return;
-				}
-
-				if(stage_curr+1 == stages_.end() || stage_curr+2 == stages_.end())
-				{
-#ifndef NDEBUG
-					std::cout << "parallelize(): at last stage" << std::endl;
-#endif
-					continue;
-				}
-				// neccessary to compensate for the deleted stage
-				stage_curr++;
-				// that is the leftmost block of the first (and only) path in the next execution stage
-				block_succ = (stage_curr+1)->get_paths().front().front();
-#ifndef NDEBUG
-				std::cout << "next stage: " << std::endl << *(stage_curr+1) << std::endl;
-				std::cout << "parallelize(): next reference block: " << block_succ->get_name_sys() << std::endl;
-#endif
+				++stage_curr;
+				break;
 			}
 			else
 			{
-				proceed_to_next_stage = true;
+#ifndef NDEBUG
+				std::cout << "No. Continue checking..." << std::endl;
+#endif
+				++path_it;
 			}
+
+		} while(path_it != stage_curr->get_paths().end());
+
+		if(path_it == stage_curr->get_paths().end())
+		{
+#ifndef NDEBUG
+			std::cout << "Moving path..." << std::endl;
+#endif
+			stage_curr->add_path(stage_next->get_paths().front());
+			stages_.erase(stage_next);
+#ifndef NDEBUG
+			std::cout << *this << std::endl;
+#endif
+			stage_next = stage_curr;
 		}
 	}
-#endif
 }
 
 
@@ -463,6 +431,8 @@ void ExecutionMatrix::exec()
 	);
 }
 
+
+
 void ExecutionMatrix::print(std::ostream& out) const
 {
 #ifndef NDEBUG
@@ -480,6 +450,6 @@ void ExecutionMatrix::print(std::ostream& out) const
 			out << *stage_it;
 		}
 #ifndef NDEBUG
-		out << "-------------" << std::endl << std::endl;
+		out << "-------------" << std::endl;
 #endif
 }

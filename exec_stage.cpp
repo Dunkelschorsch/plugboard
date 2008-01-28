@@ -116,20 +116,31 @@ void ExecutionStage::exec()
 {
 	if(threading_enabled_)
 	{
-		uint32_t num_paths = paths_.size();
 		boost::object_pool< boost::thread > thread_pool;
 
-		assert(num_paths > 1);
-
 		// iterate through paths
-		for(uint32_t path_num_curr=0; path_num_curr<num_paths; ++path_num_curr)
+		stage_t::const_iterator path_it;
+		stage_t::const_iterator paths_end = this->get_paths().end();
+		for
+		(
+			path_it = this->get_paths().begin();
+			path_it != paths_end;
+			++path_it
+		)
 		{
-// 			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, paths_[path_num_curr]));
-// 			thread_group_.push_back(t);
+			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, *path_it));
+			thread_group_.push_back(t);
 		}
-		std::for_each(thread_group_.begin(), thread_group_.end(), bind(&boost::thread::join, _1));
+		// wait for all threads to finish
+		std::for_each
+		(
+			thread_group_.begin(),
+			thread_group_.end(),
+			bind(&boost::thread::join, _1)
+		);
  		thread_group_.clear();
 	}
+	// execute all paths sequentially
 	else
 	{
 		std::for_each
