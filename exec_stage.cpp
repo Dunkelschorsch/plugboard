@@ -46,9 +46,10 @@ void ExecutionStage::add_block(Block * const b)
 Block* ExecutionStage::operator[](const std::string& name) const
 {
 	path_t::const_iterator block_curr;
+	stage_t::const_iterator path_curr;
 	for
 	(
-		stage_t::const_iterator path_curr = paths_.begin();
+		path_curr = paths_.begin();
 		path_curr != paths_.end();
 		++path_curr
 	)
@@ -60,6 +61,7 @@ Block* ExecutionStage::operator[](const std::string& name) const
 			bind(&Block::get_name_sys, _1) == name
 		);
 	}
+	assert(block_curr != path_curr->end());
 	return *block_curr;
 }
 
@@ -100,6 +102,8 @@ const ExecutionStage::stage_t& ExecutionStage::get_paths() const
 
 void ExecutionStage::add_path(const path_t& p)
 {
+	if(paths_.size() > 1)
+		this->threading_enabled_ = true;
 	paths_.push_back(p);
 }
 
@@ -116,6 +120,7 @@ void ExecutionStage::exec()
 {
 	if(threading_enabled_)
 	{
+		assert(paths_.size() > 1);
 		boost::object_pool< boost::thread > thread_pool;
 
 		// iterate through paths

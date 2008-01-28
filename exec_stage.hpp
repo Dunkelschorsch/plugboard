@@ -20,7 +20,7 @@ public:
 
 	ExecutionStage();
 
-	explicit ExecutionStage(Block * const b, bool threading_enabled=true);
+	explicit ExecutionStage(Block * const b, bool threading_enabled=false);
 
 	void add_block(Block * const b);
 	void add_path(const path_t& p);
