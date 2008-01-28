@@ -150,14 +150,7 @@ void ExecutionMatrix::add_stage(ExecutionStage s)
 
 
 
-const ExecutionStage::store_t& ExecutionMatrix::get_stages() const
-{
-	return stages_;
-}
-
-
-
-ExecutionStage::store_t & ExecutionMatrix::get_stages( )
+const ExecutionStage::store_t & ExecutionMatrix::get_stages( ) const
 {
 	return stages_;
 }
@@ -367,7 +360,7 @@ void ExecutionMatrix::parallelize()
 
 
 
-std::vector< Block * > ExecutionMatrix::find_start_blocks()
+std::vector< Block * > ExecutionMatrix::find_start_blocks() const
 {
 	std::vector< Block * > vv;
 
