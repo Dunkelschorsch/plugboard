@@ -3,6 +3,8 @@
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
+#include "constraint.hpp"
+
 #include <iostream>
 
 #undef  HAS_INPUTS
@@ -63,9 +65,22 @@ bool Block_1out::setup_output_ports()
 void Block_1out::configure_parameters()
 {
 	/* calls to "add_parameter()" go here */
-	add_parameter(&Ts_, real, "Sample Time");
-	add_parameter(&framesize_, int32, "Frame Size");
-	add_parameter(&constant_, int32, "Output Constant");
+	add_parameter
+	(
+		(new Parameter(&Ts_, real, "Sample Time"))
+		->add_constraint(new GreaterThanConstraint< real_t >(0.0))
+	);
+
+	add_parameter
+	(
+		(new Parameter(&framesize_, int32, "Frame Size"))
+		->add_constraint(new GreaterThanConstraint< int32_t >(0))
+	);
+
+	add_parameter
+	(
+		new Parameter(&constant_, int32, "Output Constant")
+	);
 }
 
 

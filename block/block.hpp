@@ -43,7 +43,7 @@ public:
 	void set_name(const std::string& name);
 
 	bool set_parameter(const Variable& p);
-	const std::vector< Parameter >& get_params() const;
+	const std::vector< const Parameter* >& get_params() const;
 	const std::string& get_parameter_description() const;
 	type_t get_parameter_type() const;
 
@@ -60,7 +60,7 @@ public:
 protected:
 	virtual void configure_parameters() = 0;
 
-	void add_parameter(void* var, type_t t, const std::string& description);
+	void add_parameter(const Parameter*);
 
 	template< class PortT >
 	PortT* add_port(PortT * const p);

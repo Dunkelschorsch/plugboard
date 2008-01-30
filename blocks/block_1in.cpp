@@ -3,6 +3,7 @@
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
+#include "constraint.hpp"
 #include <iostream>
 
 
@@ -49,8 +50,12 @@ bool Block_1in::setup_input_ports()
 void Block_1in::configure_parameters()
 {
 	/* calls to "add_parameter()" go here */
-	add_parameter(&Ts_, real, "Sample Time");
-	add_parameter(&framesize_, int32, "Frame Size");
+	add_parameter
+	(
+		(new Parameter(&Ts_, real, "Sample Time"))
+		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
+	);
+	add_parameter(new Parameter(&framesize_, int32, "Frame Size"));
 }
 
 

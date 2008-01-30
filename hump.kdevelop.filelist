@@ -81,3 +81,4 @@ types/vectors.hpp
 variable/variable.cpp
 variable/variable.hpp
 variable/variable_iterator.hpp
+constraint.hpp

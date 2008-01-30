@@ -1,11 +1,13 @@
 #include "parameter.hpp"
 #include "variable/variable.hpp"
+#include "constraint.hpp"
 
 
 Parameter::Parameter(void * data, type_t type, const std::string & description) :
 	data_(data),
 	type_(type),
-	description_(description)
+	description_(description),
+	constraints_()
 {
 }
 
@@ -42,4 +44,30 @@ void * Parameter::get_data() const
 const std::string & Parameter::get_description() const
 {
 	return description_;
+}
+
+
+
+Parameter* Parameter::add_constraint( const ConstraintBase * c )
+{
+	this->constraints_.push_back(c);
+	return this;
+}
+
+
+
+Parameter::~Parameter( )
+{
+	std::vector< const ConstraintBase* >::iterator c_it;
+	for(c_it = constraints_.begin(); c_it != constraints_.end(); ++c_it)
+	{
+		delete *c_it;
+	}
+}
+
+
+
+const std::vector< const ConstraintBase * >& Parameter::get_constraints( ) const
+{
+	return constraints_;
 }
