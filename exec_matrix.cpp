@@ -3,6 +3,7 @@
 
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <iterator>
 #include <iostream>
 
 using boost::bind;
@@ -57,7 +58,11 @@ struct FindStartBlock
 	template< typename PairT >
 	result_type operator()(const PairT& b) const
 	{
-		return dynamic_cast< const Source* >(b.second) ? true : false;
+#ifndef NDEBUG
+		if(dynamic_cast< const Source* >(b.second))
+		std::cout << "Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
+#endif
+		return dynamic_cast< const Source* >(b.second) ?  false : true;
 	}
 
 };
@@ -73,7 +78,7 @@ struct UnwrapPair
 	template< typename PairT >
 	result_type operator()(const PairT& b)
 	{
-			vec_.push_back(b.second);
+		vec_.push_back(b.second);
 	}
 
 	ContainerT& vec_;
@@ -360,19 +365,18 @@ void ExecutionMatrix::parallelize()
 
 
 
-std::vector< Block * > ExecutionMatrix::find_start_blocks() const
+const std::vector< Block * > ExecutionMatrix::find_start_blocks() const
 {
 	std::vector< Block * > vv;
 
-	std::vector< block_map_t::value_type > v
+	std::vector< std::pair< std::string, Block * > > v;
+
+	std::remove_copy_if
 	(
-		std::find_if
-		(
-			blocks_.begin(),
-			blocks_.end(),
-			FindStartBlock()
-		),
-		blocks_.end()
+		blocks_.begin(),
+		blocks_.end(),
+		std::back_inserter(v),
+		FindStartBlock()
 	);
 
 	std::for_each

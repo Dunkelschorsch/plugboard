@@ -88,7 +88,7 @@ namespace
 
 void SystemImpl::register_basic_types()
 {
-//	this macro inserts entries for all Singal types
+//	this macro inserts entries for all Singal types.
 //	for integer valued signals, the expansion would look like this:
 //	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
 //	signal_factory_.insert(std::make_pair(int32,
@@ -379,13 +379,51 @@ void System::connect_ports(const std::string & block_source,
 }
 
 
+struct SourceBlocksFirst
+{
+	bool operator()(const Block* b1, const Block* b2) const
+	{
+		uint16_t num_inputs_b1 = 0, num_outputs_b1 = 0;
+		uint16_t num_inputs_b2 = 0, num_outputs_b2 = 0;
+		const Source* src;
+		const Sink* sink;
+
+		src = dynamic_cast< const Source* >(b1);
+		num_outputs_b1 = src->get_num_output_ports();
+
+		src = dynamic_cast< const Source* >(b2);
+		num_outputs_b2 = src->get_num_output_ports();
+
+		// source-only block are always preferred
+		sink = dynamic_cast< const Sink* >(b1);
+		if(sink)
+			num_inputs_b1 = sink->get_num_input_ports();
+		else
+			return true;
+
+		sink = dynamic_cast< const Sink* >(b2);
+		if(sink)
+			num_inputs_b2 = sink->get_num_input_ports();
+		else
+			return false;
+
+		return num_outputs_b1-num_inputs_b1 > num_outputs_b2-num_inputs_b2 ? true : false;
+	}
+};
+
 
 void System::initialize()
 {
 	H_D(System);
 
-	// in case of subsystems this does not help very much
 	std::vector< Block * > start_blocks = d->exec_m_.find_start_blocks();
+
+	std::sort
+	(
+		start_blocks.begin(),
+		start_blocks.end(),
+		SourceBlocksFirst()
+	);
 
 	for
 	(

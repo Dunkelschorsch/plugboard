@@ -27,7 +27,7 @@ public:
 
 	const ExecutionStage::store_t& get_stages() const;
 
-	std::vector< Block * > find_start_blocks() const;
+	const std::vector< Block * > find_start_blocks() const;
 
 	void combine_stages();
 
