@@ -33,9 +33,9 @@ class SignalStore
 public:
 	typedef ElementT element_t;
 
-	SignalStore(size_t size) : size_(size), data_array_()
+	SignalStore(size_t size) :
+		size_(size), data_array_(new element_t[size_])
 	{
-		data_array_ = new element_t[size_];
 		std::fill
 		(
 			data_array_,
@@ -44,9 +44,9 @@ public:
 		);
 	}
 
-	SignalStore(const SignalStore& other) : size_(other.size_)
+	SignalStore(const SignalStore& other) :
+		size_(other.size_), data_array_(new element_t[size_])
 	{
-		this->data_array_ = new element_t[size_];
 		std::copy
 		(
 			other.data_array_,
