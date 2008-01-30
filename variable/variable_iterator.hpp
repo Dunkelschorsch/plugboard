@@ -5,22 +5,27 @@
 #include <boost/iterator/iterator_facade.hpp>
 
 
-template< typename T >
-class variable_iterator : public boost::iterator_facade< variable_iterator< T >, T, boost::forward_traversal_tag >
+template< typename T, class VarType=Variable >
+class variable_iterator :
+	public boost::iterator_facade<
+		variable_iterator< T, VarType >,
+		T,
+		boost::forward_traversal_tag
+	>
 {
 public:
 	variable_iterator() : var_(0), value_(0), pos_(0) { }
 
-	explicit variable_iterator(Variable& v) : var_(v),  value_(0), pos_(0)
+	explicit variable_iterator(VarType& v) : var_(v),  value_(0), pos_(0)
 	{
 		increment();
 	}
 
-	explicit variable_iterator(Variable& v, size_t pos) : var_(v), value_(0), pos_(1+pos) { }
+	explicit variable_iterator(VarType& v, size_t pos) : var_(v), value_(0), pos_(1+pos) { }
 
-	variable_iterator< T > make_end()
+	variable_iterator< T, VarType > make_end()
 	{
-		variable_iterator< T > tmp = variable_iterator< T >(var_);
+		variable_iterator< T, VarType > tmp = variable_iterator< T, VarType >(var_);
 		tmp.pos_ = var_.size()+1;
 		return tmp;
 	}
@@ -44,9 +49,10 @@ private:
 		return *value_;
 	}
 
-	Variable& var_;
-	T* value_;
+	VarType& var_;
+	T * value_;
 	size_t pos_;
 };
+
 
 #endif // VARIABLE_ITERATOR_HPP

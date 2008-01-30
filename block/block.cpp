@@ -39,7 +39,7 @@ struct Block::BlockImpl
 
 
 	template < typename T >
-	void copy_parameter(Variable&, const Parameter*);
+	void copy_parameter(const Variable&, const Parameter*);
 
 	void register_parameter_types();
 };
@@ -186,10 +186,12 @@ struct CopyAction
 
 
 template< typename VariableElementT >
-void Block::BlockImpl::copy_parameter(Variable& var, const Parameter * const param)
+void Block::BlockImpl::copy_parameter(const Variable& var, const Parameter * const param)
 {
-	variable_iterator< VariableElementT > begin = variable_iterator< VariableElementT >(var);
-	variable_iterator< VariableElementT > end = begin.make_end();
+	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
+
+	variable_const_iterator begin(var);
+	variable_const_iterator end = begin.make_end();
 
 #ifndef NDEBUG
 	std::cout << "Parameter name: " << param->get_description() << std::endl;
