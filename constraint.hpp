@@ -14,14 +14,14 @@ struct ConstraintBase
 
 
 template< class T >
-class Constraint
+class ValueConstraint
 {
 public:
 	typedef const T argument_type;
 	typedef bool result_type;
 
-	Constraint(bool negative=false) : negative_(negative) { }
-	virtual ~Constraint() { }
+	ValueConstraint(bool negative=false) : negative_(negative) { }
+	virtual ~ValueConstraint() { }
 
 	virtual result_type check(argument_type arg) const = 0;
 	bool is_negative() const { return negative_; }
@@ -32,10 +32,10 @@ public:
 
 
 template< typename T >
-class NullConstraint : public ConstraintBase, public Constraint< T >
+class NullConstraint : public ConstraintBase, public ValueConstraint< T >
 {
-typedef typename Constraint< T >::argument_type argument_type;
-typedef typename Constraint< T >::result_type result_type;
+typedef typename ValueConstraint< T >::argument_type argument_type;
+typedef typename ValueConstraint< T >::result_type result_type;
 
 public:
 	result_type check(argument_type) const
@@ -49,14 +49,14 @@ public:
 
 
 template< typename T >
-class LessThanConstraint : public ConstraintBase, public Constraint< T >
+class LessThanConstraint : public ConstraintBase, public ValueConstraint< T >
 {
-typedef typename Constraint< T >::argument_type argument_type;
-typedef typename Constraint< T >::result_type result_type;
+typedef typename ValueConstraint< T >::argument_type argument_type;
+typedef typename ValueConstraint< T >::result_type result_type;
 
 public:
 	LessThanConstraint(argument_type compare, bool neg=false) :
-		Constraint< T >(neg),
+		ValueConstraint< T >(neg),
 		compare_(compare)
 	{ }
 
@@ -72,14 +72,14 @@ private:
 
 
 template< typename T >
-class GreaterThanConstraint : public ConstraintBase, public Constraint< T >
+class GreaterThanConstraint : public ConstraintBase, public ValueConstraint< T >
 {
-typedef typename Constraint< T >::argument_type argument_type;
-typedef typename Constraint< T >::result_type result_type;
+typedef typename ValueConstraint< T >::argument_type argument_type;
+typedef typename ValueConstraint< T >::result_type result_type;
 
 public:
 	GreaterThanConstraint(argument_type compare, bool neg=false) :
-		Constraint< T >(neg),
+		ValueConstraint< T >(neg),
 		compare_(compare)
 	{ }
 

@@ -132,12 +132,12 @@ struct CheckConstraintAction
 {
 	CheckConstraintAction(const TargetT& e) : e_(e) { }
 
-	void operator()(const ConstraintBase* cb) const
+	void operator()(const ConstraintBase * const cb) const
 	{
 #ifndef NDEBUG
 		std::cout << "checking constraint... ";
 #endif
-		const Constraint< TargetT >* c = dynamic_cast< const Constraint< TargetT >* >(cb);
+		const ValueConstraint< TargetT >* c = dynamic_cast< const ValueConstraint< TargetT >* >(cb);
 		bool passed = c->check(e_);
 		if(c->is_negative())
 			passed = not passed;
@@ -166,9 +166,9 @@ struct CheckConstraintAction
 template< typename TargetT >
 struct CopyAction
 {
-	CopyAction(const Parameter* param) : param_(param) { }
+	CopyAction(const Parameter * const param) : param_(param) { }
 
-	void operator()(TargetT e) const
+	void operator()(const TargetT& e) const
 	{
 		std::for_each
 		(
@@ -180,28 +180,22 @@ struct CopyAction
 		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
 	}
 
-	const Parameter* param_;
+	const Parameter * const param_;
 };
 
 
 
-template< typename T >
+template< typename VariableElementT >
 void Block::BlockImpl::copy_parameter(Variable& var, const Parameter * const param)
 {
-	variable_iterator< T > begin = variable_iterator< T >(var);
-	variable_iterator< T > end = begin.make_end();
+	variable_iterator< VariableElementT > begin = variable_iterator< VariableElementT >(var);
+	variable_iterator< VariableElementT > end = begin.make_end();
 
 #ifndef NDEBUG
 	std::cout << "Parameter name: " << param->get_description() << std::endl;
 	std::cout << "no. of constraints: " << param->get_constraints().size() << std::endl;
 #endif
-
-	std::for_each
-	(
-		begin,
-		end,
-		CopyAction< T >(param)
-	);
+	std::for_each(begin, end, CopyAction< VariableElementT >(param));
 	param_curr_++;
 }
 
@@ -288,4 +282,3 @@ const std::vector< const Parameter* >& Block::get_params() const
 {
 	return d->params_;
 }
-
