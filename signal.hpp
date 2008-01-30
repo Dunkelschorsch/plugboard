@@ -36,8 +36,14 @@ public:
 	SignalStore(size_t size) : size_(size), data_array_()
 	{
 		data_array_ = new element_t[size_];
+		std::fill
+		(
+			data_array_,
+			data_array_ + size_,
+			static_cast< element_t >(0)
+		);
 	}
-	
+
 	SignalStore(const SignalStore& other) : size_(other.size_)
 	{
 		this->data_array_ = new element_t[size_];
@@ -69,7 +75,7 @@ public:
 		return data_array_;
 	}
 
-protected:
+private:
 	size_t size_;
 	element_t* data_array_;
 
