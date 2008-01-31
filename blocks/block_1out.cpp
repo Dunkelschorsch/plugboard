@@ -76,11 +76,13 @@ void Block_1out::configure_parameters()
 	(
 		(new Parameter(&framesize_, int32, "Frame Size"))
 		->add_constraint(new GreaterThanConstraint< int32_t >(0))
+		->add_constraint(new SizeConstraint(1))
 	);
 
 	add_parameter
 	(
-		new Parameter(&constant_, int32, "Output Constant")
+		(new Parameter(&constant_, int32, "Output Constant"))
+		->add_constraint(new SizeConstraint(1))
 	);
 }
 
