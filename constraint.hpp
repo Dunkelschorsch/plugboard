@@ -5,6 +5,8 @@
 #include <iostream>
 #endif
 
+#include "variable/variable.hpp"
+
 
 struct ConstraintBase
 {
@@ -27,6 +29,44 @@ public:
 	bool is_negative() const { return negative_; }
 
 	bool negative_;
+};
+
+
+
+class VariableConstraint
+{
+public:
+	typedef bool result_type;
+
+	VariableConstraint(bool negative=false) : negative_(negative) { }
+	virtual ~VariableConstraint() { }
+
+	virtual result_type check(const Variable& var) const = 0;
+	bool is_negative() const { return negative_; }
+
+	bool negative_;
+};
+
+
+
+class SizeConstraint : public ConstraintBase, public VariableConstraint
+{
+typedef VariableConstraint::result_type result_type;
+
+public:
+	SizeConstraint(uint64_t numel, bool neg=false) :
+		VariableConstraint(neg),
+		numel_(numel)
+	{ }
+	
+
+	result_type check(const Variable& var) const
+	{
+		return var.size() == numel_;
+	}
+
+private:
+	uint64_t numel_;
 };
 
 

@@ -24,7 +24,7 @@ public:
 
 	Parameter* add_constraint(const ConstraintBase* c);
 
-	const std::vector< const ConstraintBase* >& get_constraints() const;
+	std::vector< const ConstraintBase* >& get_constraints();
 
 	bool is_convertible_to(const Variable& v) const;
 

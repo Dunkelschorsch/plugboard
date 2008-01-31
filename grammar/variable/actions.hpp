@@ -9,7 +9,8 @@
 #include "variable/variable.hpp"
 
 
-
+// hardcoded type instead of templated actions
+// here be dragons.
 typedef phoenix::actor<
     phoenix::closure_member<
         0, phoenix::closure<
@@ -41,15 +42,10 @@ struct DimensionAddAction
 
     result_type operator()(const complex_t&) const;
 
-    // i don't have the slightest clue why this overload is neccessary
     template< typename StangeIteratorT >
     result_type operator()(const StangeIteratorT&, const StangeIteratorT&) const
     {
-#ifndef NDEBUG
-        std::cout << "BLOODY HELL!!" << std::endl;
-        bool spirit_does_not_suck = false;
-        assert(spirit_does_not_suck);
-#endif
+        v_().add_dimension(size_);
     }
 
     const variable_actor& v_;

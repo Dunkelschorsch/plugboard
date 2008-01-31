@@ -67,7 +67,7 @@ Parameter::~Parameter( )
 
 
 
-const std::vector< const ConstraintBase * >& Parameter::get_constraints( ) const
+std::vector< const ConstraintBase * >& Parameter::get_constraints( )
 {
 	return constraints_;
 }

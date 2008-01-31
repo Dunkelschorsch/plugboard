@@ -69,6 +69,7 @@ void Block_1out::configure_parameters()
 	(
 		(new Parameter(&Ts_, real, "Sample Time"))
 		->add_constraint(new GreaterThanConstraint< real_t >(0.0))
+		->add_constraint(new SizeConstraint(1))
 	);
 
 	add_parameter
