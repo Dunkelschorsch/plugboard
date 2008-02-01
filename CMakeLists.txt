@@ -2,7 +2,7 @@ project (HUMP)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
-include_directories (${HUMP_SOURCE_DIR} ${HUMP_SOURCE_DIR}/input)
+include_directories (${HUMP_SOURCE_DIR})
 
 add_executable(
 	main

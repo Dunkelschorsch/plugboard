@@ -7,32 +7,26 @@
 
 #include <iostream>
 
-#undef  HAS_INPUTS
-#define HAS_OUTPUTS
+#define DLLEXPORT __attribute__ ((visibility("default")))
+#define DLLLOCAL  __attribute__ ((visibility("hidden")))
+
 
 static const std::string BLOCK_NAME = "1out";
 
-class Block_1out : public Block, public Source
+
+class DLLLOCAL Block_1out : public Block, public Source
 {
 public:
 
-	Block_1out();
+	Block_1out() DLLLOCAL;
+	~Block_1out() DLLLOCAL;
 
-	~Block_1out();
-
-	void process();
+	void process() DLLLOCAL;
 
 private:
+	void configure_parameters() DLLEXPORT;
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
-
-#ifdef HAS_INPUTS
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
-#endif
-
-#ifdef HAS_OUTPUTS
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
-#endif
+	bool setup_output_ports() DLLLOCAL;
 
 	/* member variable declarations go here */
 	OutPort *sig_out_;
@@ -41,25 +35,6 @@ private:
 	real_vec_t Ts_;
 };
 
-
-#ifdef HAS_INPUTS
-bool Block_1out::setup_input_ports()
-{
-	/* calls to "add_port(InPort &) go here */
-	return true;
-}
-#endif
-
-
-#ifdef HAS_OUTPUTS
-bool Block_1out::setup_output_ports()
-{
-	/* calls to "add_port(OutPort &) go here */
-	sig_out_ = add_port(new OutPort("out1", int32, Ts_[0], framesize_[0]));
-
-	return true;
-}
-#endif
 
 
 void Block_1out::configure_parameters()
@@ -85,6 +60,17 @@ void Block_1out::configure_parameters()
 		->add_constraint(new SizeConstraint(1))
 	);
 }
+
+
+
+bool Block_1out::setup_output_ports()
+{
+	/* calls to "add_port(OutPort &) go here */
+	sig_out_ = add_port(new OutPort("out1", int32, Ts_[0], framesize_[0]));
+
+	return true;
+}
+
 
 
 void Block_1out::process()
@@ -117,5 +103,7 @@ Block_1out::~Block_1out()
 	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
 }
+
+
 
 ACCESS_FUNCS(1out)

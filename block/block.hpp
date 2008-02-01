@@ -12,6 +12,10 @@
 class Variable;
 
 
+#define DLLEXPORT __attribute__ ((visibility("default")))
+#define DLLLOCAL  __attribute__ ((visibility("hidden")))
+
+
 /** \brief The Block class
  *
  *  A more elaborate description.

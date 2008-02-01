@@ -14,21 +14,22 @@
 #include "constraint.hpp"
 
 
-struct Block::BlockImpl
+
+struct DLLLOCAL Block::BlockImpl
 {
-	BlockImpl() :
+	DLLLOCAL BlockImpl() :
 		param_curr_(0),
 		parameter_factory_(),
 		params_(),
 		configured_(true),
 		name_sys_(),
 		name_(),
-		description_()
+		description_() 
 	{
 		register_parameter_types();
 	}
 
-	~BlockImpl();
+	DLLLOCAL ~BlockImpl();
 
 	typedef boost::function< void(Variable&, Parameter * const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
@@ -43,9 +44,9 @@ struct Block::BlockImpl
 	std::string description_;
 
 	template< typename T >
-	void copy_parameter(const Variable&, Parameter * const);
+	DLLLOCAL void copy_parameter(const Variable&, Parameter * const);
 
-	void register_parameter_types();
+	DLLLOCAL void register_parameter_types();
 };
 
 

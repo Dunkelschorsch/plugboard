@@ -1,3 +1,5 @@
+ADD_DEFINITIONS(-fvisibility=default)
+
 foreach(
 	blockname
 	stdout_sink
