@@ -5,7 +5,7 @@
 
 #include "grammar/command/command_parse.hpp"
 #include "input/file.hpp"
-
+#include "exceptions.hpp"
 
 
 struct HumpFile::HumpFileImpl
@@ -66,10 +66,19 @@ bool HumpFile::execute_command(const std::string& file_name)
 	scanner_t scan(first, last, policies);
 
 	boost::function< void() > f;
-	while(first != last && d->parser_[::phoenix::var(f)=::phoenix::arg1].parse(scan))
+	try
 	{
-		f();
+		while(first != last && d->parser_[::phoenix::var(f)=::phoenix::arg1].parse(scan))
+		{
+			f();
+		}
 	}
+	catch (HumpException< std::string >& e)
+	{
+		std::cout << "exception raised. cause: " << e.what() << std::endl;
+		return false;
+	}
+
 
 	if(first != last)
 	{

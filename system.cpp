@@ -141,15 +141,17 @@ void System::add_block(Block * const b, const std::string& name_sys)
 	if(d->exec_m_.block_exists(name_sys))
 	{
 		delete b;
+		// checked ok. does not leak memory
 		throw DuplicateBlockNameException(name_sys);
 	}
 
 	// if we make it here, we can set up and add the blocks to the system
-	if (!b->is_configured())
-	{
-		delete b;
-		throw BlockNotConfiguredException(name_sys);
-	}
+	assert(b->is_configured());
+// 	if (!b->is_configured())
+// 	{
+// 		delete b;
+// 		throw BlockNotConfiguredException(name_sys);
+// 	}
 
 	// give it its unique name
 	b->set_name_sys(name_sys);
@@ -324,6 +326,7 @@ void System::connect_ports(const std::string & block_source,
 	// 1) source block
 	if(not d->exec_m_.block_exists(block_source))
 	{
+		// checked ok. does not leak memory
 		throw InvalidBlockNameException(block_source);
 	}
 
@@ -339,6 +342,7 @@ void System::connect_ports(const std::string & block_source,
 	// unfortunately the given port name was invalid
 	if (source_port_it == d->exec_m_[block_source]->get_port_list< OutPort >()->end())
 	{
+		// checked ok. does not leak memory
 		throw InvalidPortNameException(port_source);
 	}
 
@@ -352,6 +356,7 @@ void System::connect_ports(const std::string & block_source,
 	// 2) sink block
 	if(not d->exec_m_.block_exists(block_sink))
 	{
+		// checked ok. does not leak memory
 		throw InvalidBlockNameException(block_sink);
 	}
 
@@ -367,6 +372,7 @@ void System::connect_ports(const std::string & block_source,
 	// unfortunately the given port name was invalid
 	if (sink_port_it == d->exec_m_[block_sink]->get_port_list< InPort >()->end())
 	{
+		// checked ok. does not leak memory
 		throw InvalidPortNameException(port_sink);
 	}
 

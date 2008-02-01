@@ -189,6 +189,7 @@ class BlockFactoryError
 protected:
 	ProductType* OnUnknownType(const IdentifierType& id)
 	{
+		// checked ok. does not leak memory
 		throw InvalidBlockIdException(id);
 	}
 };

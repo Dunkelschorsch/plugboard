@@ -56,7 +56,10 @@ BlockAddCommand::result_type BlockAddCommand::operator()() const
 #endif
 		if(b->get_params().size() != block_param_vec.size())
 		{
-			throw ParameterCountMismatchException(b->get_name_sys());
+			std::string bad_block_name = b->get_name_sys();
+			delete b;
+			// checked ok. does not leak memory
+			throw ParameterCountMismatchException(bad_block_name);
 		}
 
 		do

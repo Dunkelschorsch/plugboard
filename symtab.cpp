@@ -56,6 +56,7 @@ const Variable& Symtab::get_var(const std::string& name) const throw(UndefinedVa
 		}
 		else
 		{
+			// checked ok. does not leak memory
 			throw UndefinedVariableException(name.c_str());
 		}
 	}
