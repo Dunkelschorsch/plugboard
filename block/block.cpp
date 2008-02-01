@@ -14,10 +14,10 @@
 #include "constraint.hpp"
 
 
-
-struct DLLLOCAL Block::BlockImpl
+template< >
+struct DLLLOCAL pimpl< Block >::implementation
 {
-	DLLLOCAL BlockImpl() :
+	DLLLOCAL implementation() :
 		param_curr_(0),
 		parameter_factory_(),
 		params_(),
@@ -29,9 +29,9 @@ struct DLLLOCAL Block::BlockImpl
 		register_parameter_types();
 	}
 
-	DLLLOCAL ~BlockImpl();
+	DLLLOCAL ~implementation();
 
-	typedef boost::function< void(Variable&, Parameter * const) > parameter_factory_func_t;
+	typedef boost::function< void(const Variable&, Parameter * const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
 
 	uint16_t param_curr_;
@@ -51,7 +51,7 @@ struct DLLLOCAL Block::BlockImpl
 
 
 
-Block::BlockImpl::~BlockImpl()
+pimpl< Block >::implementation::~implementation()
 {
 	std::vector< Parameter* >::const_iterator p_it;
 	for(p_it = params_.begin(); p_it != params_.end(); ++p_it)
@@ -62,12 +62,12 @@ Block::BlockImpl::~BlockImpl()
 
 
 
-void Block::BlockImpl::register_parameter_types()
+void pimpl< Block >::implementation::register_parameter_types()
 {
 /* this macro creates mapping between types and parameters */
 #define BOOST_PP_DEF(z, I, _) \
 	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
-	boost::bind(&BlockImpl::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
+	boost::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
@@ -76,71 +76,60 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 
 
-Block::Block() :
-	d(new Block::BlockImpl) { }
-
-
-
-Block::~Block()
-{
-	delete d;
-}
-
+Block::Block() : base() { }
+Block::~Block() { }
 
 
 void Block::initialize() { }
-
-
-
 void Block::advance() { }
 
 
 
 const std::string& Block::get_name() const
 {
-	return d->name_;
+	return (*this)->name_;
 }
 
 
 
 void Block::set_name( const std::string & name )
 {
-	d->name_ = name;
+	(*this)->name_ = name;
 }
 
 
 
 const std::string& Block::get_name_sys() const
 {
-	return d->name_sys_;
+	return (*this)->name_sys_;
 }
 
 
 
 void Block::set_name_sys(const std::string & name_sys)
 {
-	d->name_sys_ = name_sys;
+	(*this)->name_sys_ = name_sys;
 }
 
 
 
 const std::string& Block::get_description() const
 {
-	return d->description_;
+	return (*this)->description_;
 }
 
 
 
 void Block::set_description(const std::string& description)
 {
-	d->description_ = description;
+	(*this)->description_ = description;
 }
 
 
 
 bool Block::is_configured() const
 {
-	return d->configured_;
+	return (*this)->configured_;
 }
 
 
@@ -231,7 +220,7 @@ struct CheckVariableConstraintAction
 
 
 template< typename VariableElementT >
-void Block::BlockImpl::copy_parameter(const Variable& var, Parameter * const param)
+void pimpl< Block >::implementation::copy_parameter(const Variable& var, Parameter * const param)
 {
 	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
 
@@ -289,14 +278,16 @@ void Block::BlockImpl::copy_parameter(const Variable& var, Parameter * const par
 
 void Block::add_parameter(Parameter * const p)
 {
-	d->configured_ = false;
-	d->params_.push_back(p);
+	(*this)->configured_ = false;
+	(*this)->params_.push_back(p);
 }
 
 
 
 bool Block::set_parameter(const Variable& p)
 {
+	implementation& impl = **this;
+
 	if (is_configured())
 	{
 		std::cout << "Block is already configured." << std::endl;
@@ -304,28 +295,28 @@ bool Block::set_parameter(const Variable& p)
 	}
 
 	// check if type is safely convertible
-	if (d->params_[d->param_curr_]->is_convertible_to(p))
+	if (impl.params_[impl.param_curr_]->is_convertible_to(p))
 	{
 		// we do not want to typecast the original variable
 		Variable var_tmp(p);
 
-		if(not d->params_[d->param_curr_]->is_of_same_type_as(p))
+		if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
 		{
 #ifndef NDEBUG
 			std::cout << "changing type of variable." << std::endl;
 #endif
-			var_tmp.save_type_change(d->params_[d->param_curr_]->get_type());
+			var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
 		}
 
-		Block::BlockImpl::parameter_factory_func_t
-			fill_block_parameter_with_values_from_variable = d->parameter_factory_[var_tmp.get_type()];
+		implementation::parameter_factory_func_t
+			fill_block_parameter_with_values_from_variable = impl.parameter_factory_[var_tmp.get_type()];
 
-		fill_block_parameter_with_values_from_variable(var_tmp, d->params_[d->param_curr_]);
+		fill_block_parameter_with_values_from_variable(var_tmp, impl.params_[impl.param_curr_]);
 
 		// if this was the last parameter the block is completely configured
-		if (d->params_.size() == d->param_curr_)
+		if (impl.params_.size() == impl.param_curr_)
 		{
-			d->configured_ = true;
+			impl.configured_ = true;
 		}
 	} else
 	{
@@ -338,19 +329,19 @@ bool Block::set_parameter(const Variable& p)
 
 const std::string& Block::get_parameter_description() const
 {
-	return d->params_[d->param_curr_]->get_description();
+	return (*this)->params_[(*this)->param_curr_]->get_description();
 }
 
 
 
 type_t Block::get_parameter_type() const
 {
-	return d->params_[d->param_curr_]->get_type();
+	return (*this)->params_[(*this)->param_curr_]->get_type();
 }
 
 
 
 const std::vector< Parameter* >& Block::get_params() const
 {
-	return d->params_;
+	return (*this)->params_;
 }

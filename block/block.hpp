@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/bind.hpp>
 
+#include "pimpl/pimpl.h"
 #include "block/port_traits.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"
@@ -22,10 +23,8 @@ class Variable;
  */
 
 
-class Block
+class Block : public pimpl< Block >::pointer_semantics
 {
-struct BlockImpl;
-
 // the subsystem plays some funny games with ports
 friend class SubsystemImpl;
 
@@ -68,9 +67,6 @@ protected:
 
 	template< class PortT >
 	PortT* add_port(PortT * const p);
-	
-private:
-	BlockImpl* d;
 };
 
 
