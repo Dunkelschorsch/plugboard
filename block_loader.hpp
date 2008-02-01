@@ -3,16 +3,15 @@
 
 class Block;
 #include "types/base.hpp"
+#include "pimpl/pimpl.h"
 #include <vector>
 #include <string>
 #include <boost/pool/detail/singleton.hpp>
 
 
 
-class BlockLoader
+class BlockLoader : public pimpl< BlockLoader >::pointer_semantics
 {
-struct BlockLoaderImpl;
-
 typedef boost::details::pool::singleton_default< BlockLoader > singleton;
 friend class boost::details::pool::singleton_default< BlockLoader >;
 
@@ -21,7 +20,7 @@ public:
 
 	const std::vector< std::string > & available_blocks() const;
 
-	Block* new_block(const std::string &name) const;
+	Block* new_block(const std::string &name);
 
 	static BlockLoader& instance()
 	{
@@ -29,12 +28,8 @@ public:
 		return bl;
 	}
 
-protected:
-	BlockLoader();
-	~BlockLoader();
-
 private:
-	BlockLoaderImpl *d;
+	BlockLoader();
 };
 
 #endif //BLOCK_LOADER_HPP

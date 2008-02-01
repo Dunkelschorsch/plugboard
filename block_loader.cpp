@@ -12,10 +12,11 @@
 namespace fs = boost::filesystem;
 
 
-struct BlockLoader::BlockLoaderImpl
+template<>
+struct pimpl< BlockLoader >::implementation
 {
-	BlockLoaderImpl();
-	~BlockLoaderImpl();
+	implementation();
+	~implementation();
 
 	typedef Block* (*create_block_func_t) (void);
 	typedef const std::string (*get_block_name_func_t) (void);
@@ -33,7 +34,7 @@ struct BlockLoader::BlockLoaderImpl
 
 
 
-BlockLoader::BlockLoaderImpl::BlockLoaderImpl() : f_()
+pimpl< BlockLoader >::implementation::implementation() : f_()
 {
 	uint32_t dl_errors = lt_dlinit();
 	for(uint32_t i=0; i<dl_errors; i++)
@@ -48,24 +49,14 @@ BlockLoader::BlockLoaderImpl::BlockLoaderImpl() : f_()
 
 
 
-BlockLoader::BlockLoaderImpl::~BlockLoaderImpl()
+pimpl< BlockLoader >::implementation::~implementation()
 {
 	lt_dlexit();
 }
 
 
 
-BlockLoader::BlockLoader()
-{
-	d = new BlockLoaderImpl;
-}
-
-
-
-BlockLoader::~BlockLoader()
-{
-	delete d;
-}
+BlockLoader::BlockLoader() : base() { }
 
 
 
@@ -104,8 +95,8 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 		if(module != NULL)
 		{
 			std::cerr << "Loading module file '" << block_file_curr << "' ... ";
-			BlockLoader::BlockLoaderImpl::create_block_func_t create = 0;
-			BlockLoader::BlockLoaderImpl::get_block_name_func_t name = 0;
+			implementation::create_block_func_t create = 0;
+			implementation::get_block_name_func_t name = 0;
 
 			reinterpret_cast< void*& >(create) = lt_dlsym(module, "create");
 			reinterpret_cast< void*& >(name) = lt_dlsym(module, "name");
@@ -114,7 +105,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 			{
 				const std::string block_id = name();
 
-				if (!d->f_.Register(block_id, create))
+				if (!(*this)->f_.Register(block_id, create))
 				{
 					std::cerr << "already exists." << std::endl;
 					continue;
@@ -122,7 +113,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 				std::cerr << "ok" << " (id=" << block_id << ")" << std::endl;
 				++block_count;
-				d->available_blocks_.push_back(block_id);
+				(*this)->available_blocks_.push_back(block_id);
 			}
 		} else
 		{
@@ -134,14 +125,15 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 
 
-Block* BlockLoader::new_block(const std::string& name) const
+Block* BlockLoader::new_block(const std::string& name)
 {
-	return d->f_.CreateObject(name);
+ 	return (*this)->f_.CreateObject(name);
 }
 
 
 
 const std::vector< std::string > & BlockLoader::available_blocks() const
 {
-	return d->available_blocks_;
+	implementation const& impl = **this;
+	return impl.available_blocks_;
 }

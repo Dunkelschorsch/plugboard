@@ -16,7 +16,7 @@ public:
 	public:
 		Exception(const IdentifierType& unknownId) : unknownId_(unknownId) { }
 
-		const char* what()
+		const char* what() const
 		{
 			return "Unknown object type passed to Factory.";
 		}
@@ -32,7 +32,7 @@ public:
 	};
 
 protected:
-	ProductType* OnUnknownType(const IdentifierType& id)
+	ProductType* OnUnknownType(const IdentifierType& id) const
 	{
 		throw Exception(id);
 	}
@@ -61,7 +61,7 @@ public:
 
 	AbstractProduct * CreateObject(const IdentifierType& id)
 	{
-		typename factory_map_t::iterator it = f_.find(id);
+		typename factory_map_t::const_iterator it = f_.find(id);
 		if(it != f_.end())
 		{
 			return (it->second)();
