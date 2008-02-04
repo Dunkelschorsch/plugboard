@@ -82,3 +82,5 @@ variable/variable.cpp
 variable/variable.hpp
 variable/variable_iterator.hpp
 constraint.hpp
+pimpl/pimpl.h
+pimpl/detail/pimpl.h
