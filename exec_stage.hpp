@@ -4,15 +4,15 @@
 #include <list>
 #include <iosfwd>
 
+#include "pimpl/pimpl.h"
 #include "block/block.hpp"
 
 namespace boost { class thread; }
 
 
 
-class ExecutionStage
+class ExecutionStage : public pimpl< ExecutionStage >::pointer_semantics
 {
-friend class ExecutionMatrix;
 public:
 	typedef std::list< ExecutionStage > store_t;
 	typedef Block::store_t path_t;
@@ -25,22 +25,17 @@ public:
 	void add_block(Block * const b);
 	void add_path(const path_t& p);
 
+	bool block_is_placed(const std::string& name) const;
+
 	const stage_t& get_paths() const;
 	stage_t& get_paths();
 
 	Block* operator[](const std::string& name) const;
 
-	void print(std::ostream&) const;
-
-protected:
-	stage_t paths_;
-	bool threading_enabled_;
-	std::vector< boost::thread* > thread_group_;
-
-	bool block_is_placed(const std::string& name) const;
-
 	void exec();
 	void exec_path(const path_t& p);
+
+	void print(std::ostream&) const;
 };
 
 

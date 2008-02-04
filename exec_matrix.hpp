@@ -2,12 +2,14 @@
 #define EXEC_MATRIX_HPP
 
 #include "exec_stage.hpp"
+#include "pimpl/pimpl.h"
+
 #include <iosfwd>
 #include <map>
 #include <boost/function.hpp>
 
 
-class ExecutionMatrix
+class ExecutionMatrix : public pimpl< ExecutionMatrix >::pointer_semantics
 {
 public:
 	ExecutionMatrix();
@@ -38,18 +40,6 @@ public:
 	void exec();
 
 	void print(std::ostream&) const;
-
-protected:
-	void add_block(Block * b);
-	void add_block(Block * b, const std::string& insert_after);
-	void add_block(Block * b, uint32_t insert_where);
-
-	void add_stage(ExecutionStage s);
-	
-	typedef std::map< std::string, Block * > block_map_t;
-
-	ExecutionStage::store_t stages_;
-	block_map_t blocks_;
 };
 
 

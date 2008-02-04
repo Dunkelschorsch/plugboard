@@ -8,6 +8,23 @@
 using boost::bind;
 
 
+typedef pimpl< ExecutionStage >::implementation ExecutionStageImpl;
+
+
+template< >
+struct pimpl< ExecutionStage >::implementation
+{
+	implementation();
+	implementation(Block * const b, bool threading_enabled);
+
+	void add_block_impl(Block * const b);
+
+	ExecutionStage::stage_t paths_;
+	bool threading_enabled_;
+	std::vector< boost::thread* > thread_group_;
+};
+
+
 std::ostream& operator<<(std::ostream& out, const ExecutionStage& what)
 {
 	what.print(out);
@@ -17,28 +34,45 @@ std::ostream& operator<<(std::ostream& out, const ExecutionStage& what)
 
 
 ExecutionStage::ExecutionStage() :
-	paths_(),
-	threading_enabled_(false)
-{
-}
+	base()
+{ }
 
 
 
 ExecutionStage::ExecutionStage(Block * const b, bool threading_enabled) :
+	base(b, threading_enabled)
+{ }
+
+
+
+ExecutionStageImpl::implementation() :
 	paths_(),
+	threading_enabled_(false)
+{ }
+
+
+
+
+ExecutionStageImpl::implementation(Block * const b, bool threading_enabled) :
 	threading_enabled_(threading_enabled)
 {
-	add_block(b);
+	add_block_impl(b);
+}
+
+
+
+void ExecutionStageImpl::add_block_impl(Block * const b)
+{
+	ExecutionStage::path_t path_temp;
+	path_temp.push_back(b);
+	paths_.push_back(path_temp);
 }
 
 
 
 void ExecutionStage::add_block(Block * const b)
 {
-	path_t path_temp;
-	path_temp.push_back(b);
-
-	paths_.push_back(path_temp);
+	(*this)->add_block_impl(b);
 }
 
 
@@ -49,8 +83,8 @@ Block* ExecutionStage::operator[](const std::string& name) const
 	stage_t::const_iterator path_curr;
 	for
 	(
-		path_curr = paths_.begin();
-		path_curr != paths_.end();
+		path_curr = get_paths().begin();
+		path_curr != get_paths().end();
 		++path_curr
 	)
 	{
@@ -71,8 +105,8 @@ bool ExecutionStage::block_is_placed(const std::string& name) const
 {
 	for
 	(
-		stage_t::const_iterator path_curr = paths_.begin();
-		path_curr != paths_.end();
+		stage_t::const_iterator path_curr = get_paths().begin();
+		path_curr != get_paths().end();
 		++path_curr
 	)
 	{
@@ -95,63 +129,65 @@ bool ExecutionStage::block_is_placed(const std::string& name) const
 
 const ExecutionStage::stage_t& ExecutionStage::get_paths() const
 {
-	return paths_;
+	return (*this)->paths_;
 }
 
 
 
 void ExecutionStage::add_path(const path_t& p)
 {
-	if(paths_.size() > 1)
-		this->threading_enabled_ = true;
-	paths_.push_back(p);
+	if(get_paths().size() > 1)
+		(*this)->threading_enabled_ = true;
+	(*this)->paths_.push_back(p);
 }
 
 
 
 ExecutionStage::stage_t& ExecutionStage::get_paths()
 {
-	return paths_;
+	return (*this)->paths_;
 }
 
 
 
 void ExecutionStage::exec()
 {
-	if(threading_enabled_)
+	implementation& impl = **this;
+
+	if(impl.threading_enabled_)
 	{
-		assert(paths_.size() > 1);
+		assert(get_paths().size() > 1);
 		boost::object_pool< boost::thread > thread_pool;
 
 		// iterate through paths
 		stage_t::const_iterator path_it;
-		stage_t::const_iterator paths_end = this->get_paths().end();
+		stage_t::const_iterator paths_end = get_paths().end();
 		for
 		(
-			path_it = this->get_paths().begin();
+			path_it = get_paths().begin();
 			path_it != paths_end;
 			++path_it
 		)
 		{
 			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, *path_it));
-			thread_group_.push_back(t);
+			impl.thread_group_.push_back(t);
 		}
 		// wait for all threads to finish
 		std::for_each
 		(
-			thread_group_.begin(),
-			thread_group_.end(),
+			impl.thread_group_.begin(),
+			impl.thread_group_.end(),
 			bind(&boost::thread::join, _1)
 		);
- 		thread_group_.clear();
+ 		impl.thread_group_.clear();
 	}
 	// execute all paths sequentially
 	else
 	{
 		std::for_each
 		(
-			paths_.begin(),
-			paths_.end(),
+			get_paths().begin(),
+			get_paths().end(),
 			bind(&ExecutionStage::exec_path, this, _1)
 		);
 	}

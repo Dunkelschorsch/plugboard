@@ -9,6 +9,52 @@
 using boost::bind;
 
 
+typedef pimpl< ExecutionMatrix >::implementation ExecutionMatrixImpl;
+
+template< >
+struct pimpl< ExecutionMatrix >::implementation
+{
+	implementation();
+	~implementation();
+
+	void add_block(Block * b) ;
+	void add_block(Block * b, const std::string& insert_after);
+	void add_block(Block * b, uint32_t insert_where);
+
+	void add_stage(ExecutionStage s);
+	
+	typedef std::map< std::string, Block * > block_map_t;
+
+	ExecutionStage::store_t stages_;
+	block_map_t blocks_;
+};
+
+
+
+ExecutionMatrix::ExecutionMatrix() : base() { }
+
+
+ExecutionMatrix::~ExecutionMatrix() { }
+
+
+
+ExecutionMatrixImpl::implementation() :
+	stages_(), blocks_()
+{ }
+
+
+
+ExecutionMatrixImpl::~implementation()
+{
+	block_map_t::iterator curr_block;
+	for(curr_block = blocks_.begin(); curr_block != blocks_.end(); ++curr_block)
+	{
+		delete curr_block->second;
+	}
+}
+
+
+
 std::ostream& operator<<(std::ostream& out, const ExecutionMatrix& what)
 {
 	what.print(out);
@@ -96,14 +142,15 @@ inline UnwrapPair< ContainerT > pair_unwrapper(ContainerT& c)
 
 bool ExecutionMatrix::block_is_placed(const std::string& name) const
 {
+	const implementation& impl = **this;
 	if
 	(
 		std::find_if
 		(
-			stages_.begin(),
-			stages_.end(),
+			impl.stages_.begin(),
+			impl.stages_.end(),
 			bind(&ExecutionStage::block_is_placed, _1, name)
-		) == stages_.end()
+		) == impl.stages_.end()
 	)
 	{
 		return false;
@@ -115,22 +162,7 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 
 
 
-ExecutionMatrix::ExecutionMatrix() : stages_(), blocks_() { }
-
-
-
-ExecutionMatrix::~ExecutionMatrix()
-{
-	block_map_t::iterator curr_block;
-	for(curr_block = blocks_.begin(); curr_block != blocks_.end(); ++curr_block)
-	{
-		delete curr_block->second;
-	}
-}
-
-
-
-void ExecutionMatrix::add_block(Block *b)
+void ExecutionMatrixImpl::add_block(Block *b)
 {
 	assert(b != NULL);
 	if(dynamic_cast< Source* >(b))
@@ -148,7 +180,7 @@ void ExecutionMatrix::add_block(Block *b)
 
 
 
-void ExecutionMatrix::add_stage(ExecutionStage s)
+void ExecutionMatrixImpl::add_stage(ExecutionStage s)
 {
 	stages_.push_back(s);
 }
@@ -157,15 +189,15 @@ void ExecutionMatrix::add_stage(ExecutionStage s)
 
 const ExecutionStage::store_t & ExecutionMatrix::get_stages( ) const
 {
-	return stages_;
+	return (*this)->stages_;
 }
 
 
 
 Block * ExecutionMatrix::operator[](const std::string & name) const
 {
-	block_map_t::const_iterator block = blocks_.find(name);
-	if(block == blocks_.end())
+	implementation::block_map_t::const_iterator block = (*this)->blocks_.find(name);
+	if(block == (*this)->blocks_.end())
 	{
 		return NULL;
 	}
@@ -177,7 +209,7 @@ Block * ExecutionMatrix::operator[](const std::string & name) const
 
 
 
-void ExecutionMatrix::add_block(Block * b, const std::string & insert_after)
+void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
 {
 	for
 	(
@@ -190,8 +222,8 @@ void ExecutionMatrix::add_block(Block * b, const std::string & insert_after)
 		ExecutionStage::stage_t::const_iterator path_curr;
 		for
 		(
-			path_curr = stage_curr->paths_.begin();
-			path_curr != stage_curr->paths_.end();
+			path_curr = stage_curr->get_paths().begin();
+			path_curr != stage_curr->get_paths().end();
 			++path_curr
 		)
 		{
@@ -214,30 +246,30 @@ void ExecutionMatrix::add_block(Block * b, const std::string & insert_after)
 
 void ExecutionMatrix::store_block(Block * b, const std::string & name)
 {
-	blocks_[name] = b;
+	(*this)->blocks_[name] = b;
 }
 
 
 
 void ExecutionMatrix::add_block(const std::string & name)
 {
-	add_block(blocks_[name]);
+	(*this)->add_block((*this)->blocks_[name]);
 }
 
 
 
 void ExecutionMatrix::place_block(const std::string & name, const std::string & insert_after)
 {
-	add_block(blocks_[name], insert_after);
+	(*this)->add_block((*this)->blocks_[name], insert_after);
 }
 
 
 
 bool ExecutionMatrix::block_exists(const std::string & name) const
 {
-	block_map_t::const_iterator it = blocks_.find(name);
+	implementation::block_map_t::const_iterator it = (*this)->blocks_.find(name);
 
-	if(it != blocks_.end())
+	if(it != (*this)->blocks_.end())
 	{
 		return true;
 	}
@@ -251,10 +283,12 @@ bool ExecutionMatrix::block_exists(const std::string & name) const
 
 void ExecutionMatrix::combine_stages()
 {
-	ExecutionStage::store_t::iterator stage_curr = stages_.begin();
+	implementation& impl = **this;
+
+	ExecutionStage::store_t::iterator stage_curr = impl.stages_.begin();
 	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	while(++stage_next != stages_.end())
+	while(++stage_next != impl.stages_.end())
 	{
 #ifndef NDEBUG
 		std::cout << *this << std::endl;
@@ -286,7 +320,7 @@ void ExecutionMatrix::combine_stages()
 		if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 		{
 			stage_curr->get_paths().front().push_back(block_next);
-			stages_.erase(stage_next);
+			impl.stages_.erase(stage_next);
 			stage_next = stage_curr;
 		}
 	}
@@ -296,10 +330,12 @@ void ExecutionMatrix::combine_stages()
 
 void ExecutionMatrix::parallelize()
 {
-	ExecutionStage::store_t::iterator stage_curr = stages_.begin();
+	implementation& impl = **this;
+
+	ExecutionStage::store_t::iterator stage_curr = impl.stages_.begin();
 	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	while(++stage_next != stages_.end())
+	while(++stage_next != impl.stages_.end())
 	{
 		// iterator through all paths of stage_curr to
 		// find a path that inhibits parallelization
@@ -354,7 +390,7 @@ void ExecutionMatrix::parallelize()
 			std::cout << "Moving path..." << std::endl;
 #endif
 			stage_curr->add_path(stage_next->get_paths().front());
-			stages_.erase(stage_next);
+			impl.stages_.erase(stage_next);
 #ifndef NDEBUG
 			std::cout << *this << std::endl;
 #endif
@@ -367,14 +403,15 @@ void ExecutionMatrix::parallelize()
 
 const std::vector< Block * > ExecutionMatrix::find_start_blocks() const
 {
-	std::vector< Block * > vv;
+	const implementation& impl = **this;
 
+	std::vector< Block * > vv;
 	std::vector< std::pair< std::string, Block * > > v;
 
 	std::remove_copy_if
 	(
-		blocks_.begin(),
-		blocks_.end(),
+		impl.blocks_.begin(),
+		impl.blocks_.end(),
 		std::back_inserter(v),
 		FindStartBlock()
 	);
@@ -396,8 +433,8 @@ void ExecutionMatrix::init()
 	// iterate over all stages
 	for
 	(
-		ExecutionStage::store_t::iterator stage_it = stages_.begin();
-		stage_it != stages_.end();
+		ExecutionStage::store_t::iterator stage_it = (*this)->stages_.begin();
+		stage_it != (*this)->stages_.end();
 		++stage_it
 	)
 	// iterate over all paths in current stage
@@ -422,8 +459,8 @@ void ExecutionMatrix::exec()
 {
 	std::for_each
 	(
-		stages_.begin(),
-		stages_.end(),
+		(*this)->stages_.begin(),
+		(*this)->stages_.end(),
 		bind(&ExecutionStage::exec, _1)
 	);
 }
