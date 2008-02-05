@@ -92,12 +92,12 @@ void SystemImpl::register_basic_types()
 //	for integer valued signals, the expansion would look like this:
 //	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
 //	signal_factory_.insert(std::make_pair(int32,
-//	bind< IntegerSignal* >(new_ptr< IntegerSignal >(), _1)));
+//	bind< IntegerSignal* >(new_ptr< IntegerSignal >(), ::_1)));
 
 #define BOOST_PP_DEF(z, I, _) \
 	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_buffer< SIG_TYPE(I) >)); \
 	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
-		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), _1)));
+		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 
@@ -336,7 +336,7 @@ void System::connect_ports(const std::string & block_source,
 		(
 			d->exec_m_[block_source]->get_port_list< OutPort >()->begin(),
 			d->exec_m_[block_source]->get_port_list< OutPort >()->end(),
-			bind(&OutPort::get_name, _1) == port_source
+			bind(&OutPort::get_name, ::_1) == port_source
 		);
 
 	// unfortunately the given port name was invalid
@@ -366,7 +366,7 @@ void System::connect_ports(const std::string & block_source,
 		(
 			d->exec_m_[block_sink]->get_port_list< InPort >()->begin(),
 			d->exec_m_[block_sink]->get_port_list< InPort >()->end(),
-			bind(&InPort::get_name, _1) == port_sink
+			bind(&InPort::get_name, ::_1) == port_sink
 		);
 
 	// unfortunately the given port name was invalid
