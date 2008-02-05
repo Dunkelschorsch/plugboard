@@ -450,13 +450,10 @@ void System::initialize()
 #ifndef NDEBUG
 		std::cout << "starting linearization with block '" << start_block_name << "'." << std::endl;
 #endif
-
 		d->exec_m_.add_block(start_block_name);
-
 #ifndef NDEBUG
 		std::cout << std::endl << "linearizing system..." << std::endl;
 #endif
-
 		d->linearize(start_block_name);
 	}
 
@@ -466,32 +463,23 @@ void System::initialize()
 		std::cout << "no start blocks!" << std::endl;
 #endif
 	}
-
-
 #ifndef NDEBUG
 	std::cout << d->exec_m_ << std::endl;
 	std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
 #endif
-
 	d->propagate_signal_attributes();
-
 #ifndef NDEBUG
 	std::cout << std::endl << "combining execution stages..." << std::endl;
 #endif
-
 	d->exec_m_.combine_stages();
-
 #ifndef NDEBUG
  	std::cout << "parallelizing..." << std::endl;
 #endif
-
 	d->exec_m_.parallelize();
-
 	d->exec_m_.init();
 #ifndef NDEBUG
 	std::cout << d->exec_m_ << std::endl;
 #endif
-
 }
 
 
@@ -523,7 +511,7 @@ void System::add_variable( const std::string& name, const Variable& var )
 
 
 
-Variable System::get_variable(const std::string& name) const
+const Variable& System::get_variable(const std::string& name) const
 {
 	return d_func()->symtab_.get_var(name);
 }

@@ -21,7 +21,7 @@ public:
 
 	void add_variable(const std::string& name, const Variable& var);
 
-	Variable get_variable(const std::string& name) const;
+	const Variable& get_variable(const std::string& name) const;
 
 	void connect_ports(const std::string& block_source, const std::string& port_source,
 		const std::string& block_sink, const std::string& port_sink);
