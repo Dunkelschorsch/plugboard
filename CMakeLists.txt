@@ -28,14 +28,8 @@ add_executable(
 
 find_package(Boost)
 if (NOT Boost_FOUND)
-	message(fatal_error 'Cannot find Boost!)
+	message(FATAL_ERROR 'Cannot find Boost!)
 endif (NOT Boost_FOUND)
-
-
-#find_package(Readline)
-#if (NOT READLINE_FOUND)
-#	message(fatal_error 'Cannot find Readline!')
-#endif (NOT READLINE_FOUND)
 
 
 # find and link against the boost::fileysytem library

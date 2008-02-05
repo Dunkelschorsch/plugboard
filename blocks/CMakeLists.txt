@@ -1,5 +1,10 @@
 ADD_DEFINITIONS(-fvisibility=default)
 
+FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
+# SET(VAR EXTRA_INCLUDES ~/stuff64/include/ STRING)
+
+include_directories (~/stuff64/include)
+
 foreach(
 	blockname
 	stdout_sink
@@ -11,6 +16,6 @@ foreach(
 	1in1out
 )
 	add_library (block_${blockname} SHARED block_${blockname}.cpp)
-	target_link_libraries (block_${blockname} block_common)
+	target_link_libraries (block_${blockname} block_common ${ITPP})
 
 endforeach (blockname)
