@@ -4,6 +4,9 @@
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"
+#include <itpp/itcomm.h>
+#include <itpp/itstat.h>
+
 
 #include <iostream>
 
@@ -75,6 +78,8 @@ bool Block_1out::setup_output_ports()
 
 void Block_1out::process()
 {
+	itpp::QPSK qpsk;
+
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
