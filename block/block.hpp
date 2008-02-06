@@ -6,15 +6,13 @@
 #include <boost/bind.hpp>
 
 #include "pimpl/pimpl.h"
+#include "block/create.hpp"
 #include "block/port_traits.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"
 #include "parameter.hpp"
 class Variable;
 
-
-#define DLLEXPORT __attribute__ ((visibility("default")))
-#define DLLLOCAL  __attribute__ ((visibility("hidden")))
 
 
 /** \brief The Block class
@@ -23,7 +21,7 @@ class Variable;
  */
 
 
-class Block : public pimpl< Block >::pointer_semantics
+class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
 {
 // the subsystem plays some funny games with ports
 friend class SubsystemImpl;

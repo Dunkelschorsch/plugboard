@@ -2,11 +2,13 @@
 #define BLOCK_SINK_HPP
 
 #include "port/port_in.hpp"
+#include "visibility.hpp"
+
 
 template< class PortT > class PortTraits;
 
 
-class Sink
+class DSOEXPORT Sink
 {
 friend class PortTraits< InPort >;
 

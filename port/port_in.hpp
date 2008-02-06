@@ -2,10 +2,11 @@
 #define PORT_IN_HPP
 
 #include "port/port_base.hpp"
+#include "visibility.hpp"
 class Message;
 
 
-class InPort : public BasePort< InPort >
+class DSOEXPORT InPort : public BasePort< InPort >
 {
 public:
 

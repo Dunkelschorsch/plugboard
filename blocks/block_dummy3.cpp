@@ -15,7 +15,7 @@ public:
 	void process();
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters() ;
 };
 
 void Block_Dummy3::configure_parameters()

@@ -5,11 +5,13 @@
 #include <set>
 #include "port/port_out.hpp"
 #include "port/port_in.hpp"
+#include "visibility.hpp"
+
 
 template< class PortT > class PortTraits;
 
 
-class Source
+class DSOEXPORT Source
 {
 friend class PortTraits< OutPort >;
 

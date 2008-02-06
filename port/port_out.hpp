@@ -4,11 +4,12 @@
 
 #include "port/port_base.hpp"
 #include "message.hpp"
+#include "visibility.hpp"
 class InPort;
 
 
 
-class OutPort : public BasePort< OutPort >
+class DSOEXPORT OutPort : public BasePort< OutPort >
 {
 public:
 	OutPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size);

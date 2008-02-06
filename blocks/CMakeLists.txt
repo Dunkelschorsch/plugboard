@@ -1,5 +1,3 @@
-ADD_DEFINITIONS(-fvisibility=default)
-
 FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
 # SET(VAR EXTRA_INCLUDES ~/stuff64/include/ STRING)
 

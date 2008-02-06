@@ -5,10 +5,11 @@
 #include <iostream>
 #endif
 
+#include "visibility.hpp"
 #include "variable/variable.hpp"
 
 
-struct ConstraintBase
+struct DSOEXPORT ConstraintBase
 {
 	virtual ~ConstraintBase() { }
 };
@@ -16,7 +17,7 @@ struct ConstraintBase
 
 
 template< class T >
-class ValueConstraint
+class DSOEXPORT ValueConstraint
 {
 public:
 	typedef const T argument_type;
@@ -33,7 +34,7 @@ public:
 
 
 
-class VariableConstraint
+class DSOEXPORT VariableConstraint
 {
 public:
 	typedef bool result_type;

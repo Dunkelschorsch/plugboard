@@ -19,10 +19,10 @@ public:
 
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters() ;
 
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
+	bool setup_input_ports() ;
+	bool setup_output_ports() ;
 
 	/* member variable declarations go here */
 	OutPort *sig_out1_, *sig_out2_;

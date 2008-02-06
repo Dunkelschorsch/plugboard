@@ -1,35 +1,32 @@
 #include "block/block.hpp"
 #include "block/create.hpp"
 #include "block/buffer_access.hpp"
+#include "visibility.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 #include <itpp/itcomm.h>
-#include <itpp/itstat.h>
-
+// #include <itpp/itstat.h>
 
 #include <iostream>
-
-#define DLLEXPORT __attribute__ ((visibility("default")))
-#define DLLLOCAL  __attribute__ ((visibility("hidden")))
 
 
 static const std::string BLOCK_NAME = "1out";
 
 
-class DLLLOCAL Block_1out : public Block, public Source
+class Block_1out : public Block, public Source
 {
 public:
 
-	Block_1out() DLLLOCAL;
-	~Block_1out() DLLLOCAL;
+	Block_1out();
+	~Block_1out();
 
-	void process() DLLLOCAL;
+	void process();
 
 private:
-	void configure_parameters() DLLEXPORT;
+	void configure_parameters();
 
-	bool setup_output_ports() DLLLOCAL;
+	bool setup_output_ports();
 
 	/* member variable declarations go here */
 	OutPort *sig_out_;
@@ -78,8 +75,6 @@ bool Block_1out::setup_output_ports()
 
 void Block_1out::process()
 {
-	itpp::QPSK qpsk;
-
 #ifndef NDEBUG
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif

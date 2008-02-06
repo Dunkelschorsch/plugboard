@@ -2,13 +2,14 @@
 #define PARAMETER_HPP
 
 #include "types/base.hpp"
+#include "visibility.hpp"
 #include <vector>
 
 class Variable;
 class ConstraintBase;
 
 
-class Parameter
+class DSOEXPORT Parameter
 {
 public:
 	Parameter(void * data, type_t type, const std::string& description);

@@ -1,18 +1,18 @@
 #ifndef BLOCK_CREATE_HPP
 #define BLOCK_CREATE_HPP
 
+
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-#define DLLEXPORT __attribute__ ((visibility("default")))
-#define DLLLOCAL  __attribute__ ((visibility("hidden")))
+#include "visibility.hpp"
 
 
 #define ACCESS_FUNCS(NAME)	\
 extern "C"			\
 {				\
-DLLEXPORT Block* create();	\
-DLLEXPORT const string_t name();\
+DSOEXPORT Block* create();	\
+DSOEXPORT const string_t name();\
 }				\
 				\
 Block* create() 		\

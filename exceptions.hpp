@@ -2,10 +2,11 @@
 #define EXCEPTIONS_HPP
 
 #include <stdexcept>
+#include "visibility.hpp"
 
 
 template < class IdentifierType >
-class HumpException : public std::exception
+class DSOEXPORT HumpException : public std::exception
 {
 public:
 	HumpException(const IdentifierType& unknownId) : unknownId_(unknownId) { }

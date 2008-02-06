@@ -6,12 +6,13 @@
 #endif
 
 #include <vector>
+#include "visibility.hpp"
 #include "types/base.hpp"
 #include "types/typeinfo.hpp"
 
 
 
-class Variable
+class DSOEXPORT Variable
 {
 public:
 	Variable();
@@ -50,9 +51,9 @@ public:
 protected:
 
 	template< typename oldT, typename newT >
-	void cast();
+	void cast() DSOLOCAL;
 
-	void swap(Variable & other);
+	void swap(Variable & other) DSOLOCAL;
 
 	std::vector< uint16_t > dims_;
 

@@ -26,14 +26,14 @@ public:
 
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters() ;
 
 #ifdef HAS_INPUTS
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
+	bool setup_input_ports() ;
 #endif
 
 #ifdef HAS_OUTPUTS
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
+	bool setup_output_ports() ;
 #endif
 
 	InPort *sig_in_;

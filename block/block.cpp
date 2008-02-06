@@ -15,9 +15,9 @@
 
 
 template< >
-struct DLLLOCAL pimpl< Block >::implementation
+struct pimpl< Block >::implementation
 {
-	DLLLOCAL implementation() :
+	implementation() :
 		param_curr_(0),
 		parameter_factory_(),
 		params_(),
@@ -29,7 +29,7 @@ struct DLLLOCAL pimpl< Block >::implementation
 		register_parameter_types();
 	}
 
-	DLLLOCAL ~implementation();
+	~implementation();
 
 	typedef boost::function< void(const Variable&, Parameter * const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
@@ -44,9 +44,9 @@ struct DLLLOCAL pimpl< Block >::implementation
 	std::string description_;
 
 	template< typename T >
-	DLLLOCAL void copy_parameter(const Variable&, Parameter * const);
+	void copy_parameter(const Variable&, Parameter * const);
 
-	DLLLOCAL void register_parameter_types();
+	void register_parameter_types();
 };
 
 
