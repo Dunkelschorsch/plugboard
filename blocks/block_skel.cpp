@@ -1,16 +1,19 @@
-#include "block.hpp"
-#include "types.hpp"
+#include "block/block.hpp"
+#include "block/create.hpp"
+#include "block/buffer_access.hpp"
+#include "types/base.hpp"
+#include "types/vectors.hpp"
+#include "constraint.hpp"
 
-#define NEED_INIT
-#define NEED_ADVANCE
 
-#define HAS_INPUTS
-#define HAS_OUTPUTS
 
 static const std::string BLOCK_NAME = "CHANGE ME!";
 
-// please replace all occurences of '$NAME' with BLOCK_NAME
+// IMPORTANT!!!
+// replace all occurences of '$NAME' with BLOCK_NAME
 
+
+// must additionally inherit from "public Source" or "public Sink" (or both, of course)
 class Block_$NAME : public Block
 {
 public:
@@ -18,29 +21,21 @@ public:
 	Block_$NAME();
 	~Block_$NAME();
 
-#ifdef NEED_INIT
-	void initialize();
-#endif
-
 	void process();
 
-#ifdef NEED_ADVANCE
-	void advance();
-#endif
-
+// 	void initialize();
+// 	void advance();
 private:
 
-	void configure_parameters() __attribute__ ((visibility("hidden")));
+	void configure_parameters();
 
-#ifdef HAS_INPUTS
-	bool setup_input_ports() __attribute__ ((visibility("hidden")));
-#endif
+// 	at least one of these two must be defined, depending from which classes
+// 	(Source, Sink) this Block inherits:
 
-#ifdef HAS_OUTPUTS
-	bool setup_output_ports() __attribute__ ((visibility("hidden")));
-#endif
+// 	bool setup_input_ports();
+// 	bool setup_output_ports();
 
-	// member variable declarations go here
+// 	member variable declarations go here:
 
 };
 
@@ -63,32 +58,27 @@ Block_$NAME::~Block_$NAME()
 
 
 
-#ifdef HAS_INPUTS
-bool Block_$NAME::setup_input_ports()
-{
-	// calls to "add_port(InPort *) go here
-	return true;
-}
-#endif
+
+// bool Block_$NAME::setup_input_ports()
+// {
+// 	// calls to "add_port(InPort *) go here
+// 	return true;
+// }
 
 
 
-#ifdef HAS_OUTPUTS
-bool Block_$NAME::setup_output_ports()
-{
-	// calls to "add_port(OutPort *) go here
-	return true; 
-}
-#endif
+// bool Block_$NAME::setup_output_ports()
+// {
+// 	// calls to "add_port(OutPort *) go here
+// 	return true; 
+// }
 
 
 
-#ifdef NEED_INIT
-void Block_$NAME::initialize()
-{
-	// generic init stuff goes here
-}
-#endif
+// void Block_$NAME::initialize()
+// {
+// 	// generic init stuff goes here
+// }
 
 
 
@@ -105,12 +95,12 @@ void Block_$NAME::process()
 }
 
 
-#ifdef NEED_ADVANCE
-void Block_$NAME::advance()
-{
-	// actions to be carried out in fast forward state go here
-}
-#endif
+
+// void Block_$NAME::advance()
+// {
+// 	// actions to be carried out in fast forward state go here
+// }
 
 
-DEFINE_ACCESS_FUNCTIONS($NAME)
+
+ACCESS_FUNCS($NAME)
