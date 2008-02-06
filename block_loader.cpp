@@ -98,8 +98,8 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 			implementation::create_block_func_t create = 0;
 			implementation::get_block_name_func_t name = 0;
 
-			reinterpret_cast< void*& >(create) = lt_dlsym(module, "create");
-			reinterpret_cast< void*& >(name) = lt_dlsym(module, "name");
+			create = reinterpret_cast< implementation::create_block_func_t >(lt_dlsym(module, "create"));
+			name = reinterpret_cast< implementation::get_block_name_func_t >(lt_dlsym(module, "name"));
 
 			if (create && name)
 			{
