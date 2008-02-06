@@ -1,6 +1,6 @@
 FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
-# SET(VAR EXTRA_INCLUDES ~/stuff64/include/ STRING)
 
+# this is not nice. on the other hand, not having the library installed system-wide isn't nice either...
 include_directories (~/stuff64/include)
 
 foreach(

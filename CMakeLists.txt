@@ -1,6 +1,15 @@
 project (HUMP)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
+SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
+
+SET(CMAKE_CC_FLAGS "-Wall -ansi -pipe -fvisibility=hidden" CACHE STRING "Hallo")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CC_FLAGS}")
+
+SET(CMAKE_CC_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -s" CACHE STRING "This is appended to the C++ flags in release mode.")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CC_RELEASE}")
+
+SET(CMAKE_CC_FLAGS_DEBUG "-ggdb -Werror")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CC_FLAGS_DEBUG}")
 
 include_directories (${HUMP_SOURCE_DIR})
 
@@ -18,7 +27,6 @@ add_executable(
 	parameter.cpp
 	port/port_in.cpp
 	port/port_out.cpp
-# 	input/console.cpp
 	grammar/variable/actions.cpp
 	grammar/command/actions.cpp
 	input/file.cpp
