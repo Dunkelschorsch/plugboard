@@ -7,7 +7,6 @@
 #include <algorithm>
 
 
-
 class Signal
 {
 public:
@@ -34,57 +33,24 @@ public:
 	typedef ElementT element_t;
 
 	SignalStore(size_t size) :
-		size_(size), data_array_(new element_t[size_])
+		size_(size), data_(size)
 	{
-		std::fill
-		(
-			data_array_,
-			data_array_ + size_,
-			static_cast< element_t >(0)
-		);
+		data_.zeros();
 	}
 
 	SignalStore(const SignalStore& other) :
-		size_(other.size_), data_array_(new element_t[size_])
+		size_(other.size_), data_(other.data_)
 	{
-		std::copy
-		(
-			other.data_array_,
-			other.data_array_ + other.size_,
-			this->data_array_
-		);
 	}
 
-	SignalStore& operator=(const SignalStore& other)
+	itpp::Vec< ElementT >* get_data()
 	{
-		if(this != &other)
-		{
-			SignalStore tmp(other);
-			swap(tmp);
-		}
-		return *this;
-	}
-
-	~SignalStore()
-	{
-		delete[] data_array_;
-	}
-
-	element_t * get_data() const
-	{
-		return data_array_;
+		return &data_;
 	}
 
 private:
 	size_t size_;
-	element_t* data_array_;
-
-	void swap(SignalStore& other)
-	{
-		using std::swap;
-		swap(this->size_, other.size_);
-		swap(this->data_array_, other.data_array_);
-	}
+	itpp::Vec< ElementT > data_;
 };
 
 
@@ -98,7 +64,6 @@ private:
 		{					\
 	 		signal_type_ = TYPE_VALUE(I);	\
 		};					\
-		typedef SIG_TYPE(I)* result_type;	\
 	};
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)

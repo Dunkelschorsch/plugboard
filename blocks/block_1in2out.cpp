@@ -29,9 +29,8 @@ private:
 	OutPort *sig_out1_, *sig_out2_;
 	InPort *sig_in1_;
 
-	int32_t *v_out1, *v_out2;
-	const int32_t *v_in;
-
+	const itpp::ivec * in_;
+	itpp::ivec *out1_, *out2_;
 };
 
 
@@ -58,9 +57,9 @@ bool Block_1in2out::setup_output_ports()
 
 void Block_1in2out::initialize( )
 {
-	v_in = get_data_ptr< int32_t >(sig_in1_);
-	v_out1 = get_data_ptr< int32_t >(sig_out1_);
-	v_out2 = get_data_ptr< int32_t >(sig_out2_);
+	in_ = get_signal< int32_t >(sig_in1_);
+	out1_ = get_signal< int32_t >(sig_out1_);
+	out2_ = get_signal< int32_t >(sig_out2_);
 }
 
 
@@ -75,16 +74,21 @@ void Block_1in2out::configure_parameters()
 void Block_1in2out::process()
 {
 #ifndef NDEBUG
-	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	std::cout << this->get_name_sys() << std::endl;
+	std::cout << " in:   " << *in_ << std::endl;
 #endif
-	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
-	{
-		v_out1[i] = v_in[i];
-		v_out2[i] = v_in[i];
-	}
-	
-	sig_out1_->send();
-	sig_out2_->send();
+
+	*out1_ = *out2_ = *in_;
+
+	assert(*out1_ == *in_);
+	assert(*out2_ == *in_);
+#ifndef NDEBUG
+	std::cout << " out1: " << *out1_ << std::endl;
+	std::cout << " out2: " << *out2_ << std::endl;
+#endif
+
+// 	sig_out1_->send();
+// 	sig_out2_->send();
 }
 
 

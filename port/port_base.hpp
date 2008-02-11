@@ -32,7 +32,7 @@ public:
 
 	bool operator==(const BasePort< DerivedPortT >&) const;
 
-	inline void* get_buffer_ptr() const
+	inline void* get_signal_ptr() const
 	{
 		return buffer_access_();
 	}
@@ -69,7 +69,6 @@ BasePort< DerivedPortT >::BasePort(const string_t& name, const type_t type, cons
 	signal_buffer_id_(0),
 	buffer_access_(0)
 {
-
 }
 
 
@@ -86,7 +85,7 @@ void BasePort< DerivedPortT >::swap(BasePort& other)
 	swap(this->signal_buffer_id_, other.signal_buffer_id_);
 	swap(this->buffer_access_, other.buffer_access_);
 }
-
+// hmm... wrote a swap function but no copy constructor or assignement operator?! interesting...
 
 template< class DerivedPortT >
 const std::string& BasePort< DerivedPortT >::get_name() const

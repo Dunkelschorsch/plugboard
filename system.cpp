@@ -75,13 +75,10 @@ System::~System()
 
 
 
-namespace
+template< class SignalT >
+inline void* get_sig(Signal *s)
 {
-	template< class SignalT >
-	inline void* get_buffer(Signal *s)
-	{
-		return static_cast< SignalT* >(s)->get_data();
-	}
+	return static_cast< SignalT* >(s)->get_data();
 }
 
 
@@ -90,14 +87,14 @@ void SystemImpl::register_basic_types()
 {
 //	this macro inserts entries for all Singal types.
 //	for integer valued signals, the expansion would look like this:
-//	get_buffer_factory_.insert(std::make_pair(int32, &get_buffer< IntegerSignal >));
-//	signal_factory_.insert(std::make_pair(int32,
 //	bind< IntegerSignal* >(new_ptr< IntegerSignal >(), ::_1)));
+//	get_buffer_factory_.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
+//	signal_factory_.insert(std::make_pair(int32,
 
 #define BOOST_PP_DEF(z, I, _) \
-	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_buffer< SIG_TYPE(I) >)); \
 	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
-		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1)));
+		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1))); \
+	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_sig< SIG_TYPE(I) >));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 
@@ -125,7 +122,6 @@ void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 #ifndef NDEBUG
 	std::cout << "    setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
 #endif
-
 	f = get_buffer_factory_[out.get_type()];
 
 	out.buffer_access_ = bind(f, s);
@@ -147,11 +143,6 @@ void System::add_block(Block * const b, const std::string& name_sys)
 
 	// if we make it here, we can set up and add the blocks to the system
 	assert(b->is_configured());
-// 	if (!b->is_configured())
-// 	{
-// 		delete b;
-// 		throw BlockNotConfiguredException(name_sys);
-// 	}
 
 	// give it its unique name
 	b->set_name_sys(name_sys);

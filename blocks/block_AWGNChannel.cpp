@@ -28,12 +28,10 @@ private:
 
 	// input signals
 	InPort* sig_in_;
-	const complex_t *in_;
 	itpp::cvec *in_vector_;
 
 	// output signals
 	OutPort* sig_out_;
-	complex_t *out_;
 	itpp::cvec *out_vector_;
 
 	// block parameters
@@ -46,7 +44,7 @@ private:
 	real_t noisevar;
 
 	// channel object
-	itpp::AWGN_Channel *awgn;
+	itpp::AWGN_Channel awgn;
 };
 
 
@@ -62,9 +60,6 @@ Block_AWGNChannel::Block_AWGNChannel()
 
 Block_AWGNChannel::~Block_AWGNChannel()
 {
-	delete in_vector_;
-	delete out_vector_;
-	delete awgn;
 }
 
 
@@ -90,13 +85,10 @@ void Block_AWGNChannel::initialize()
 	framesize_[0] = sig_in_->get_frame_size();
 	Ts_[0] = sig_in_->get_Ts();
 
-	in_ = get_data_ptr< complex_t >(sig_in_);
-	in_vector_ = new itpp::cvec(const_cast< complex_t* >(in_), framesize_[0], false);
+	in_vector_ = get_signal< complex_t >(sig_in_);
+	out_vector_ = get_signal< complex_t >(sig_out_);
 
-	out_ = get_data_ptr< complex_t >(sig_out_);
-	out_vector_ = new itpp::cvec(out_, framesize_[0], false);
-
-	awgn = new itpp::AWGN_Channel(noisevar_[0]);
+	awgn.set_noise(noisevar_[0]);
 }
 
 
@@ -129,13 +121,18 @@ void Block_AWGNChannel::configure_parameters()
 
 void Block_AWGNChannel::process()
 {
-	*out_vector_ = (*awgn)(*in_vector_);
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << "symbols: " ;
+	std::cout << get_name_sys() << std::endl << " symbols in: " ;
+	std::cout << *in_vector_ << std::endl;
+#endif
+
+	*out_vector_ = awgn(*in_vector_);
+
+#ifndef NDEBUG
+	std::cout << " symbols out: " ;
 	std::cout << *out_vector_ << std::endl;
 #endif	
 }
-
 
 
 ACCESS_FUNCS(AWGNChannel)

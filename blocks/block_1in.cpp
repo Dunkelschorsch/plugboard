@@ -15,7 +15,6 @@ class Block_1in : public Block, public Sink
 public:
 
 	Block_1in();
-
 	~Block_1in();
 
 	void process();
@@ -27,8 +26,7 @@ private:
 	bool setup_input_ports();
 	bool setup_output_ports();
 
-
-/* member variable declarations go here */
+	/* member variable declarations go here */
 	InPort *sig_in_;
 
 	int32_vec_t framesize_;
@@ -65,7 +63,7 @@ void Block_1in::process()
 	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
 	const int32_t *v_in;
-	v_in = get_data_ptr< int32_t >(sig_in_);
+	v_in = get_data< int32_t >(sig_in_);
 
 #ifndef NDEBUG
 	for(uint32_t i=0; i<sig_in_->get_frame_size(); i++)

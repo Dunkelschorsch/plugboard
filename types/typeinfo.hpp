@@ -3,7 +3,7 @@
 
 #include "types/base.hpp"
 
-// declare neccessary singal classes
+// declare neccessary signal classes
 #define BOOST_PP_DEF(z, I, _) \
 	class SIG_TYPE(I); \
 
@@ -22,6 +22,7 @@ struct typeinfo;
 	struct typeinfo< CPP_TYPE(I) > \
 	{	\
 		typedef SIG_TYPE(I) signal_type; \
+		typedef VEC_TYPE(I) vector_type; \
 		static const type_t value = TYPE_VALUE(I); \
 		static const size_t size = sizeof(CPP_TYPE(I)); \
 	};

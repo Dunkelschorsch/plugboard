@@ -76,11 +76,11 @@ void Block_2in2out::process()
 	int32_t *v_out1, *v_out2;
 	const int32_t *v_in1, *v_in2;
 	
-	v_in1 = get_data_ptr< int32_t >(sig_in1_);
-	v_in2 = get_data_ptr< int32_t >(sig_in2_);
+	v_in1 = get_data< int32_t >(sig_in1_);
+	v_in2 = get_data< int32_t >(sig_in2_);
 
-	v_out1 = get_data_ptr< int32_t >(sig_out1_);
-	v_out2 = get_data_ptr< int32_t >(sig_out2_);
+	v_out1 = get_data< int32_t >(sig_out1_);
+	v_out2 = get_data< int32_t >(sig_out2_);
 
 	std::transform
 	(

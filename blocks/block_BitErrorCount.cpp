@@ -26,9 +26,8 @@ private:
 
 
 	InPort *tx_in_, *rx_in_;
-	itpp::BERC *berc;
+	itpp::BERC berc;
 
-	const int32_t *tx, *rx;
 	itpp::Vec< int32_t > *tx_vec, *rx_vec;
 
 };
@@ -49,10 +48,7 @@ Block_BitErrorCount::~Block_BitErrorCount()
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
 #endif
-	berc->report();
-	delete tx_vec;
-	delete rx_vec;
-	delete berc;
+	berc.report();
 }
 
 
@@ -72,13 +68,10 @@ bool Block_BitErrorCount::setup_input_ports()
 
 void Block_BitErrorCount::initialize()
 {
-	tx = get_data_ptr< int32_t >(tx_in_);
-	rx = get_data_ptr< int32_t >(rx_in_);
+	tx_vec = get_signal< int32_t >(tx_in_);
+	rx_vec = get_signal< int32_t >(rx_in_);
 
-	tx_vec = new itpp::Vec< int32_t >(const_cast< int* >(tx), tx_in_->get_frame_size(), false);
-	rx_vec = new itpp::Vec< int32_t >(const_cast< int* >(rx), tx_in_->get_frame_size(), false);
-
-	berc = new itpp::BERC;
+	berc = itpp::BERC();
 }
 
 
@@ -91,7 +84,7 @@ void Block_BitErrorCount::process()
 	std::cout << "rx: " << *rx_vec << std::endl;
 	std::cout << "tx: " << *tx_vec << std::endl;
 #endif
-	berc->count(to_bvec(*tx_vec), to_bvec(*rx_vec));
+	berc.count(to_bvec(*tx_vec), to_bvec(*rx_vec));
 }
 
 

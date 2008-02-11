@@ -81,7 +81,7 @@ void Block_1out::process()
 
 	int32_t *v;
 	
-	v = get_data_ptr< int32_t >(sig_out_);
+	v = get_data< int32_t >(sig_out_);
 
 	std::fill(v, v+sig_out_->get_frame_size(), constant_[0]);
 

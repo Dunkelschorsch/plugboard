@@ -1,7 +1,6 @@
-FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
+# FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
 
-# this is not nice. on the other hand, not having the library installed system-wide isn't nice either...
-include_directories (~/stuff64/include)
+
 
 foreach(
 	blockname

@@ -29,14 +29,11 @@ private:
 
 
 	OutPort* bits_out_;
-	int32_t *hard_bits;
 	itpp::ivec *hard_bit_vector_;
 
-	real_t *soft_bits;
 	itpp::vec *soft_bit_vector_;
 
 	InPort* symbols_in_;
-	const complex_t *symbols;
 	itpp::cvec *symbol_vector_;
 
 	// Input parameters
@@ -45,7 +42,7 @@ private:
 
 	int32_vec_t M_;
 	int32_vec_t soft_demod_;
-	itpp::PSK *mod;
+	itpp::PSK mod;
 };
 
 
@@ -61,13 +58,6 @@ Block_MPSKDemodulator::Block_MPSKDemodulator()
 
 Block_MPSKDemodulator::~Block_MPSKDemodulator()
 {
-	if(soft_demod_[0] == 1)
-		delete soft_bit_vector_;
-	else
-		delete hard_bit_vector_;
-
-	delete symbol_vector_;
-	delete mod;
 }
 
 
@@ -96,17 +86,14 @@ void Block_MPSKDemodulator::initialize()
 {
 	if(soft_demod_[0] == 1)
 	{
-		soft_bits = get_data_ptr< real_t >(bits_out_);
-		soft_bit_vector_ = new itpp::Vec< real_t >(soft_bits, symbols_in_->get_frame_size(), false);
+		soft_bit_vector_ = get_signal< real_t >(bits_out_);
 	} else {
-		hard_bits = get_data_ptr< int32_t >(bits_out_);
-		hard_bit_vector_ = new itpp::Vec< int32_t >(hard_bits, symbols_in_->get_frame_size(), false);
+		hard_bit_vector_ = get_signal< int32_t >(bits_out_);
 	}
 
-	symbols = get_data_ptr< complex_t >(symbols_in_);
-	symbol_vector_ = new itpp::Vec< complex_t >(const_cast< complex_t* >(symbols), symbols_in_->get_frame_size(), false);
+	symbol_vector_ = get_signal< complex_t >(symbols_in_);
 
-	mod = new itpp::PSK(M_[0]);
+	mod = itpp::PSK(M_[0]);
 }
 
 
@@ -149,20 +136,20 @@ void Block_MPSKDemodulator::process()
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " input: ";
 	std::cout << *symbol_vector_ << std::endl;
-	std::cout << "output: " << *symbol_vector_ << std::endl;
+	std::cout << "output: ";
 #endif
 	if(soft_demod_[0] == 1)
 	{
-		mod->demodulate_soft_bits(*symbol_vector_, 1, *soft_bit_vector_);
+		mod.demodulate_soft_bits(*symbol_vector_, 1, *soft_bit_vector_);
 #ifndef NDEBUG
 		std::cout << *soft_bit_vector_ << std::endl;
-#endif	
+#endif
 	}
 	else {
-		mod->demodulate(*symbol_vector_, *hard_bit_vector_);
+		mod.demodulate(*symbol_vector_, *hard_bit_vector_);
 #ifndef NDEBUG
 		std::cout << *hard_bit_vector_ << std::endl;
-#endif	
+#endif
 	}
 }
 

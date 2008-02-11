@@ -67,8 +67,8 @@ void Block_1in1out::process()
 	int32_t *v_out;
 	const int32_t *v_in;
 	
-	v_in = get_data_ptr< int32_t >(sig_in1_);
-	v_out = get_data_ptr< int32_t >(sig_out1_);
+	v_in = get_data< int32_t >(sig_in1_);
+	v_out = get_data< int32_t >(sig_out1_);
 
 	std::transform
 	(

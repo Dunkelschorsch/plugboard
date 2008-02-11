@@ -25,14 +25,15 @@ private:
 
 	bool setup_output_ports();
 
-
 	OutPort *bits_out_;
+	itpp::ivec *i_vector_;
+
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 
 	int32_vec_t hi_, lo_;
-	int32_t *bits;
-	itpp::ivec *bit_vector_;
+
+
 };
 
 
@@ -58,9 +59,8 @@ bool Block_randunibitgen::setup_output_ports()
 
 void Block_randunibitgen::initialize()
 {
-	bits = get_data_ptr< int32_t >(bits_out_);
-	bit_vector_ = new itpp::Vec< int32_t >(bits, bits_out_->get_frame_size(), false);
 	itpp::RNG_randomize();
+	i_vector_ = get_signal< int32_t >(bits_out_);
 }
 
 
@@ -101,20 +101,16 @@ void Block_randunibitgen::configure_parameters()
 
 void Block_randunibitgen::process()
 {
-	*bit_vector_ = itpp::randi(framesize_[0], lo_[0], hi_[0]);
+	*i_vector_ = itpp::randi(framesize_[0], lo_[0], hi_[0]);
 #ifndef NDEBUG
-	std::cout << this->get_name_sys() << " generated: " << *bit_vector_ << std::endl;
+	std::cout << this->get_name_sys() << std::endl;
+	std::cout << " generated: " << *i_vector_ << std::endl;
 #endif
 }
 
 
 
-Block_randunibitgen::~Block_randunibitgen()
-{
-	delete bit_vector_;
-	// if you dynamically allocate memory in the constructor (or somewhere else),
-	// this is a great place to free it.
-}
+Block_randunibitgen::~Block_randunibitgen() { }
 
 
 

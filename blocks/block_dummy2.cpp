@@ -59,7 +59,7 @@ void Block_Dummy2::process()
 {
 	complex_t *z;
 	
-	z = get_data_ptr< complex_t >(sig_out_);
+	z = get_data< complex_t >(sig_out_);
 
 	std::fill(z, z+sig_out_->get_frame_size(), 666);
 

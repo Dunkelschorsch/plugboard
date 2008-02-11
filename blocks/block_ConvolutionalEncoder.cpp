@@ -31,12 +31,10 @@ private:
 
 	// input signals
 	InPort* sig_in_;
-	const int32_t *in_;
 	itpp::ivec *in_vector_;
 
 	// output signals
 	OutPort* sig_out_;
-	int32_t *out_;
 	itpp::ivec *out_vector_;
 
 	// block parameters
@@ -49,7 +47,7 @@ private:
 	int32_vec_t code_type_;
 
 	// codec object
-	itpp::Convolutional_Code *code;
+	itpp::Convolutional_Code code;
 };
 
 
@@ -65,9 +63,6 @@ Block_ConvolutionalEncoder::Block_ConvolutionalEncoder()
 
 Block_ConvolutionalEncoder::~Block_ConvolutionalEncoder()
 {
-	delete in_vector_;
-	delete out_vector_;
-	delete code;
 }
 
 
@@ -92,22 +87,20 @@ bool Block_ConvolutionalEncoder::setup_output_ports()
 
 void Block_ConvolutionalEncoder::initialize()
 {
-	in_ = get_data_ptr< int32_t >(sig_in_);
-	in_vector_ = new itpp::ivec(const_cast< int32_t* >(in_), sig_in_->get_frame_size(), false);
+	in_vector_ = get_signal< int32_t >(sig_in_);
+	out_vector_ = get_signal< int32_t >(sig_out_);
 
-	out_ = get_data_ptr< int32_t >(sig_out_);
-	out_vector_ = new itpp::ivec(out_, sig_out_->get_frame_size(), false);
-
-	code = new itpp::Convolutional_Code();
-	code->set_method(itpp::Tail);
+	code = itpp::Convolutional_Code();
+	code.set_method(itpp::Tail);
 	
 	itpp::CONVOLUTIONAL_CODE_TYPE type = code_type_[0] == 0 ? itpp::MFD : itpp::ODS;
+
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << " parameters: " << std::endl;
 	std::cout << "inverse rate: " << static_cast< int32_t >(1/code_rate_[0]) << std::endl;
 	std::cout << "constraint length: " << constraint_length_[0] << std::endl;
 #endif
-	code->set_code(type, static_cast< int32_t >(1/code_rate_[0]), constraint_length_[0]);
+	code.set_code(type, static_cast< int32_t >(1/code_rate_[0]), constraint_length_[0]);
 }
 
 
@@ -159,7 +152,7 @@ void Block_ConvolutionalEncoder::process()
 	std::cout << " input: " << *in_vector_ << std::endl;
 #endif
 
-	*out_vector_ = to_ivec(code->encode(to_bvec(*in_vector_)));
+	*out_vector_ = to_ivec(code.encode(to_bvec(*in_vector_)));
 
 #ifndef NDEBUG
 	std::cout << " coded: " << *out_vector_ << std::endl;

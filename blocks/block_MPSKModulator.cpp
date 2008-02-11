@@ -28,19 +28,17 @@ private:
 
 
 	InPort* bits_in_;
-	const int32_t *bits;
 	itpp::ivec *bit_vector_;
 
 	OutPort* symbols_out_;
-	complex_t *symbols;
-	itpp::Vec< complex_t > *symbol_vector_;
+	itpp::cvec *symbol_vector_;
 
 	// Input parameters
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 
 	int32_vec_t M_;
-	itpp::PSK *mod;
+	itpp::PSK mod;
 };
 
 
@@ -56,9 +54,6 @@ Block_MPSKModulator::Block_MPSKModulator()
 
 Block_MPSKModulator::~Block_MPSKModulator()
 {
-	delete bit_vector_;
-	delete symbol_vector_;
-	delete mod;
 }
 
 
@@ -81,13 +76,10 @@ bool Block_MPSKModulator::setup_output_ports()
 
 void Block_MPSKModulator::initialize()
 {
-	bits = get_data_ptr< int32_t >(bits_in_);
-	bit_vector_ = new itpp::Vec< int32_t >(const_cast< int* >(bits), bits_in_->get_frame_size(), false);
+	bit_vector_ = get_signal< int32_t >(bits_in_);
+	symbol_vector_ = get_signal< complex_t >(symbols_out_);
 
-	symbols = get_data_ptr< complex_t >(symbols_out_);
-	symbol_vector_ = new itpp::Vec< complex_t >(symbols, bits_in_->get_frame_size(), false);
-
-	mod = new itpp::PSK(M_[0]);
+	mod = itpp::PSK(M_[0]);
 }
 
 
@@ -120,9 +112,15 @@ void Block_MPSKModulator::configure_parameters()
 
 void Block_MPSKModulator::process()
 {
-	mod->modulate(*bit_vector_, *symbol_vector_);
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " symobls: ";
+	std::cout << get_name_sys() << std::endl << " bits: ";
+	std::cout << *bit_vector_ << std::endl;
+#endif
+
+	mod.modulate(*bit_vector_, *symbol_vector_);
+
+#ifndef NDEBUG
+	std::cout << " symobls: ";
 	std::cout << *symbol_vector_ << std::endl;
 #endif	
 }

@@ -74,9 +74,9 @@ void Block_2in1out::process()
 	int32_t *v_out;
 	const int32_t *v_in1, *v_in2;
 	
-	v_in1 = get_data_ptr< int32_t >(sig_in1_);
-	v_in2 = get_data_ptr< int32_t >(sig_in2_);
-	v_out = get_data_ptr< int32_t >(sig_out1_);
+	v_in1 = get_data< int32_t >(sig_in1_);
+	v_in2 = get_data< int32_t >(sig_in2_);
+	v_out = get_data< int32_t >(sig_out1_);
 
 	for(uint16_t i=0; i<sig_in1_->get_frame_size(); i++)
 	{
