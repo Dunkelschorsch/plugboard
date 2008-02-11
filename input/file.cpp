@@ -66,18 +66,18 @@ bool HumpFile::execute_command(const std::string& file_name)
 	scanner_t scan(first, last, policies);
 
 	boost::function< void() > f;
-	try
+// 	try
 	{
 		while(first != last && d->parser_[::phoenix::var(f)=::phoenix::arg1].parse(scan))
 		{
 			f();
 		}
 	}
-	catch (HumpException< std::string >& e)
-	{
-		std::cout << "exception raised. cause: " << e.what() << std::endl;
-		return false;
-	}
+// 	catch (HumpException< std::string >& e)
+// 	{
+// 		std::cout << "exception raised. cause: " << e.what() << std::endl;
+// 		return false;
+// 	}
 
 
 	if(first != last)
