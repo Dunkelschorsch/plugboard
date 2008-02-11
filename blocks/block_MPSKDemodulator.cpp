@@ -134,9 +134,9 @@ void Block_MPSKDemodulator::configure_parameters()
 void Block_MPSKDemodulator::process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " input: ";
-	std::cout << *symbol_vector_ << std::endl;
-	std::cout << "output: ";
+	std::cout << get_name_sys() << std::endl;
+	std::cout << " input: " << *symbol_vector_ << std::endl;
+	std::cout << " output: ";
 #endif
 	if(soft_demod_[0] == 1)
 	{

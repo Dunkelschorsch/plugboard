@@ -79,10 +79,10 @@ void Block_BitErrorCount::initialize()
 void Block_BitErrorCount::process()
 {
 #ifndef NDEBUG
-	std::cout << "Hello from Block_" << BLOCK_NAME << "!" << std::endl;
+	std::cout << get_name_sys() << std::endl;
 
-	std::cout << "rx: " << *rx_vec << std::endl;
-	std::cout << "tx: " << *tx_vec << std::endl;
+	std::cout << " rx: " << *rx_vec << std::endl;
+	std::cout << " tx: " << *tx_vec << std::endl;
 #endif
 	berc.count(to_bvec(*tx_vec), to_bvec(*rx_vec));
 }
