@@ -85,3 +85,10 @@ constraint.hpp
 pimpl/pimpl.h
 pimpl/detail/pimpl.h
 visibility.hpp
+blocks/block_RandomUniformBitGenerator.cpp
+blocks/block_BitErrorCount.cpp
+blocks/block_AWGNChannel.cpp
+blocks/block_MPSKDemodulator.cpp
+blocks/block_MPSKModulator.cpp
+blocks/block_ConvolutionalEncoder.cpp
+blocks/block_ConvolutionalDecoder.cpp

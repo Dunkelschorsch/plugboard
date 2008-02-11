@@ -36,14 +36,14 @@ private:
 // 	bool setup_output_ports();
 
 // 	member variable declarations go here:
-
+	InPort* bits_in_;
 };
 
 
 
 Block_$NAME::Block_$NAME()
 {
-	name_ = BLOCK_NAME;
+	set_name(BLOCK_NAME);
 	set_description("your description here");
 	configure_parameters();
 }
