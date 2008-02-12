@@ -4,6 +4,7 @@
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
+#include <string>
 
 #include "visibility.hpp"
 
@@ -12,7 +13,7 @@
 extern "C"			\
 {				\
 DSOEXPORT Block* create();	\
-DSOEXPORT const string_t name();\
+DSOEXPORT const std::string name();	\
 }				\
 				\
 Block* create() 		\
@@ -20,7 +21,7 @@ Block* create() 		\
 	return new BOOST_PP_CAT(Block_, NAME);\
 }				\
 				\
-const string_t name()		\
+const std::string name()	\
 {				\
 	return BOOST_PP_STRINGIZE(NAME);	\
 }
