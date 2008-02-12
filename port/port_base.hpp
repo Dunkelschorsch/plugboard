@@ -22,7 +22,7 @@ public:
 	real_t get_Ts() const;
 	uint32_t get_frame_size() const;
 
-	void set_owner_block_name (const string_t&);
+	void set_owner_block_name (const std::string&);
 
 	void set_type(type_t);
 	void set_Ts(real_t);
@@ -38,13 +38,13 @@ public:
 	}
 
 protected:
-	BasePort(const string_t&, const type_t, const real_t, const uint32_t);
+	BasePort(const std::string&, const type_t, const real_t, const uint32_t);
 
 	void swap(BasePort&);
 
-	string_t name_;
+	std::string name_;
 
-	string_t owner_block_name_;
+	std::string owner_block_name_;
 
 	type_t type_;
 
@@ -60,7 +60,7 @@ protected:
 
 
 template< class DerivedPortT >
-BasePort< DerivedPortT >::BasePort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
+BasePort< DerivedPortT >::BasePort(const std::string& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
 	name_(name),
 	owner_block_name_(),
 	type_(type),
@@ -102,7 +102,7 @@ const std::string& BasePort< DerivedPortT >::get_owner_block_name() const
 
 
 template< class DerivedPortT >
-void BasePort< DerivedPortT >::set_owner_block_name(const string_t& owner_name)
+void BasePort< DerivedPortT >::set_owner_block_name(const std::string& owner_name)
 {
 	owner_block_name_ = owner_name;
 }

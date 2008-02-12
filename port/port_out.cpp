@@ -9,7 +9,7 @@
 
 
 
-OutPort::OutPort(const string_t& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
+OutPort::OutPort(const std::string& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
 	BasePort< OutPort >(name, type, Ts, frame_size),
 	send(0)
 {
