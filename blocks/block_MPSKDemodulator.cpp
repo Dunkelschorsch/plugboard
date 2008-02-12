@@ -16,16 +16,15 @@ class Block_MPSKDemodulator : public Block, public Sink, public Source
 public:
 
 	Block_MPSKDemodulator();
-	~Block_MPSKDemodulator();
 
 	void process();
-
 	void initialize();
+
 private:
 
 	void configure_parameters();
-	bool setup_input_ports();
-	bool setup_output_ports();
+	void setup_input_ports();
+	void setup_output_ports();
 
 
 	OutPort* bits_out_;
@@ -56,28 +55,21 @@ Block_MPSKDemodulator::Block_MPSKDemodulator()
 
 
 
-Block_MPSKDemodulator::~Block_MPSKDemodulator()
-{
-}
-
-
-
-
-bool Block_MPSKDemodulator::setup_input_ports()
+void Block_MPSKDemodulator::setup_input_ports()
 {
 	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
-	return true;
+	
 }
 
 
 
-bool Block_MPSKDemodulator::setup_output_ports()
+void Block_MPSKDemodulator::setup_output_ports()
 {
 	if(soft_demod_[0] == 1)
 		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
 	else
 		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
-	return true;
+	
 }
 
 

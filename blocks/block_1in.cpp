@@ -23,8 +23,8 @@ private:
 
 	void configure_parameters();
 
-	bool setup_input_ports();
-	bool setup_output_ports();
+	void setup_input_ports();
+	void setup_output_ports();
 
 	/* member variable declarations go here */
 	InPort *sig_in_;
@@ -35,12 +35,10 @@ private:
 
 
 
-bool Block_1in::setup_input_ports()
+void Block_1in::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
 	sig_in_ = add_port(new InPort("in1", empty, Ts_[0], framesize_[0]));
-
-	return true;
 }
 
 

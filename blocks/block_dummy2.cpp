@@ -25,11 +25,11 @@ private:
 	void configure_parameters()  ;
 
 #ifdef HAS_INPUTS
-	bool setup_input_ports() ;
+	void setup_input_ports() ;
 #endif
 
 #ifdef HAS_OUTPUTS
-	bool setup_output_ports() ;
+	void setup_output_ports() ;
 #endif
 
 	real_vec_t Ts_;
@@ -40,13 +40,13 @@ private:
 
 
 
-bool Block_Dummy2::setup_output_ports()
+void Block_Dummy2::setup_output_ports()
 {
 	
 	std::cout << "Dummy2 setup_output_ports() called with Ts=" << Ts_[0] << std::endl;
 	sig_out_ = add_port(new OutPort("humpOut1", complex, Ts_[0], framesize_[0]));
 
-	return true;
+	
 }
 
 void Block_Dummy2::configure_parameters()

@@ -21,15 +21,12 @@ public:
 	void process();
 
 private:
-	void configure_parameters() ;
-	bool setup_input_ports() ;
-
+	void setup_input_ports();
 
 	InPort *tx_in_, *rx_in_;
-	itpp::BERC berc;
-
 	itpp::Vec< int32_t > *tx_vec, *rx_vec;
 
+	itpp::BERC berc;
 };
 
 
@@ -45,23 +42,15 @@ Block_BitErrorCount::Block_BitErrorCount()
 
 Block_BitErrorCount::~Block_BitErrorCount()
 {
-#ifndef NDEBUG
-	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
-#endif
 	berc.report();
 }
 
 
 
-void Block_BitErrorCount::configure_parameters() { }
-
-
-
-bool Block_BitErrorCount::setup_input_ports()
+void Block_BitErrorCount::setup_input_ports()
 {
 	tx_in_ = add_port(new InPort("tx", int32, 0, 0));
 	rx_in_ = add_port(new InPort("rx", int32, 0, 0));
-	return true;
 }
 
 

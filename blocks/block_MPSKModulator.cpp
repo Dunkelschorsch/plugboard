@@ -8,7 +8,7 @@
 #include <itpp/comm/modulator.h>
 
 
-static const std::string BLOCK_NAME = "MPSKModulator";
+static const char* BLOCK_NAME = "MPSKModulator";
 
 
 class Block_MPSKModulator : public Block, public Sink, public Source
@@ -16,15 +16,14 @@ class Block_MPSKModulator : public Block, public Sink, public Source
 public:
 
 	Block_MPSKModulator();
-	~Block_MPSKModulator();
 
 	void process();
 	void initialize();
 
 private:
 	void configure_parameters();
-	bool setup_input_ports();
-	bool setup_output_ports();
+	void setup_input_ports();
+	void setup_output_ports();
 
 
 	InPort* bits_in_;
@@ -52,24 +51,16 @@ Block_MPSKModulator::Block_MPSKModulator()
 
 
 
-Block_MPSKModulator::~Block_MPSKModulator()
-{
-}
-
-
-
-bool Block_MPSKModulator::setup_input_ports()
+void Block_MPSKModulator::setup_input_ports()
 {
 	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
-	return true;
 }
 
 
 
-bool Block_MPSKModulator::setup_output_ports()
+void Block_MPSKModulator::setup_output_ports()
 {
 	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(), bits_in_->get_frame_size()));
-	return true;
 }
 
 
@@ -124,7 +115,6 @@ void Block_MPSKModulator::process()
 	std::cout << *symbol_vector_ << std::endl;
 #endif	
 }
-
 
 
 ACCESS_FUNCS(MPSKModulator)

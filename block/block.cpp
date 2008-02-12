@@ -80,6 +80,8 @@ Block::Block() : base() { }
 Block::~Block() { }
 
 
+
+void Block::configure_parameters() { }
 void Block::initialize() { }
 void Block::advance() { }
 

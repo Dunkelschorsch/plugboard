@@ -19,11 +19,10 @@ public:
 	void process();
 
 private:
-
 	void configure_parameters();
 
-	bool setup_input_ports();
-	bool setup_output_ports();
+	void setup_input_ports();
+	void setup_output_ports();
 
 	/* member variable declarations go here */
 	OutPort *sig_out1_;
@@ -32,23 +31,20 @@ private:
 
 
 
-bool Block_1in1out::setup_input_ports()
+void Block_1in1out::setup_input_ports()
 {
 	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
-
-	return true;
 }
 
 
 
-bool Block_1in1out::setup_output_ports()
+void Block_1in1out::setup_output_ports()
 {
 	type_t out_type = sig_in1_->get_type();
 	real_t out_Ts = sig_in1_->get_Ts();
 	uint32_t out_size = sig_in1_->get_frame_size();
 
 	sig_out1_ = add_port( new OutPort("out1", out_type, out_Ts, out_size) );
-	return true;
 }
 
 

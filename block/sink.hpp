@@ -16,7 +16,7 @@ public:
 	Sink();
 	virtual ~Sink();
 
-	virtual bool setup_input_ports() = 0;
+	virtual void setup_input_ports() = 0;
 	uint16_t get_num_input_ports() const;
 
 	InPort::store_t * get_port_list();

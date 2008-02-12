@@ -59,7 +59,7 @@ public:
 	void set_name_sys(const std::string& name_sys);
 
 protected:
-	virtual void configure_parameters() = 0;
+	virtual void configure_parameters();
 
 	void add_parameter(Parameter * const);
 

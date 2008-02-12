@@ -26,7 +26,7 @@ public:
 private:
 	void configure_parameters();
 
-	bool setup_output_ports();
+	void setup_output_ports();
 
 	/* member variable declarations go here */
 	OutPort *sig_out_;
@@ -63,12 +63,10 @@ void Block_1out::configure_parameters()
 
 
 
-bool Block_1out::setup_output_ports()
+void Block_1out::setup_output_ports()
 {
 	/* calls to "add_port(OutPort &) go here */
 	sig_out_ = add_port(new OutPort("out1", int32, Ts_[0], framesize_[0]));
-
-	return true;
 }
 
 

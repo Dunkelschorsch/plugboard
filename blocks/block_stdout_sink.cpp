@@ -29,11 +29,11 @@ private:
 	void configure_parameters() ;
 
 #ifdef HAS_INPUTS
-	bool setup_input_ports() ;
+	void setup_input_ports() ;
 #endif
 
 #ifdef HAS_OUTPUTS
-	bool setup_output_ports() ;
+	void setup_output_ports() ;
 #endif
 
 	InPort *sig_in_;
@@ -54,19 +54,19 @@ void Block_stdout_sink::configure_parameters()
 
 
 #ifdef HAS_INPUTS
-bool Block_stdout_sink::setup_input_ports()
+void Block_stdout_sink::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", empty, 0, 0));
-	return true;
+	
 }
 #endif
 
 
 #ifdef HAS_OUTPUTS
-bool Block_stdout_sink::setup_output_ports()
+void Block_stdout_sink::setup_output_ports()
 {
 	/* calls to "add_port(OutPort &) go here */
-	return true;
+	
 }
 #endif
 

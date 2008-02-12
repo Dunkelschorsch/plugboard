@@ -19,38 +19,31 @@ public:
 	void process();
 
 private:
-
-	void configure_parameters() ;
-
-	bool setup_input_ports() ;
-	bool setup_output_ports() ;
+	void setup_input_ports() ;
+	void setup_output_ports() ;
 
 	/* member variable declarations go here */
 	OutPort *sig_out1_, *sig_out2_;
 	InPort *sig_in1_;
 
-	const itpp::ivec * in_;
+	const itpp::ivec *in_;
 	itpp::ivec *out1_, *out2_;
 };
 
 
-bool Block_1in2out::setup_input_ports()
+void Block_1in2out::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
 	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
-
-	return true;
 }
 
 
 
-bool Block_1in2out::setup_output_ports()
+void Block_1in2out::setup_output_ports()
 {
 	/* calls to "add_port(OutPort &) go here */
 	sig_out1_ = add_port(new OutPort("out1", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
 	sig_out2_ = add_port(new OutPort("out2", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
-
-	return true;
 }
 
 
@@ -62,13 +55,6 @@ void Block_1in2out::initialize( )
 	out2_ = get_signal< int32_t >(sig_out2_);
 }
 
-
-
-void Block_1in2out::configure_parameters()
-{
-	/* calls to "add_parameter()" go here */
-	
-}
 
 
 void Block_1in2out::process()

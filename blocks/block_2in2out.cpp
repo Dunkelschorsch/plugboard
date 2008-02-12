@@ -24,11 +24,11 @@ private:
 	void configure_parameters() ;
 
 #ifdef HAS_INPUTS
-	bool setup_input_ports() ;
+	void setup_input_ports() ;
 #endif
 
 #ifdef HAS_OUTPUTS
-	bool setup_output_ports() ;
+	void setup_output_ports() ;
 #endif
 
 /* member variable declarations go here */
@@ -38,25 +38,25 @@ private:
 
 
 #ifdef HAS_INPUTS
-bool Block_2in2out::setup_input_ports()
+void Block_2in2out::setup_input_ports()
 {
 /* calls to "add_port(InPort &) go here */
 	sig_in1_ = add_port(new InPort("in1"));
 	sig_in2_ = add_port(new InPort("in2"));
 
-	return true;
+	
 }
 #endif
 
 
 #ifdef HAS_OUTPUTS
-bool Block_2in2out::setup_output_ports()
+void Block_2in2out::setup_output_ports()
 {
 /* calls to "add_port(OutPort &) go here */
 	sig_out1_ = add_port(new OutPort("out1", sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
 	sig_out2_ = add_port(new OutPort("out2", sig_in2_->get_type(), sig_in2_->get_Ts(), sig_in2_->get_frame_size()));
 
-	return true;
+	
 }
 #endif
 

@@ -19,7 +19,7 @@ public:
 	Source();
 	virtual ~Source();
 
-	virtual bool setup_output_ports() = 0;
+	virtual void setup_output_ports() = 0;
 	uint16_t get_num_output_ports() const;
 
 	OutPort::store_t * get_port_list();

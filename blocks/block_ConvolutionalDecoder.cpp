@@ -18,16 +18,15 @@ class Block_ConvolutionalDecoder : public Block, public Sink, public Source
 public:
 
 	Block_ConvolutionalDecoder();
-	~Block_ConvolutionalDecoder();
 
 	void process();
-
 	void initialize();
+
 private:
 
 	void configure_parameters();
-	bool setup_input_ports();
-	bool setup_output_ports();
+	void setup_input_ports();
+	void setup_output_ports();
 
 	// input signals
 	InPort* sig_in_;
@@ -61,26 +60,18 @@ Block_ConvolutionalDecoder::Block_ConvolutionalDecoder()
 
 
 
-Block_ConvolutionalDecoder::~Block_ConvolutionalDecoder()
-{
-}
-
-
-
-bool Block_ConvolutionalDecoder::setup_input_ports()
+void Block_ConvolutionalDecoder::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", real, Ts_[0], framesize_[0]));
-	return true;
 }
 
 
 
-bool Block_ConvolutionalDecoder::setup_output_ports()
+void Block_ConvolutionalDecoder::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(),
 		sig_in_->get_frame_size() / static_cast< int32_t >(1/code_rate_[0])
 		- constraint_length_[0]+1));
-	return true;
 }
 
 
@@ -88,7 +79,6 @@ bool Block_ConvolutionalDecoder::setup_output_ports()
 void Block_ConvolutionalDecoder::initialize()
 {
 	in_vector_ = get_signal< real_t >(sig_in_);
-
 	out_vector_ = get_signal< int32_t >(sig_out_);
 
 	code = itpp::Convolutional_Code();

@@ -15,25 +15,22 @@ class Block_randunibitgen : public Block, public Source
 public:
 
 	Block_randunibitgen();
-	~Block_randunibitgen();
 
 	void process();
-
 	void initialize();
+
 private:
 	void configure_parameters();
 
-	bool setup_output_ports();
+	void setup_output_ports();
+
 
 	OutPort *bits_out_;
 	itpp::ivec *i_vector_;
 
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
-
 	int32_vec_t hi_, lo_;
-
-
 };
 
 
@@ -47,12 +44,9 @@ Block_randunibitgen::Block_randunibitgen()
 
 
 
-bool Block_randunibitgen::setup_output_ports()
+void Block_randunibitgen::setup_output_ports()
 {
-	// calls to "add_port(OutPort *) go here
 	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
-
-	return true;
 }
 
 
@@ -67,7 +61,6 @@ void Block_randunibitgen::initialize()
 
 void Block_randunibitgen::configure_parameters()
 {
-	// calls to "add_parameter()" go here
 	add_parameter
 	(
 		(new Parameter(&Ts_, real, "Sample Time"))
@@ -85,14 +78,14 @@ void Block_randunibitgen::configure_parameters()
 	add_parameter
 	(
 		(new Parameter(&lo_, int32, "Minimum value"))
-// 		->add_constraint(new GreaterThanConstraint< int32_t >(0))
+		->add_constraint(new LessThanConstraint< int32_t >(0, true))
 		->add_constraint(new SizeConstraint(1))
 	);
 
 	add_parameter
 	(
 		(new Parameter(&hi_, int32, "Maximum value"))
-// 		->add_constraint(new GreaterThanConstraint< int32_t >(0))
+		->add_constraint(new LessThanConstraint< int32_t >(0, true))
 		->add_constraint(new SizeConstraint(1))
 	);
 }
@@ -107,10 +100,6 @@ void Block_randunibitgen::process()
 	std::cout << " generated: " << *i_vector_ << std::endl;
 #endif
 }
-
-
-
-Block_randunibitgen::~Block_randunibitgen() { }
 
 
 
