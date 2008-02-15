@@ -19,6 +19,7 @@ using std::memcpy;
 Variable::Variable() :
 	dims_(std::vector< uint16_t >()),
 	numel_(0),
+	allocated_(0),
 	size_(0),
 	data_(NULL),
 	type_(empty)
@@ -30,11 +31,30 @@ Variable::Variable() :
 Variable::Variable(const Variable & other) :
 	dims_(other.dims_),
 	numel_(other.numel_),
+	allocated_(other.allocated_),
 	size_(other.size_),
 	data_(NULL),
 	type_(other.type_)
 {
 	this->data_ = malloc(this->size_);
+
+
+	if(type_ == string)
+	{
+		for(size_t i=0; i<numel_; ++i)
+		{
+			static_cast< string_t** >(data_)[i] =
+				new string_t(*static_cast< string_t** >(other.data_)[i]);
+		}
+	} else
+	if(type_ == complex)
+	{
+		for(size_t i=0; i<numel_; ++i)
+		{
+			static_cast< complex_t** >(data_)[i] =
+				new complex_t(*static_cast< complex_t** >(other.data_)[i]);
+		}
+	} else
 	this->data_ = memcpy(this->data_, other.data_, this->size_);
 }
 
@@ -43,6 +63,7 @@ Variable::Variable(const Variable & other) :
 Variable::Variable(int32_t value) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
+	allocated_(1),
 	size_(sizeof(int32_t)),
 	data_(NULL),
 	type_(empty)
@@ -65,6 +86,7 @@ Variable::Variable(int32_t value) :
 Variable::Variable(real_t value) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
+	allocated_(1),
 	size_(sizeof(real_t)),
 	data_(NULL),
 	type_(empty)
@@ -87,13 +109,16 @@ Variable::Variable(real_t value) :
 Variable::Variable(const string_t& value) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
+	allocated_(1),
 	size_(sizeof(string_t)),
 	data_(NULL),
 	type_(empty)
 {
 	type_ = string;
+	assert(sizeof(value) == sizeof(void*));
 	data_ = malloc(sizeof(value));
-	static_cast< string_t* >(data_)[0] = string_t(value);
+
+	static_cast< string_t** >(data_)[0] = new string_t(value);
 
 	dims_.push_back(1);
 	dims_.push_back(1);
@@ -104,16 +129,45 @@ Variable::Variable(const string_t& value) :
 Variable::Variable(const complex_t& value) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
+	allocated_(1),
 	size_(sizeof(complex_t)),
 	data_(NULL),
 	type_(empty)
 {
 	type_ = complex;
-	data_ = malloc(sizeof(complex_t));
-	static_cast< complex_t* >(data_)[0] = complex_t(value);
+	assert(sizeof(value) == sizeof(void*));
+	data_ = malloc(sizeof(value));
+
+	static_cast< complex_t** >(data_)[0] = new complex_t(value);
 
 	dims_.push_back(1);
 	dims_.push_back(1);
+}
+
+
+template< >
+void Variable::push_back(const string_t e)
+{
+	if(type_ == empty)
+		type_ = typeinfo< string_t >::value;
+
+	data_ = realloc(data_, typeinfo< string_t >::size * (numel_+1));
+	static_cast< string_t** >(data_)[numel_++] = new string_t(e);
+
+	size_ += typeinfo< string_t >::size;
+}
+
+
+template< >
+void Variable::push_back(const complex_t e)
+{
+	if(type_ == empty)
+		type_ = typeinfo< complex_t >::value;
+
+	data_ = realloc(data_, typeinfo< complex_t >::size * (numel_+1));
+	static_cast< complex_t** >(data_)[numel_++] = new complex_t(e);
+
+	size_ += typeinfo< complex_t >::size;
 }
 
 
@@ -233,6 +287,16 @@ const std::vector< uint16_t >& Variable::get_dimensions( ) const
 
 Variable::~ Variable()
 {
+	if(type_ == string)
+	{
+		for(size_t i=0; i<numel_; ++i)
+			delete static_cast< string_t** >(data_)[i];
+	}
+	if(type_ == complex)
+	{
+		for(size_t i=0; i<numel_; ++i)
+			delete static_cast< complex_t** >(data_)[i];
+	}
 	free(data_);
 }
 
@@ -251,6 +315,18 @@ void Variable::swap(Variable & other)
 	swap(this->type_, other.type_);
 	swap(this->dims_, other.dims_);
 	swap(this->numel_, other.numel_);
+	swap(this->allocated_, other.allocated_);
 	swap(this->size_, other.size_);
 	swap(this->data_, other.data_);
+}
+
+
+
+void Variable::prealloc( size_t new_size )
+{
+	if(new_size > allocated_)
+	{
+		data_ = realloc(data_, new_size);
+		allocated_ = new_size;
+	}
 }

@@ -48,6 +48,7 @@ public:
 
 	size_t size() const;
 
+	void prealloc(size_t);
 protected:
 
 	template< typename oldT, typename newT >
@@ -58,11 +59,11 @@ protected:
 	std::vector< uint16_t > dims_;
 
 	uint64_t numel_;
+	uint64_t allocated_;
 	uint64_t size_;
 	void *data_;
 	type_t type_;
 };
-
 
 
 
@@ -72,12 +73,19 @@ void Variable::push_back(const ElementT e)
 	if(type_ == empty)
 		type_ = typeinfo< ElementT >::value;
 
-	data_ = realloc(data_, typeinfo< ElementT >::size * (numel_+1));
+	if(allocated_ == numel_)
+	{
+#ifndef NDEBUG
+		std::cout << "reallocating..." << std::endl;
+#endif
+		data_ = realloc(data_, typeinfo< ElementT >::size * (numel_+1));
+		allocated_ = numel_+1;
+	}
+
 	static_cast< ElementT* >(data_)[numel_++] = static_cast< const ElementT >(e);
 
 	size_ += typeinfo< ElementT >::size;
 }
-
 
 
 template< typename oldT, typename newT >
