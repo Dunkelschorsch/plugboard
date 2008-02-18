@@ -4,7 +4,7 @@
 #include <boost/pool/detail/singleton.hpp>
 #include <map>
 #include <string>
-class System;
+#include "system.hpp"
 class Subsystem;
 
 
