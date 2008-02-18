@@ -2,11 +2,12 @@
 #include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
+#include "constraint.hpp"
 #include <iostream>
 
 #include <itpp/comm/error_counters.h>
 #include <itpp/itbase.h>
-#include <itpp/itcomm.h>
+// #include <itpp/itcomm.h>
 
 static const std::string BLOCK_NAME = "BitErrorCount";
 
@@ -22,12 +23,26 @@ public:
 
 private:
 	void setup_input_ports();
+	void configure_parameters();
 
 	InPort *tx_in_, *rx_in_;
 	itpp::Vec< int32_t > *tx_vec, *rx_vec;
 
 	itpp::BERC berc;
+
+	std::vector< std::string > filename_;
 };
+
+
+
+void Block_BitErrorCount::configure_parameters()
+{
+	add_parameter
+	(
+		(new Parameter(&filename_, string, "Filename to save"))
+// 		->add_constraint(new SizeConstraint(1))
+	);
+}
 
 
 
@@ -42,6 +57,7 @@ Block_BitErrorCount::Block_BitErrorCount()
 
 Block_BitErrorCount::~Block_BitErrorCount()
 {
+	std::cout << filename_[0] << std::endl;
 	berc.report();
 }
 
