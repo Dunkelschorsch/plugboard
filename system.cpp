@@ -304,9 +304,7 @@ void System::connect_ports(const std::string & block_source,
 			   const std::string & port_sink)
 {
 	H_D(System)
-#ifndef NDEBUG
-	std::cerr << "connect " << block_source << "->" << block_sink << std::endl;
-#endif
+
 	OutPort::store_t::iterator source_port_it;
 	InPort::store_t::iterator sink_port_it;
 
