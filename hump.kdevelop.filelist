@@ -92,3 +92,4 @@ blocks/block_MPSKDemodulator.cpp
 blocks/block_MPSKModulator.cpp
 blocks/block_ConvolutionalEncoder.cpp
 blocks/block_ConvolutionalDecoder.cpp
+grammar/command/new_parse.hpp

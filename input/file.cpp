@@ -3,29 +3,20 @@
 #include <boost/spirit/iterator/file_iterator.hpp>
 #include <boost/spirit/iterator/position_iterator.hpp>
 
-#include "grammar/command/command_parse.hpp"
+#include "grammar/command/new_parse.hpp"
+
 #include "input/file.hpp"
 #include "exceptions.hpp"
 
 
 struct HumpFile::HumpFileImpl
 {
-	HumpFileImpl();
-
-	arg_storage_t v;
-	CommandParser parser_;
+	new_command_parser parser_;
 };
 
 
 
-HumpFile::HumpFileImpl::HumpFileImpl() : parser_(v) { }
-
-
-
-HumpFile::HumpFile()
-{
-	d = new HumpFileImpl();
-}
+HumpFile::HumpFile() : d(new HumpFileImpl()) { }
 
 
 
@@ -38,15 +29,8 @@ HumpFile::~HumpFile()
 
 bool HumpFile::execute_command(const std::string& file_name)
 {
-	typedef file_iterator< char > file_iter_t;
-	typedef position_iterator2< file_iter_t > iterator_t;
-	typedef skip_parser_iteration_policy< space_parser > iter_policy_t;
-	typedef scanner_policies< iter_policy_t > scanner_policies_t;
-	typedef scanner< iterator_t, scanner_policies_t > scanner_t;
-	typedef rule< scanner_t > rule_t;
-
-	iter_policy_t iter_policy(space_p);
-	scanner_policies_t policies(iter_policy);
+	skip_parser_policy_t iter_policy(space_p);
+	scanner_policy_t policies(iter_policy);
 
 	// create a file_iterator
 	file_iter_t file_first(file_name);
@@ -63,28 +47,81 @@ bool HumpFile::execute_command(const std::string& file_name)
 	first.set_tabchars(8);
 	iterator_t last;
 
-	scanner_t scan(first, last, policies);
+	ast_scanner_t scan(first, last, policies);
 
-	boost::function< void() > f;
-// 	try
+ 	try
 	{
-		while(first != last && d->parser_[::phoenix::var(f)=::phoenix::arg1].parse(scan))
+		while(first != last)
 		{
-			f();
+			parse_tree_match_t hit = d->parser_.parse(scan);
+        		if (hit)
+			{
+#ifndef NDEBUG
+			// dump ast as XML
+			std::map< parser_id, std::string > rule_names;
+			rule_names[new_command_parser::integerID] = "integer";
+			rule_names[new_command_parser::primitiveID] = "primitive";
+			rule_names[new_command_parser::realID] = "realnum";
+			rule_names[new_command_parser::scalarfactorID] = "scalar_factor";
+			rule_names[new_command_parser::scalartermID] = "scalar_term";
+			rule_names[new_command_parser::scalarexpressionID] = "scalar_expression";
+			rule_names[new_command_parser::firstID] = "first";
+			rule_names[new_command_parser::arrayID] = "array";
+			rule_names[new_command_parser::rowvecID] = "row_vec";
+			rule_names[new_command_parser::variableID] = "variable";
+			rule_names[new_command_parser::assignmentID] = "assignment";
+			rule_names[new_command_parser::rangeID] = "n_range";
+			rule_names[new_command_parser::stringID] = "string";
+			rule_names[new_command_parser::scalarpotID] = "scalar_pot";
+			rule_names[new_command_parser::identifierID] = "identifier";
+			rule_names[new_command_parser::complexID] = "complex";
+			rule_names[new_command_parser::addblockID] = "add_block";
+			rule_names[new_command_parser::runID] = "run";
+			tree_to_xml(std::cout, hit.trees, first.get_currentline(), rule_names);
+#endif
+				if(identify_line(hit.trees.begin()) == new_command_parser::assignmentID)
+				{
+					eval_assignment(hit.trees.begin());
+				}
+				else if(identify_line(hit.trees.begin()) == new_command_parser::addblockID)
+				{
+					eval_add_block(hit.trees.begin());
+				}
+				else if(identify_line(hit.trees.begin()) == new_command_parser::connectID)
+				{
+					eval_connect(hit.trees.begin());
+				}
+				else if(identify_line(hit.trees.begin()) == new_command_parser::runID)
+				{
+					eval_run(hit.trees.begin());
+				}
+			}
+			else
+				break;
 		}
 	}
-// 	catch (HumpException< std::string >& e)
-// 	{
-// 		std::cout << "exception raised. cause: " << e.what() << std::endl;
-// 		return false;
-// 	}
-
+	catch (boost::spirit::parser_error< parse_errors, iterator_t >& e)
+	{
+		file_position pos(e.where.get_position());
+	
+		if(e.descriptor == opening_paren_expected)
+		{
+			std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline();
+			std::cout << " error: '(' expected." << std::endl;
+		}
+		if(e.descriptor == closing_paren_expected)
+		{
+			std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline();
+			std::cout << " error: ')' expected." << std::endl;
+		}
+		return false;
+	}
 
 	if(first != last)
 	{
 		file_position pos(first.get_position());
 		std::cout << "Syntax error in input file!" << std::endl;
-		std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline() << std::endl;
+		std::cout << pos.file << ":" << pos.line << " " << first.get_currentline() << std::endl;
 		return false;
 	}
 	return true;
