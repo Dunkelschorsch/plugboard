@@ -13,15 +13,9 @@ block/source.hpp
 block_loader.cpp
 block_loader.hpp
 blocks/CMakeLists.txt
-blocks/block_1in.cpp
-blocks/block_1in1out.cpp
 blocks/block_1in2out.cpp
 blocks/block_1out.cpp
-blocks/block_2in1out.cpp
 blocks/block_2in2out.cpp
-blocks/block_dummy2.cpp
-blocks/block_dummy3.cpp
-blocks/block_stdout_sink.cpp
 cmake
 exceptions.hpp
 exec_matrix.cpp
@@ -93,3 +87,5 @@ blocks/block_MPSKModulator.cpp
 blocks/block_ConvolutionalEncoder.cpp
 blocks/block_ConvolutionalDecoder.cpp
 grammar/command/new_parse.hpp
+blocks/block_ComposeComplex.cpp
+blocks/block_stdoutSink.cpp

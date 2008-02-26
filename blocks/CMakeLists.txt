@@ -1,21 +1,17 @@
 # FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
 
-
-
 foreach(
 	blockname
-	stdout_sink
 	2in2out
-	2in1out
-	1in2out
+	Fork
 	1out
-	1in
-	1in1out
+	stdoutSink
 	RandomUniformBitGenerator
 	MPSKModulator
 	MPSKDemodulator
 	BitErrorCount
 	AWGNChannel
+	ComposeComplex
 	ConvolutionalEncoder
 	ConvolutionalDecoder
 )
