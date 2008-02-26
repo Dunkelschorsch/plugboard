@@ -1,23 +1,18 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
 #include <itpp/itcomm.h>
-#include <itpp/comm/modulator.h>
-
-
-static const std::string BLOCK_NAME = "ConvolutionalEncoder";
 
 
 
-class Block_ConvolutionalEncoder : public Block, public Sink, public Source
+class HumpBlock : public Block, public Sink, public Source
 {
 public:
 
-	Block_ConvolutionalEncoder();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -50,23 +45,23 @@ private:
 
 
 
-Block_ConvolutionalEncoder::Block_ConvolutionalEncoder()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("ConvolutionalEncoder");
 	set_description("Encoder for Convolutional Codes");
 	configure_parameters();
 }
 
 
 
-void Block_ConvolutionalEncoder::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", int32, Ts_[0], framesize_[0]));
 }
 
 
 
-void Block_ConvolutionalEncoder::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(),
 		static_cast< int32_t >(1/code_rate_[0])
@@ -75,7 +70,7 @@ void Block_ConvolutionalEncoder::setup_output_ports()
 
 
 
-void Block_ConvolutionalEncoder::initialize()
+void HumpBlock::initialize()
 {
 	in_vector_ = get_signal< int32_t >(sig_in_);
 	out_vector_ = get_signal< int32_t >(sig_out_);
@@ -95,7 +90,7 @@ void Block_ConvolutionalEncoder::initialize()
 
 
 
-void Block_ConvolutionalEncoder::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -134,7 +129,7 @@ void Block_ConvolutionalEncoder::configure_parameters()
 
 
 
-void Block_ConvolutionalEncoder::process()
+void HumpBlock::process()
 {
 
 #ifndef NDEBUG
@@ -150,5 +145,4 @@ void Block_ConvolutionalEncoder::process()
 }
 
 
-
-ACCESS_FUNCS(ConvolutionalEncoder)
+#include "block/create.hpp"

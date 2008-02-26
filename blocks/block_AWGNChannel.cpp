@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
@@ -8,14 +7,12 @@
 #include <itpp/itcomm.h>
 
 
-static const std::string BLOCK_NAME = "AWGNChannel";
 
-
-class Block_AWGNChannel : public Block, public Sink, public Source
+class HumpBlock : public Block, public Sink, public Source
 {
 public:
 
-	Block_AWGNChannel();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -44,30 +41,30 @@ private:
 
 
 
-Block_AWGNChannel::Block_AWGNChannel()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("AWGNChannel");
 	set_description("Additive White Gaussian Noise Channel");
 	configure_parameters();
 }
 
 
 
-void Block_AWGNChannel::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
 }
 
 
 
-void Block_AWGNChannel::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", complex, sig_in_->get_Ts(), sig_in_->get_frame_size()));
 }
 
 
 
-void Block_AWGNChannel::initialize()
+void HumpBlock::initialize()
 {
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
@@ -77,7 +74,7 @@ void Block_AWGNChannel::initialize()
 
 
 
-void Block_AWGNChannel::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -103,7 +100,7 @@ void Block_AWGNChannel::configure_parameters()
 
 
 
-void Block_AWGNChannel::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " symbols in: " ;
@@ -119,4 +116,4 @@ void Block_AWGNChannel::process()
 }
 
 
-ACCESS_FUNCS(AWGNChannel)
+#include "block/create.hpp"

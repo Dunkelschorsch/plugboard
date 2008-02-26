@@ -6,7 +6,6 @@
 #include <boost/bind.hpp>
 
 #include "pimpl/pimpl.h"
-#include "block/create.hpp"
 #include "block/port_traits.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"

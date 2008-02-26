@@ -19,7 +19,6 @@ struct pimpl< BlockLoader >::implementation
 	~implementation();
 
 	typedef Block* (*create_block_func_t) (void);
-	typedef const std::string (*get_block_name_func_t) (void);
 	typedef Factory
 		<
 			Block,
@@ -75,20 +74,15 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 		if (fs::is_directory(*block_iter))
 		{
 			if (recursive)
-			{
 				block_count += load_dir((block_path/block_iter->leaf()).native_directory_string());
-			}
 			else
-			{
 				continue;
-			}
 		}
+
 		std::string block_file_curr = (block_path/block_iter->leaf()).native_directory_string();
 
 		if (block_file_curr.rfind(".so") == std::string::npos)
-		{
 			continue;
-		}
 
 		lt_dlhandle module = lt_dlopen(block_file_curr.c_str());
 		
@@ -96,15 +90,15 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 		{
 			std::cerr << "Loading module file '" << block_file_curr << "' ... ";
 			implementation::create_block_func_t create = 0;
-			implementation::get_block_name_func_t name = 0;
+
+			std::string block_id;
+			block_id = block_file_curr.substr(9+block_file_curr.find("libblock_"));
+			block_id = std::string(block_id.begin(), block_id.end()-3);
 
 			create = reinterpret_cast< implementation::create_block_func_t >(lt_dlsym(module, "create"));
-			name = reinterpret_cast< implementation::get_block_name_func_t >(lt_dlsym(module, "name"));
 
-			if (create && name)
+			if (create)
 			{
-				const std::string block_id = name();
-
 				if (!(*this)->f_.Register(block_id, create))
 				{
 					std::cerr << "already exists." << std::endl;
@@ -116,9 +110,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 				(*this)->available_blocks_.push_back(block_id);
 			}
 		} else
-		{
 			std::cerr << lt_dlerror() << " ... ignoring" << std::endl;
-		}
 	}
 	return block_count;
 }

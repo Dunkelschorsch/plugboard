@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
@@ -11,11 +10,11 @@
 static const char* BLOCK_NAME = "MPSKModulator";
 
 
-class Block_MPSKModulator : public Block, public Sink, public Source
+class HumpBlock : public Block, public Sink, public Source
 {
 public:
 
-	Block_MPSKModulator();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -42,7 +41,7 @@ private:
 
 
 
-Block_MPSKModulator::Block_MPSKModulator()
+HumpBlock::HumpBlock()
 {
 	set_name(BLOCK_NAME);
 	set_description("M-Ary PSK Modulator");
@@ -51,21 +50,21 @@ Block_MPSKModulator::Block_MPSKModulator()
 
 
 
-void Block_MPSKModulator::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
 }
 
 
 
-void Block_MPSKModulator::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(), bits_in_->get_frame_size()));
 }
 
 
 
-void Block_MPSKModulator::initialize()
+void HumpBlock::initialize()
 {
 	bit_vector_ = get_signal< int32_t >(bits_in_);
 	symbol_vector_ = get_signal< complex_t >(symbols_out_);
@@ -75,7 +74,7 @@ void Block_MPSKModulator::initialize()
 
 
 
-void Block_MPSKModulator::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -101,7 +100,7 @@ void Block_MPSKModulator::configure_parameters()
 
 
 
-void Block_MPSKModulator::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " bits: ";
@@ -117,4 +116,4 @@ void Block_MPSKModulator::process()
 }
 
 
-ACCESS_FUNCS(MPSKModulator)
+#include "block/create.hpp"

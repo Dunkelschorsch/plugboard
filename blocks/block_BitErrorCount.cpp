@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "constraint.hpp"
@@ -7,16 +6,15 @@
 
 #include <itpp/comm/error_counters.h>
 #include <itpp/itbase.h>
-// #include <itpp/itcomm.h>
 
-static const std::string BLOCK_NAME = "BitErrorCount";
 
-class Block_BitErrorCount : public Block, public Sink
+
+class HumpBlock : public Block, public Sink
 {
 public:
 
-	Block_BitErrorCount();
-	~Block_BitErrorCount();
+	HumpBlock();
+	~HumpBlock();
 
 	void initialize();
 	void process();
@@ -35,35 +33,37 @@ private:
 
 
 
-void Block_BitErrorCount::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
 		(new Parameter(&filename_, string, "Filename to save"))
-// 		->add_constraint(new SizeConstraint(1))
+		->add_constraint(new SizeConstraint(1))
 	);
 }
 
 
 
-Block_BitErrorCount::Block_BitErrorCount()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("BitErrorCount");
 	set_description("This is a block for testing purposes. It has 2 inputs and 1 outputs.");
 	configure_parameters();
 }
 
 
 
-Block_BitErrorCount::~Block_BitErrorCount()
+HumpBlock::~HumpBlock()
 {
+#ifndef NDEBUG
 	std::cout << filename_[0] << std::endl;
+#endif
 	berc.report();
 }
 
 
 
-void Block_BitErrorCount::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	tx_in_ = add_port(new InPort("tx", int32, 0, 0));
 	rx_in_ = add_port(new InPort("rx", int32, 0, 0));
@@ -71,7 +71,7 @@ void Block_BitErrorCount::setup_input_ports()
 
 
 
-void Block_BitErrorCount::initialize()
+void HumpBlock::initialize()
 {
 	tx_vec = get_signal< int32_t >(tx_in_);
 	rx_vec = get_signal< int32_t >(rx_in_);
@@ -81,7 +81,7 @@ void Block_BitErrorCount::initialize()
 
 
 
-void Block_BitErrorCount::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -93,5 +93,4 @@ void Block_BitErrorCount::process()
 }
 
 
-
-ACCESS_FUNCS(BitErrorCount)
+#include "block/create.hpp"

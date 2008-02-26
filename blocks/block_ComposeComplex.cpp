@@ -1,25 +1,23 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
+
 #include <itpp/itbase.h>
 #include <iostream>
 
 
 
-static const std::string BLOCK_NAME = "ComposeComplex";
-
-class Block_ComposeComplex : public Block, public Source, public Sink
+class HumpBlock : public Block, public Source, public Sink
 {
 public:
 
-	Block_ComposeComplex();
+	HumpBlock();
 	void process();
 	void initialize();
 
 private:
-	void setup_input_ports() ;
-	void setup_output_ports() ;
+	void setup_input_ports();
+	void setup_output_ports();
 
 	template< typename T >
 	void do_compose();
@@ -35,7 +33,7 @@ private:
 
 
 
-void Block_ComposeComplex::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	real_in_ = add_port(new InPort("real", empty, 0, 0));
 	imag_in_ = add_port(new InPort("imag", empty, 0, 0));
@@ -43,13 +41,13 @@ void Block_ComposeComplex::setup_input_ports()
 
 
 
-void Block_ComposeComplex::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	complex_out_ = add_port(new OutPort("complex", complex, real_in_->get_Ts(), real_in_->get_frame_size()));
 }
 
 
-void Block_ComposeComplex::initialize()
+void HumpBlock::initialize()
 {
 	input_type_ = real_in_->get_type();
 	if(input_type_ == int32)
@@ -67,7 +65,7 @@ void Block_ComposeComplex::initialize()
 
 
 template< typename T >
-void Block_ComposeComplex::do_compose()
+void HumpBlock::do_compose()
 {
 	*v_complex_ = to_cvec(
 		to_vec(*static_cast< const itpp::Vec<T>* >(v_real_)),
@@ -80,7 +78,7 @@ void Block_ComposeComplex::do_compose()
 }
 
 
-void Block_ComposeComplex::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -96,12 +94,12 @@ void Block_ComposeComplex::process()
 }
 
 
-Block_ComposeComplex::Block_ComposeComplex()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("ComposeComplex");
 	set_description("Create a complex signal out of two real valued signals.");
 	configure_parameters();
 }
 
 
-ACCESS_FUNCS(ComposeComplex)
+#include "block/create.hpp"

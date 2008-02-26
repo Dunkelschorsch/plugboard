@@ -1,23 +1,18 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
 #include <itpp/itcomm.h>
-#include <itpp/comm/modulator.h>
-
-
-static const std::string BLOCK_NAME = "ConvolutionalDecoder";
 
 
 
-class Block_ConvolutionalDecoder : public Block, public Sink, public Source
+class HumpBlock : public Block, public Sink, public Source
 {
 public:
 
-	Block_ConvolutionalDecoder();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -51,23 +46,23 @@ private:
 
 
 
-Block_ConvolutionalDecoder::Block_ConvolutionalDecoder()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("ConvolutionalDecoder");
 	set_description("Decoder for Convolutional Codes");
 	configure_parameters();
 }
 
 
 
-void Block_ConvolutionalDecoder::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", real, Ts_[0], framesize_[0]));
 }
 
 
 
-void Block_ConvolutionalDecoder::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(),
 		sig_in_->get_frame_size() / static_cast< int32_t >(1/code_rate_[0])
@@ -76,7 +71,7 @@ void Block_ConvolutionalDecoder::setup_output_ports()
 
 
 
-void Block_ConvolutionalDecoder::initialize()
+void HumpBlock::initialize()
 {
 	in_vector_ = get_signal< real_t >(sig_in_);
 	out_vector_ = get_signal< int32_t >(sig_out_);
@@ -95,7 +90,7 @@ void Block_ConvolutionalDecoder::initialize()
 
 
 
-void Block_ConvolutionalDecoder::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -134,7 +129,7 @@ void Block_ConvolutionalDecoder::configure_parameters()
 
 
 
-void Block_ConvolutionalDecoder::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
@@ -143,6 +138,4 @@ void Block_ConvolutionalDecoder::process()
 	*out_vector_ = itpp::to_ivec(code.decode(*in_vector_));
 }
 
-
-
-ACCESS_FUNCS(ConvolutionalDecoder)
+#include "block/create.hpp"

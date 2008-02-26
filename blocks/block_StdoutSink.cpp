@@ -1,18 +1,14 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include <iostream>
 
 
 
-static const std::string BLOCK_NAME = "stdoutSink";
-
-class Block_stdoutSink : public Block, public Sink
+class HumpBlock : public Block, public Sink
 {
 public:
-	Block_stdoutSink();
-	~Block_stdoutSink();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -23,19 +19,17 @@ private:
 	void do_display();
 
 	const InPort *sig_in_;
-
 	const void *input_;
 };
 
 
-
-void Block_stdoutSink::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
-	sig_in_ = add_port(new InPort("in", empty, 0, 0));
+	sig_in_ = add_port(new InPort("in"));
 }
 
 
-void Block_stdoutSink::initialize( )
+void HumpBlock::initialize( )
 {
 	if(sig_in_->get_type() == int32)
 		input_ = get_signal< int32_t >(sig_in_);
@@ -47,13 +41,13 @@ void Block_stdoutSink::initialize( )
 
 
 template< typename T >
-void Block_stdoutSink::do_display()
+void HumpBlock::do_display()
 {
 	std::cout << *static_cast< const itpp::Vec<T>* >(input_) << std::endl;
 }
 
 
-void Block_stdoutSink::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -68,20 +62,15 @@ void Block_stdoutSink::process()
 }
 
 
-Block_stdoutSink::Block_stdoutSink()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("StdoutSink");
 	set_description("Display input signal on standard output.");
 	configure_parameters();
 #ifndef NDEBUG
-	std::cout << "Contructed Block_" << BLOCK_NAME << "!" << std::endl;
+	std::cout << "Contructed Block_" << get_name() << "!" << std::endl;
 #endif
 }
 
 
-Block_stdoutSink::~Block_stdoutSink()
-{
-}
-
-
-ACCESS_FUNCS(stdoutSink)
+#include "block/create.hpp"

@@ -14,8 +14,6 @@ block_loader.cpp
 block_loader.hpp
 blocks/CMakeLists.txt
 blocks/block_1in2out.cpp
-blocks/block_1out.cpp
-blocks/block_2in2out.cpp
 cmake
 exceptions.hpp
 exec_matrix.cpp

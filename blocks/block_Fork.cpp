@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
@@ -8,14 +7,14 @@
 #include <iostream>
 #include <cstdio>
 
-static const std::string BLOCK_NAME = "Fork";
 
-class Block_Fork : public Block, public Source, public Sink
+
+class HumpBlock : public Block, public Source, public Sink
 {
 public:
 
-	Block_Fork();
-	~Block_Fork();
+	HumpBlock();
+	~HumpBlock();
 
 	void initialize();
 	void process();
@@ -39,7 +38,7 @@ private:
 };
 
 
-void Block_Fork::configure_parameters( )
+void HumpBlock::configure_parameters( )
 {
 	add_parameter
 	(
@@ -51,24 +50,23 @@ void Block_Fork::configure_parameters( )
 }
 
 
-void Block_Fork::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	/* calls to "add_port(InPort &) go here */
-	sig_in1_ = add_port(new InPort("in1", empty, 0, 0));
+	sig_in1_ = add_port(new InPort("in", empty, 0, 0));
 }
 
 
-void Block_Fork::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	// only reserve that memory once
 	if(num_output_ports_ != num_outputs_[0])
-		sig_out_ = new OutPort*[num_outputs_[0]];
+		sig_out_ = new OutPort* [num_outputs_[0]];
 
 	for(int32_t i=0; i<num_outputs_[0]; ++i)
 	{
-		char str[3];
-		std::sprintf(str, "%d", i+1);
-		std::string portname = std::string("out")+std::string(str);
+		char portname[6];
+		std::sprintf(portname, "out%d", i+1);
 
 		sig_out_[i] = add_port(new OutPort(portname,
 			sig_in1_->get_type(), sig_in1_->get_Ts(), sig_in1_->get_frame_size()));
@@ -76,9 +74,9 @@ void Block_Fork::setup_output_ports()
 }
 
 
-void Block_Fork::initialize( )
+void HumpBlock::initialize( )
 {
-	v_out_ = new void*[num_outputs_[0]];
+	v_out_ = new void* [num_outputs_[0]];
 
 	input_type_ = sig_in1_->get_type();
 
@@ -94,7 +92,7 @@ void Block_Fork::initialize( )
 
 
 template< typename T >
-void Block_Fork::do_fork()
+void HumpBlock::do_fork()
 {
 #ifndef NDEBUG
 		std::cout << " in:  " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
@@ -112,7 +110,7 @@ void Block_Fork::do_fork()
 }
 
 
-void Block_Fork::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
@@ -126,18 +124,18 @@ void Block_Fork::process()
 }
 
 
-Block_Fork::Block_Fork()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
-	set_description("This is a block for testing purposes. It has 1 inputs and 2 outputs.");
+	set_name("Fork");
+	set_description("Clone the input to an arbitrary, user-defined number of outputs.");
 	configure_parameters();
 }
 
 
-Block_Fork::~Block_Fork()
+HumpBlock::~HumpBlock()
 {
 #ifndef NDEBUG
-	std::cout << "Bye from Block_" << BLOCK_NAME << "!" << std::endl;
+	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
 #endif
 	if(is_configured())
 	{
@@ -147,4 +145,4 @@ Block_Fork::~Block_Fork()
 }
 
 
-ACCESS_FUNCS(Fork)
+#include "block/create.hpp"

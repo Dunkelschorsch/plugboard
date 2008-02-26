@@ -2,7 +2,7 @@ project (HUMP)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
-SET(CMAKE_CC_FLAGS "-Wall -ansi -pipe -fvisibility=hidden" CACHE STRING "Hallo")
+SET(CMAKE_CC_FLAGS "-Wall -ansi -pipe -fvisibility=hidden" CACHE STRING "This is appended to the C++ flags of each mode.")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CC_FLAGS}")
 
 SET(CMAKE_CC_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -s" CACHE STRING "This is appended to the C++ flags in release mode.")

@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
@@ -11,11 +10,11 @@
 static const std::string BLOCK_NAME = "MPSKDemodulator";
 
 
-class Block_MPSKDemodulator : public Block, public Sink, public Source
+class HumpBlock : public Block, public Sink, public Source
 {
 public:
 
-	Block_MPSKDemodulator();
+	HumpBlock();
 
 	void process();
 	void initialize();
@@ -46,7 +45,7 @@ private:
 
 
 
-Block_MPSKDemodulator::Block_MPSKDemodulator()
+HumpBlock::HumpBlock()
 {
 	set_name(BLOCK_NAME);
 	set_description("M-Ary PSK Demodulator");
@@ -55,7 +54,7 @@ Block_MPSKDemodulator::Block_MPSKDemodulator()
 
 
 
-void Block_MPSKDemodulator::setup_input_ports()
+void HumpBlock::setup_input_ports()
 {
 	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
 	
@@ -63,7 +62,7 @@ void Block_MPSKDemodulator::setup_input_ports()
 
 
 
-void Block_MPSKDemodulator::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	if(soft_demod_[0] == 1)
 		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
@@ -74,7 +73,7 @@ void Block_MPSKDemodulator::setup_output_ports()
 
 
 
-void Block_MPSKDemodulator::initialize()
+void HumpBlock::initialize()
 {
 	if(soft_demod_[0] == 1)
 	{
@@ -90,7 +89,7 @@ void Block_MPSKDemodulator::initialize()
 
 
 
-void Block_MPSKDemodulator::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -123,7 +122,7 @@ void Block_MPSKDemodulator::configure_parameters()
 
 
 
-void Block_MPSKDemodulator::process()
+void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -146,5 +145,4 @@ void Block_MPSKDemodulator::process()
 }
 
 
-
-ACCESS_FUNCS(MPSKDemodulator)
+#include "block/create.hpp"

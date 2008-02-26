@@ -1,5 +1,4 @@
 #include "block/block.hpp"
-#include "block/create.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
@@ -7,15 +6,13 @@
 
 #include <itpp/itbase.h>
 
-static const std::string BLOCK_NAME = "randunibitgen";
 
 
-class Block_randunibitgen : public Block, public Source
+class HumpBlock : public Block, public Source
 {
 public:
 
-	Block_randunibitgen();
-
+	HumpBlock();
 	void process();
 	void initialize();
 
@@ -35,23 +32,23 @@ private:
 
 
 
-Block_randunibitgen::Block_randunibitgen()
+HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
-	set_description("Creates uniformely distributed bits.");
+	set_name("RandomUniformBitGenerator");
+	set_description("Creates uniformely distributed integer values.");
 	configure_parameters();
 }
 
 
 
-void Block_randunibitgen::setup_output_ports()
+void HumpBlock::setup_output_ports()
 {
 	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
 }
 
 
 
-void Block_randunibitgen::initialize()
+void HumpBlock::initialize()
 {
 	itpp::RNG_randomize();
 	i_vector_ = get_signal< int32_t >(bits_out_);
@@ -59,7 +56,7 @@ void Block_randunibitgen::initialize()
 
 
 
-void Block_randunibitgen::configure_parameters()
+void HumpBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -92,7 +89,7 @@ void Block_randunibitgen::configure_parameters()
 
 
 
-void Block_randunibitgen::process()
+void HumpBlock::process()
 {
 	*i_vector_ = itpp::randi(framesize_[0], lo_[0], hi_[0]);
 #ifndef NDEBUG
@@ -102,5 +99,4 @@ void Block_randunibitgen::process()
 }
 
 
-
-ACCESS_FUNCS(randunibitgen)
+#include "block/create.hpp"

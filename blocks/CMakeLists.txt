@@ -2,10 +2,8 @@
 
 foreach(
 	blockname
-	2in2out
 	Fork
-	1out
-	stdoutSink
+	StdoutSink
 	RandomUniformBitGenerator
 	MPSKModulator
 	MPSKDemodulator
