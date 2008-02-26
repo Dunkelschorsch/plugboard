@@ -288,42 +288,54 @@ void ExecutionMatrix::combine_stages()
 	ExecutionStage::store_t::iterator stage_curr = impl.stages_.begin();
 	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	while(++stage_next != impl.stages_.end())
+	do
 	{
+		while(++stage_next != impl.stages_.end())
+		{
 #ifndef NDEBUG
-		std::cout << *this << std::endl;
+			std::cout << *this << std::endl;
+			std::cout << "current stage: " << std::endl << *stage_curr << std::endl;
+			std::cout << "next stage: " << std::endl << *stage_next << std::endl;
 #endif
-		if(is_right_terminated(stage_curr->get_paths().back()))
-		{
-			// nothing more to do here
-			++stage_curr;
-			continue;
-		}
-
-		if(is_left_terminated((stage_next)->get_paths().front()))
-		{
-			// more luck with the next stage?
-			continue;
-		}
-
-		const Block* block_curr = (stage_curr)->get_paths().front().back();
-		Block* block_next = (stage_next)->get_paths().front().front();
-		assert(block_next != NULL);
-
-		const std::set< std::string > connections_curr
-			= dynamic_cast< const Source* >(block_curr)->get_connections();
+			if(is_right_terminated(stage_curr->get_paths().back()))
+			{
+				// nothing more to do here
+				++stage_curr;
 #ifndef NDEBUG
-		std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
-		std::cout << block_next->get_name_sys() << "' " << std::endl;
+				std::cout << "stage finished" << std::endl;
 #endif
-		// if there is a connection move the block on the next stage to the current one
-		if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
-		{
-			stage_curr->get_paths().front().push_back(block_next);
-			impl.stages_.erase(stage_next);
-			stage_next = stage_curr;
+				continue;
+			}
+	
+			if(is_left_terminated((stage_next)->get_paths().front()))
+			{
+				// more luck with the next stage?
+#ifndef NDEBUG
+				std::cout << "stage finished" << std::endl;
+#endif
+				continue;
+			}
+	
+			const Block* block_curr = (stage_curr)->get_paths().front().back();
+			Block* block_next = (stage_next)->get_paths().front().front();
+			assert(block_next != NULL);
+	
+			const std::set< std::string > connections_curr
+				= dynamic_cast< const Source* >(block_curr)->get_connections();
+#ifndef NDEBUG
+			std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
+			std::cout << block_next->get_name_sys() << "' " << std::endl;
+#endif
+			// if there is a connection move the block on the next stage to the current one
+			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
+			{
+				stage_curr->get_paths().front().push_back(block_next);
+				impl.stages_.erase(stage_next);
+				stage_next = stage_curr;
+			}
 		}
-	}
+		stage_next = ++stage_curr;
+	} while(stage_curr != impl.stages_.end());
 }
 
 
