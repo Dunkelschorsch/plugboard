@@ -18,9 +18,7 @@ public:
 
 private:
 	void configure_parameters();
-
 	void setup_output_ports();
-
 
 	OutPort *bits_out_;
 	itpp::ivec *i_vector_;
@@ -28,6 +26,8 @@ private:
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 	int32_vec_t hi_, lo_;
+
+	itpp::I_Uniform_RNG prng;
 };
 
 
@@ -50,7 +50,9 @@ void HumpBlock::setup_output_ports()
 
 void HumpBlock::initialize()
 {
+	prng.setup(lo_[0], hi_[0]);
 	itpp::RNG_randomize();
+
 	i_vector_ = get_signal< int32_t >(bits_out_);
 }
 
@@ -91,7 +93,7 @@ void HumpBlock::configure_parameters()
 
 void HumpBlock::process()
 {
-	*i_vector_ = itpp::randi(framesize_[0], lo_[0], hi_[0]);
+	*i_vector_ = prng(framesize_[0]);
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " generated: " << *i_vector_ << std::endl;
