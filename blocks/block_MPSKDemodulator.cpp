@@ -7,8 +7,6 @@
 #include <itpp/comm/modulator.h>
 
 
-static const std::string BLOCK_NAME = "MPSKDemodulator";
-
 
 class HumpBlock : public Block, public Sink, public Source
 {
@@ -20,19 +18,15 @@ public:
 	void initialize();
 
 private:
-
 	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
 
-
 	OutPort* bits_out_;
-	itpp::ivec *hard_bit_vector_;
+	void *bits_v_;
 
-	itpp::vec *soft_bit_vector_;
-
-	InPort* symbols_in_;
-	itpp::cvec *symbol_vector_;
+	const InPort* symbols_in_;
+	const itpp::cvec *symbol_vector_;
 
 	// Input parameters
 	int32_vec_t framesize_;
@@ -40,6 +34,7 @@ private:
 
 	int32_vec_t M_;
 	int32_vec_t soft_demod_;
+
 	itpp::PSK mod;
 };
 
@@ -47,7 +42,7 @@ private:
 
 HumpBlock::HumpBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("MPSKDemodulator");
 	set_description("M-Ary PSK Demodulator");
 	configure_parameters();
 }
@@ -57,7 +52,6 @@ HumpBlock::HumpBlock()
 void HumpBlock::setup_input_ports()
 {
 	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
-	
 }
 
 
@@ -68,7 +62,6 @@ void HumpBlock::setup_output_ports()
 		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
 	else
 		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
-	
 }
 
 
@@ -76,11 +69,9 @@ void HumpBlock::setup_output_ports()
 void HumpBlock::initialize()
 {
 	if(soft_demod_[0] == 1)
-	{
-		soft_bit_vector_ = get_signal< real_t >(bits_out_);
-	} else {
-		hard_bit_vector_ = get_signal< int32_t >(bits_out_);
-	}
+		bits_v_ = get_signal< real_t >(bits_out_);
+	else
+		bits_v_ = get_signal< int32_t >(bits_out_);
 
 	symbol_vector_ = get_signal< complex_t >(symbols_in_);
 
@@ -131,15 +122,15 @@ void HumpBlock::process()
 #endif
 	if(soft_demod_[0] == 1)
 	{
-		mod.demodulate_soft_bits(*symbol_vector_, 1, *soft_bit_vector_);
+		mod.demodulate_soft_bits(*symbol_vector_, 1, *static_cast< itpp::Vec< real_t >* >(bits_v_));
 #ifndef NDEBUG
-		std::cout << *soft_bit_vector_ << std::endl;
+		std::cout << *static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;
 #endif
 	}
 	else {
-		mod.demodulate(*symbol_vector_, *hard_bit_vector_);
+		mod.demodulate(*symbol_vector_, *static_cast< itpp::Vec< int32_t >* >(bits_v_));
 #ifndef NDEBUG
-		std::cout << *hard_bit_vector_ << std::endl;
+		std::cout << *static_cast< itpp::Vec< int32_t >* >(bits_v_) << std::endl;
 #endif
 	}
 }

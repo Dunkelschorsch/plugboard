@@ -27,8 +27,11 @@ private:
 	template< typename T >
 	void do_fork();
 
+	template< typename T >
+	void do_init();
+
 	OutPort **sig_out_;
-	InPort *sig_in1_;
+	const InPort *sig_in1_;
 
 	const void *v_in_;
 	void **v_out_;
@@ -52,8 +55,7 @@ void HumpBlock::configure_parameters( )
 
 void HumpBlock::setup_input_ports()
 {
-	/* calls to "add_port(InPort &) go here */
-	sig_in1_ = add_port(new InPort("in", empty, 0, 0));
+	sig_in1_ = add_port(new InPort("in"));
 }
 
 
@@ -74,20 +76,26 @@ void HumpBlock::setup_output_ports()
 }
 
 
+template< typename T >
+void HumpBlock::do_init()
+{
+	v_in_ = get_signal< T >(sig_in1_);
+	for(int32_t i=0; i<num_outputs_[0]; ++i)
+		v_out_[i] = get_signal< T >(sig_out_[i]);
+}
+
+
 void HumpBlock::initialize( )
 {
 	v_out_ = new void* [num_outputs_[0]];
-
 	input_type_ = sig_in1_->get_type();
 
 	if(input_type_ == int32)
-	{
-		v_in_ = get_signal< int32_t >(sig_in1_);
-		for(int32_t i=0; i<num_outputs_[0]; ++i)
-		{
-			v_out_[i] = get_signal< int32_t >(sig_out_[i]);
-		}
-	}
+		do_init< int32_t >();
+	if(input_type_ == real)
+		do_init< real_t >();
+	if(input_type_ == complex)
+		do_init< complex_t >();
 }
 
 
@@ -102,7 +110,7 @@ void HumpBlock::do_fork()
 			*static_cast< itpp::Vec<T>* >(v_out_[i]) =
 			*static_cast< const itpp::Vec<T>* >(v_in_);
 #ifndef NDEBUG
-			std::cout << " out: " << *static_cast< itpp::Vec<T>* >(v_out_[i]) << std::endl;
+			std::cout << " out" << i+1 << ": " << *static_cast< itpp::Vec<T>* >(v_out_[i]) << std::endl;
 #endif
 			assert(*static_cast< itpp::Vec<T>* >(v_out_[i]) ==
 				*static_cast< const itpp::Vec<T>* >(v_in_));
