@@ -25,6 +25,9 @@ private:
 	void configure_parameters();
 
 	template< typename T >
+	void do_init();
+
+	template< typename T >
 	void do_work();
 
 	template< typename T >
@@ -34,7 +37,10 @@ private:
 	void do_mult();
 
 	template< typename T >
-	void do_init();
+	void do_sub();
+
+	template< typename T >
+	void do_div();
 
 	OutPort *sig_out_;
 	const InPort **sig_in_;
@@ -46,7 +52,8 @@ private:
 	type_t input_type_;
 	std::vector< std::string > op_;
 
-	enum ops { ADD, MUL } operation_;
+	typedef enum { ADD, MUL, SUB, DIV } ops;
+	ops operation_;
 };
 
 
@@ -104,8 +111,12 @@ void HumpBlock::initialize( )
 {
 	if(op_[0] == "+")
 		operation_ = ADD;
+	else if(op_[0] == "-")
+		operation_ = SUB;
 	else if(op_[0] == "*")
 		operation_ = MUL;
+	else if(op_[0] == "/")
+		operation_ = DIV;
 
 	v_in_ = new const void* [num_inputs_[0]];
 
@@ -120,6 +131,9 @@ void HumpBlock::initialize( )
 }
 
 
+
+
+
 template< typename T >
 void HumpBlock::do_add()
 {
@@ -129,6 +143,20 @@ void HumpBlock::do_add()
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
 #endif
 		*static_cast< itpp::Vec<T>* >(v_out_) +=
+			*static_cast< const itpp::Vec<T>* >(v_in_[i]);
+	}
+}
+
+
+template< typename T >
+void HumpBlock::do_sub()
+{
+	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	{
+#ifndef NDEBUG
+		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
+#endif
+		*static_cast< itpp::Vec<T>* >(v_out_) -=
 			*static_cast< const itpp::Vec<T>* >(v_in_[i]);
 	}
 }
@@ -149,6 +177,20 @@ void HumpBlock::do_mult()
 
 
 template< typename T >
+void HumpBlock::do_div()
+{
+	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	{
+#ifndef NDEBUG
+		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
+#endif
+		*static_cast< itpp::Vec<T>* >(v_out_) =
+			elem_div(*static_cast< itpp::Vec<T>* >(v_out_), *static_cast< const itpp::Vec<T>* >(v_in_[i]));
+	}
+}
+
+
+template< typename T >
 void HumpBlock::do_work()
 {
 #ifndef NDEBUG
@@ -158,8 +200,12 @@ void HumpBlock::do_work()
 	
 	if(operation_ == ADD)
 		do_add< T >();
+	else if(operation_ == SUB)
+		do_sub< T >();
 	else if(operation_ == MUL)
 		do_mult< T >();
+	else if(operation_ == DIV)
+		do_div< T >();
 
 #ifndef NDEBUG
 	std::cout << " out: " << *static_cast< itpp::Vec<T>* >(v_out_) << std::endl;
