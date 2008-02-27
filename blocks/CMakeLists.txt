@@ -2,6 +2,7 @@
 
 foreach(
 	blockname
+	Add
 	Fork
 	StdoutSink
 	RandomUniformBitGenerator
