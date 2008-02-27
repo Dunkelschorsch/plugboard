@@ -87,4 +87,4 @@ blocks/block_ConvolutionalDecoder.cpp
 grammar/command/new_parse.hpp
 blocks/block_ComposeComplex.cpp
 blocks/block_stdoutSink.cpp
-blocks/block_Add.cpp
+blocks/block_Arithmetic.cpp

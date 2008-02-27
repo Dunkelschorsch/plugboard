@@ -2,7 +2,7 @@
 
 foreach(
 	blockname
-	Add
+	Arithmetic
 	Fork
 	StdoutSink
 	RandomUniformBitGenerator

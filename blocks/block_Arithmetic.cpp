@@ -25,7 +25,13 @@ private:
 	void configure_parameters();
 
 	template< typename T >
+	void do_work();
+
+	template< typename T >
 	void do_add();
+
+	template< typename T >
+	void do_mult();
 
 	template< typename T >
 	void do_init();
@@ -38,6 +44,9 @@ private:
 
 	int32_vec_t num_inputs_;
 	type_t input_type_;
+	std::vector< std::string > op_;
+
+	enum ops { ADD, MUL } operation_;
 };
 
 
@@ -48,6 +57,12 @@ void HumpBlock::configure_parameters( )
 		(new Parameter(&num_inputs_, int32, "Number of inputs"))
 		->add_constraint(new GreaterThanConstraint< int32_t >(0))
 		->add_constraint(new LessThanConstraint< int32_t >(1000))
+		->add_constraint(new SizeConstraint(1))
+	);
+
+	add_parameter
+	(
+		(new Parameter(&op_, string, "Operation"))
 		->add_constraint(new SizeConstraint(1))
 	);
 }
@@ -87,6 +102,11 @@ void HumpBlock::do_init()
 
 void HumpBlock::initialize( )
 {
+	if(op_[0] == "+")
+		operation_ = ADD;
+	else if(op_[0] == "*")
+		operation_ = MUL;
+
 	v_in_ = new const void* [num_inputs_[0]];
 
 	input_type_ = sig_in_[0]->get_type();
@@ -103,18 +123,44 @@ void HumpBlock::initialize( )
 template< typename T >
 void HumpBlock::do_add()
 {
-#ifndef NDEBUG
-	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
-#endif
-
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
 #endif
 		*static_cast< itpp::Vec<T>* >(v_out_) +=
-		*static_cast< const itpp::Vec<T>* >(v_in_[i]);
+			*static_cast< const itpp::Vec<T>* >(v_in_[i]);
 	}
+}
+
+
+template< typename T >
+void HumpBlock::do_mult()
+{
+	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	{
+#ifndef NDEBUG
+		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
+#endif
+		*static_cast< itpp::Vec<T>* >(v_out_) =
+			elem_mult(*static_cast< itpp::Vec<T>* >(v_out_), *static_cast< const itpp::Vec<T>* >(v_in_[i]));
+	}
+}
+
+
+template< typename T >
+void HumpBlock::do_work()
+{
+#ifndef NDEBUG
+	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
+#endif
+	*static_cast< itpp::Vec<T>* >(v_out_) = *static_cast< const itpp::Vec<T>* >(v_in_[0]);
+	
+	if(operation_ == ADD)
+		do_add< T >();
+	else if(operation_ == MUL)
+		do_mult< T >();
+
 #ifndef NDEBUG
 	std::cout << " out: " << *static_cast< itpp::Vec<T>* >(v_out_) << std::endl;
 #endif
@@ -128,11 +174,11 @@ void HumpBlock::process()
 	std::cout << this->get_name_sys() << std::endl;
 #endif
 	if(input_type_ == int32)
-		do_add< int32_t >();
+		do_work< int32_t >();
 	else if(input_type_ == real)
-		do_add< real_t >();
+		do_work< real_t >();
 	else
-		do_add< complex_t >();
+		do_work< complex_t >();
 }
 
 
