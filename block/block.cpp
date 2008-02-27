@@ -22,6 +22,7 @@ struct pimpl< Block >::implementation
 		parameter_factory_(),
 		params_(),
 		configured_(true),
+		initialized_(false),
 		name_sys_(),
 		name_(),
 		description_() 
@@ -38,6 +39,7 @@ struct pimpl< Block >::implementation
 	parameter_factory_t parameter_factory_;
 	std::vector< Parameter* > params_;
 	bool configured_;
+	bool initialized_;
 
 	std::string name_sys_;
 	std::string name_;
@@ -134,6 +136,18 @@ bool Block::is_configured() const
 	return (*this)->configured_;
 }
 
+
+
+bool Block::is_initialized() const
+{
+	return (*this)->initialized_;
+}
+
+
+void Block::set_initialized()
+{
+	(*this)->initialized_ = true;
+}
 
 
 template< typename TargetT >

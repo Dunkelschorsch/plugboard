@@ -48,6 +48,8 @@ public:
 	type_t get_parameter_type() const;
 
 	bool is_configured() const;
+	bool is_initialized() const;
+	void set_initialized();
 
 	template< class PortT >
 	typename PortT::store_t * get_port_list();

@@ -439,6 +439,17 @@ const std::vector< Block * > ExecutionMatrix::find_start_blocks() const
 }
 
 
+struct CallInit
+{
+	typedef void result_type;
+
+	result_type operator()(Block * const b) const
+	{
+		b->initialize();
+		b->set_initialized();
+	}
+};
+
 
 void ExecutionMatrix::init()
 {
@@ -461,7 +472,7 @@ void ExecutionMatrix::init()
 	(
 		path_it->begin(),
 		path_it->end(),
-		bind(&Block::initialize, _1)
+		CallInit()
 	);
 }
 

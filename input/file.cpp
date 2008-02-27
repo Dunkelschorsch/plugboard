@@ -116,6 +116,11 @@ bool HumpFile::execute_command(const std::string& file_name)
 		}
 		return false;
 	}
+	catch (InvalidBlockIdException& e)
+	{
+		std::cout << e.what() << ": " << e.get_id() << std::endl;
+		return false;
+	}
 
 	if(first != last)
 	{

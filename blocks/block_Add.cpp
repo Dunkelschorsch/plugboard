@@ -103,7 +103,11 @@ void HumpBlock::initialize( )
 template< typename T >
 void HumpBlock::do_add()
 {
-	for(int32_t i=0; i<num_inputs_[0]; ++i)
+#ifndef NDEBUG
+	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
+#endif
+
+	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
@@ -145,11 +149,10 @@ HumpBlock::~HumpBlock()
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
 #endif
-	if(is_configured())
-	{
+	if(is_initialized())
 		delete[] v_in_;
+	if(is_configured())
 		delete[] sig_in_;
-	}
 }
 
 
