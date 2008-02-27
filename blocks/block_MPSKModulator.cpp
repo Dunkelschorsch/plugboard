@@ -25,8 +25,8 @@ private:
 	void setup_output_ports();
 
 
-	InPort* bits_in_;
-	itpp::ivec *bit_vector_;
+	const InPort* bits_in_;
+	const itpp::ivec *bit_vector_;
 
 	OutPort* symbols_out_;
 	itpp::cvec *symbol_vector_;

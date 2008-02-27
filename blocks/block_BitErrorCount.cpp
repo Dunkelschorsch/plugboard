@@ -23,8 +23,8 @@ private:
 	void setup_input_ports();
 	void configure_parameters();
 
-	InPort *tx_in_, *rx_in_;
-	itpp::Vec< int32_t > *tx_vec, *rx_vec;
+	const InPort *tx_in_, *rx_in_;
+	const itpp::Vec< int32_t > *tx_vec, *rx_vec;
 
 	itpp::BERC berc;
 

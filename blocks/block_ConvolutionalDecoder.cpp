@@ -24,8 +24,8 @@ private:
 	void setup_output_ports();
 
 	// input signals
-	InPort* sig_in_;
-	itpp::vec *in_vector_;
+	const InPort* sig_in_;
+	const itpp::vec *in_vector_;
 
 	// output signals
 	OutPort* sig_out_;
