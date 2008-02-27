@@ -145,11 +145,10 @@ HumpBlock::~HumpBlock()
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
 #endif
-	if(is_configured())
-	{
+	if(is_initialized())
 		delete[] v_out_;
+	if(is_configured())
 		delete[] sig_out_;
-	}
 }
 
 
