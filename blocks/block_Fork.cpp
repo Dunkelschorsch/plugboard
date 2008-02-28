@@ -38,6 +38,8 @@ private:
 
 	int32_vec_t num_outputs_;
 	type_t input_type_;
+
+	void (HumpBlock::*proc)();
 };
 
 
@@ -80,12 +82,14 @@ template< typename T >
 void HumpBlock::do_init()
 {
 	v_in_ = get_signal< T >(sig_in1_);
+	proc = &HumpBlock::do_fork< T >;
+
 	for(int32_t i=0; i<num_outputs_[0]; ++i)
 		v_out_[i] = get_signal< T >(sig_out_[i]);
 }
 
 
-void HumpBlock::initialize( )
+void HumpBlock::initialize()
 {
 	v_out_ = new void* [num_outputs_[0]];
 	input_type_ = sig_in1_->get_type();
@@ -123,12 +127,7 @@ void HumpBlock::process()
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 #endif
-	if(input_type_ == int32)
-		do_fork< int32_t >();
-	else if(input_type_ == real)
-		do_fork< real_t >();
-	else
-		do_fork< complex_t >();
+	(this->*proc)();
 }
 
 

@@ -54,6 +54,8 @@ private:
 
 	typedef enum { ADD, MUL, SUB, DIV } ops;
 	ops operation_;
+
+	void (HumpBlock::*proc)();
 };
 
 
@@ -77,7 +79,6 @@ void HumpBlock::configure_parameters( )
 
 void HumpBlock::setup_output_ports()
 {
-	/* calls to "add_port(InPort &) go here */
 	sig_out_ = add_port(new OutPort("result", sig_in_[0]->get_type(), sig_in_[0]->get_Ts(), sig_in_[0]->get_frame_size()));
 }
 
@@ -102,6 +103,9 @@ template< typename T >
 void HumpBlock::do_init()
 {
 	v_out_ = get_signal< T >(sig_out_);
+
+	proc = &HumpBlock::do_work< T >;
+
 	for(int32_t i=0; i<num_inputs_[0]; ++i)
 		v_in_[i] = get_signal< T >(sig_in_[i]);
 }
@@ -219,12 +223,7 @@ void HumpBlock::process()
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 #endif
-	if(input_type_ == int32)
-		do_work< int32_t >();
-	else if(input_type_ == real)
-		do_work< real_t >();
-	else
-		do_work< complex_t >();
+	(this->*proc)();
 }
 
 

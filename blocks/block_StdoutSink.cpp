@@ -20,6 +20,8 @@ private:
 
 	const InPort *sig_in_;
 	const void *input_;
+
+	void(HumpBlock::*proc)();
 };
 
 
@@ -32,11 +34,20 @@ void HumpBlock::setup_input_ports()
 void HumpBlock::initialize( )
 {
 	if(sig_in_->get_type() == int32)
+	{
 		input_ = get_signal< int32_t >(sig_in_);
+		proc = &HumpBlock::do_display< int32_t >;
+	}
 	else if(sig_in_->get_type() == real)
+	{
 		input_ = get_signal< real_t >(sig_in_);
+		proc = &HumpBlock::do_display< real_t >;
+	}
 	else
+	{
 		input_ = get_signal< complex_t >(sig_in_);
+		proc = &HumpBlock::do_display< complex_t >;
+	}
 }
 
 
@@ -53,12 +64,7 @@ void HumpBlock::process()
 	std::cout << get_name_sys() << std::endl;
 #endif
 	std::cout << " ";
-	if(sig_in_->get_type() == int32)
-		do_display< int32_t >();
-	else if(sig_in_->get_type() == real)
-		do_display< real_t >();
-	else
-		do_display< complex_t >();
+	(this->*proc)();
 }
 
 
