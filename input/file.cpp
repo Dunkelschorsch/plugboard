@@ -1,5 +1,4 @@
 #include <iostream>
-#include <boost/function.hpp>
 #include <boost/spirit/iterator/file_iterator.hpp>
 #include <boost/spirit/iterator/position_iterator.hpp>
 

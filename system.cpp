@@ -13,7 +13,7 @@
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
+
 #include <map>
 #include <set>
 #include <iostream>
@@ -117,12 +117,10 @@ uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 
 void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 {
-	void* (*f) (Signal*);
-
 #ifndef NDEBUG
 	std::cout << "    setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
 #endif
-	f = get_buffer_factory_[out.get_type()];
+	void* (*f)(Signal*) = get_buffer_factory_[out.get_type()];
 
 	out.buffer_access_ = bind(f, s);
 	in.buffer_access_ = bind(f, s);

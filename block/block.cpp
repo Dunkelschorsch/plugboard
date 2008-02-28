@@ -1,11 +1,11 @@
-#include <boost/function.hpp>
+#include <iostream>
+#include <map>
+#include <tr1/functional>
+
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/casts.hpp>
 #include <boost/lambda/construct.hpp>
-
-#include <iostream>
-#include <map>
 
 #include "block/block.hpp"
 #include "variable/variable.hpp"
@@ -32,7 +32,7 @@ struct pimpl< Block >::implementation
 
 	~implementation();
 
-	typedef boost::function< void(const Variable&, Parameter * const) > parameter_factory_func_t;
+	typedef std::tr1::function< void(const Variable&, Parameter * const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
 
 	uint16_t param_curr_;
@@ -66,10 +66,12 @@ pimpl< Block >::implementation::~implementation()
 
 void pimpl< Block >::implementation::register_parameter_types()
 {
+using std::tr1::placeholders::_1;
+using std::tr1::placeholders::_2;
 /* this macro creates mapping between types and parameters */
 #define BOOST_PP_DEF(z, I, _) \
 	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
-	boost::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
+	std::tr1::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 

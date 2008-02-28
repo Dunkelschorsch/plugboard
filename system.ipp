@@ -7,7 +7,7 @@
 #include "symtab.hpp"
 
 
-using boost::function;
+using std::tr1::function;
 
 struct SystemImpl
 {

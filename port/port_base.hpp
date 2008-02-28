@@ -2,7 +2,7 @@
 #define PORT_BASE_HPP
 
 #include "types/base.hpp"
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <list>
 #include <algorithm>
 
@@ -54,7 +54,7 @@ protected:
 
 	uint32_t signal_buffer_id_;
 
-	boost::function< void*() > buffer_access_;
+	std::tr1::function< void*() > buffer_access_;
 };
 
 

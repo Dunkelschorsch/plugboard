@@ -6,7 +6,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <boost/function.hpp>
 
 
 class ExecutionMatrix : public pimpl< ExecutionMatrix >::pointer_semantics

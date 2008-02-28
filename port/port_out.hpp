@@ -1,7 +1,6 @@
 #ifndef PORT_OUT_HPP
 #define PORT_OUT_HPP
 
-
 #include "port/port_base.hpp"
 #include "message.hpp"
 #include "visibility.hpp"
@@ -18,7 +17,7 @@ public:
 
 	void disconnect(const InPort& other);
 
-	boost::function< Message() > send;
+	std::tr1::function< Message() > send;
 };
 
 #endif // PORT_OUT_HPP

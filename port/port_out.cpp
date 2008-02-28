@@ -1,7 +1,9 @@
 #include "port/port_out.hpp"
 #include "port/port_in.hpp"
 #include "exceptions.hpp"
-#include <boost/bind.hpp>
+#include <tr1/functional>
+
+#include <cassert>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -53,7 +55,7 @@ void OutPort::connect(InPort & other, uint32_t signal_buffer_id)
 
 	signal_buffer_id_ = signal_buffer_id;
 
-	send = boost::bind(&InPort::receive, boost::ref(other), signal_buffer_id);
+	send = std::tr1::bind(&InPort::receive, std::tr1::ref(other), signal_buffer_id);
 }
 
 
