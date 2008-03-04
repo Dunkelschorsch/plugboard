@@ -503,17 +503,21 @@ void eval_expression(tree_iter_t const& i, Variable& v)
 		std::cout << "    elements: " << i->children.size() << std::endl;
 		std::cout << "    numeric type: " << subtree_type(i) << std::endl;
 #endif
-		if(subtree_type(i) == real)
+		type_t num_type = subtree_type(i);
+		
+		switch(num_type)
 		{
-			make_array< real_t >(i->children.begin(), i->children.end(), v);
-		}
-		if(subtree_type(i) == int32)
-		{
-			make_array< int32_t >(i->children.begin(), i->children.end(), v);
-		}
-		if(subtree_type(i) == complex)
-		{
-			make_array< complex_t >(i->children.begin(), i->children.end(), v);
+			case int32:
+				make_array< int32_t >(i->children.begin(), i->children.end(), v);
+				break;
+			case real:
+				make_array< real_t >(i->children.begin(), i->children.end(), v);
+				break;
+			case complex:
+				make_array< complex_t >(i->children.begin(), i->children.end(), v);
+				break;
+			default:
+				assert(0);
 		}
 	}
 	else
