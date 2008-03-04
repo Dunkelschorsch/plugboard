@@ -31,7 +31,7 @@ public:
 
 	bool is_of_same_type_as(const Variable& v) const;
 
-protected:
+private:
 	void *data_;
 	type_t type_;
 	std::string description_;

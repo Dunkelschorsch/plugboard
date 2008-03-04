@@ -11,16 +11,15 @@
 class HumpBlock : public Block, public Sink, public Source
 {
 public:
-
 	HumpBlock();
-
-	void process();
-	void initialize();
 
 private:
 	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
+
+	void process();
+	void initialize();
 
 	OutPort* bits_out_;
 	void *bits_v_;
@@ -44,7 +43,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("MPSKDemodulator");
 	set_description("M-Ary PSK Demodulator");
-	configure_parameters();
 }
 
 

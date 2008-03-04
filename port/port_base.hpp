@@ -40,6 +40,11 @@ public:
 protected:
 	BasePort(const std::string&, const type_t, const real_t, const uint32_t);
 
+	uint32_t signal_buffer_id_;
+
+	std::tr1::function< void*() > buffer_access_;
+
+private:
 	void swap(BasePort&);
 
 	std::string name_;
@@ -52,22 +57,20 @@ protected:
 
 	uint32_t frame_size_;
 
-	uint32_t signal_buffer_id_;
 
-	std::tr1::function< void*() > buffer_access_;
 };
 
 
 
 template< class DerivedPortT >
 BasePort< DerivedPortT >::BasePort(const std::string& name, const type_t type, const real_t Ts, const uint32_t frame_size) :
+	signal_buffer_id_(0),
+	buffer_access_(0),
 	name_(name),
 	owner_block_name_(),
 	type_(type),
 	Ts_(Ts),
-	frame_size_(frame_size),
-	signal_buffer_id_(0),
-	buffer_access_(0)
+	frame_size_(frame_size)
 {
 }
 

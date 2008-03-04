@@ -445,7 +445,7 @@ struct CallInit
 
 	result_type operator()(Block * const b) const
 	{
-		b->initialize();
+		b->call_initialize();
 		b->set_initialized();
 	}
 };

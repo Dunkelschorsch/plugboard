@@ -23,8 +23,6 @@ public:
 
 	void process();
 
-// 	void initialize();
-// 	void advance();
 private:
 
 	void configure_parameters();
@@ -34,6 +32,9 @@ private:
 
 // 	bool setup_input_ports();
 // 	bool setup_output_ports();
+
+//	void initialize();
+//	void advance();
 
 // 	member variable declarations go here:
 	InPort* bits_in_;

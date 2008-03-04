@@ -5,7 +5,8 @@ Source::Source() :
 	connect_calls(),
 	num_output_ports_(0),
 	ports_out_(),
-	connected_blocks_() { }
+	connected_blocks_()
+{ }
 
 
 Source::~Source() { }

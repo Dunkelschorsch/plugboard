@@ -4,21 +4,21 @@
 #include "types/base.hpp"
 
 #include <vector>
-#include <algorithm>
 
 
 class Signal
 {
 public:
-	virtual ~Signal() {};
-
 	typedef std::vector< Signal* > store_t;
+
+	virtual ~Signal() {};
 
 protected:
 	Signal() : signal_type_(empty), dimensions_(), Ts_(0) { }
 
 	type_t signal_type_;
 
+private:
 	std::vector< uint8_t > dimensions_;
 
 	real_t Ts_;
@@ -40,8 +40,7 @@ public:
 
 	SignalStore(const SignalStore& other) :
 		size_(other.size_), data_(other.data_)
-	{
-	}
+	{ }
 
 	itpp::Vec< ElementT >* get_data()
 	{

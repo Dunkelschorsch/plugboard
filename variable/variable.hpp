@@ -49,7 +49,7 @@ public:
 	size_t size() const;
 
 	void prealloc(size_t);
-protected:
+private:
 
 	template< typename oldT, typename newT >
 	void cast() DSOLOCAL;

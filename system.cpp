@@ -147,12 +147,12 @@ void System::add_block(Block * const b, const std::string& name_sys)
 
 	if(dynamic_cast< Sink* >(b))
 	{
-		dynamic_cast< Sink* >(b)->setup_input_ports();
+		dynamic_cast< Sink* >(b)->call_setup_input_ports();
 	}
 
 	if(dynamic_cast< Source* >(b))
 	{
-		dynamic_cast< Source* >(b)->setup_output_ports();
+		dynamic_cast< Source* >(b)->call_setup_output_ports();
 	}
 
 	d->exec_m_.store_block(b, name_sys);
@@ -247,7 +247,7 @@ struct SignalAttributePropagationAction
 
 		if(src)
 		{
-			src->setup_output_ports();
+			src->call_setup_output_ports();
 			std::for_each
 			(
 				src->connect_calls.begin(),

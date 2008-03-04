@@ -16,13 +16,13 @@ public:
 	HumpBlock();
 	~HumpBlock();
 
-	void initialize();
-	void process();
-
 private:
 	void setup_input_ports();
 	void setup_output_ports();
 	void configure_parameters();
+
+	void initialize();
+	void process();
 
 	template< typename T >
 	void do_fork();
@@ -64,7 +64,7 @@ void HumpBlock::setup_input_ports()
 void HumpBlock::setup_output_ports()
 {
 	// only reserve that memory once
-	if(num_output_ports_ != num_outputs_[0])
+	if(get_num_output_ports() != num_outputs_[0])
 		sig_out_ = new OutPort* [num_outputs_[0]];
 
 	for(int32_t i=0; i<num_outputs_[0]; ++i)
@@ -135,7 +135,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("Fork");
 	set_description("Clone the input to an arbitrary, user-defined number of outputs.");
-	configure_parameters();
 }
 
 

@@ -11,12 +11,12 @@
 class HumpBlock : public Block, public Source
 {
 public:
-
 	HumpBlock();
+
+private:
 	void process();
 	void initialize();
 
-private:
 	void configure_parameters();
 	void setup_output_ports();
 
@@ -36,7 +36,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("RandomUniformBitGenerator");
 	set_description("Creates uniformely distributed integer values.");
-	configure_parameters();
 }
 
 

@@ -83,11 +83,33 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 Block::Block() : base() { }
 Block::~Block() { }
 
-
-
+// virtual members with empty default implementation
 void Block::configure_parameters() { }
+
 void Block::initialize() { }
+
 void Block::advance() { }
+
+// non-virtual interface functions
+void Block::call_process()
+{
+	process();
+}
+
+void Block::call_initialize()
+{
+	initialize();
+}
+
+void Block::call_advance()
+{
+	advance();
+}
+
+void Block::call_configure_parameters()
+{
+	configure_parameters();
+}
 
 
 

@@ -18,7 +18,6 @@ friend class boost::details::pool::singleton_default< Systems >;
 
 	std::string root_sys_name_;
 
-protected:
 	std::map< const std::string, System* > sys_map_;
 
 public:

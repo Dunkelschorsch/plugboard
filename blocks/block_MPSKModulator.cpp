@@ -13,17 +13,15 @@ static const char* BLOCK_NAME = "MPSKModulator";
 class HumpBlock : public Block, public Sink, public Source
 {
 public:
-
 	HumpBlock();
-
-	void process();
-	void initialize();
 
 private:
 	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
 
+	void process();
+	void initialize();
 
 	const InPort* bits_in_;
 	const itpp::ivec *bit_vector_;
@@ -45,7 +43,6 @@ HumpBlock::HumpBlock()
 {
 	set_name(BLOCK_NAME);
 	set_description("M-Ary PSK Modulator");
-	configure_parameters();
 }
 
 

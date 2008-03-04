@@ -3,7 +3,8 @@
 
 Sink::Sink() :
 	num_input_ports_(0),
-	ports_in_() { }
+	ports_in_()
+{ }
 
 
 Sink::~Sink() { }

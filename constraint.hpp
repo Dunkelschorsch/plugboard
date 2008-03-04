@@ -26,10 +26,12 @@ public:
 	ValueConstraint(bool negative=false) : negative_(negative) { }
 	virtual ~ValueConstraint() { }
 
-	virtual result_type check(argument_type arg) const = 0;
+	inline result_type check(argument_type arg) const { return do_check(arg); }
 	bool is_negative() const { return negative_; }
 
 	bool negative_;
+private:
+	virtual result_type do_check(argument_type arg) const = 0;
 };
 
 
@@ -42,8 +44,11 @@ public:
 	VariableConstraint(bool negative=false) : negative_(negative) { }
 	virtual ~VariableConstraint() { }
 
-	virtual result_type check(const Variable& var) const = 0;
+	inline result_type check(const Variable& var) const { return do_check(var); }
 	bool is_negative() const { return negative_; }
+
+private:
+	virtual result_type do_check(const Variable& var) const = 0;
 
 	bool negative_;
 };
@@ -60,13 +65,12 @@ public:
 		numel_(numel)
 	{ }
 	
-
-	result_type check(const Variable& var) const
+private:
+	result_type do_check(const Variable& var) const
 	{
 		return var.size() == numel_;
 	}
 
-private:
 	uint64_t numel_;
 };
 
@@ -78,13 +82,10 @@ class NullConstraint : public ConstraintBase, public ValueConstraint< T >
 typedef typename ValueConstraint< T >::argument_type argument_type;
 typedef typename ValueConstraint< T >::result_type result_type;
 
-public:
-	result_type check(argument_type) const
+	result_type do_check(argument_type) const
 	{
 		return true;
 	}
-
-	~NullConstraint() { }
 };
 
 
@@ -101,12 +102,12 @@ public:
 		compare_(compare)
 	{ }
 
-	result_type check(argument_type arg) const
+private:
+	result_type do_check(argument_type arg) const
 	{
 		return arg < compare_ ? true : false;
 	}
 
-private:
 	argument_type compare_;
 };
 
@@ -124,12 +125,12 @@ public:
 		compare_(compare)
 	{ }
 
-	result_type check(argument_type arg) const
+private:
+	result_type do_check(argument_type arg) const
 	{
 		return arg > compare_ ? true : false;
 	}
 
-private:
 	argument_type compare_;
 };
 

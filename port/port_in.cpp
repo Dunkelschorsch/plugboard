@@ -19,7 +19,7 @@ const Message InPort::receive(uint32_t buff_num)
 {
 #ifndef NDEBUG
 	std::cout << "Hurra!! Geht!!!! Portname: '" << get_name() << "' buff_num: " << buff_num << 
-		" Ts: " << Ts_ << " framesize: " << frame_size_ << std::endl;
+		" Ts: " << get_Ts() << " framesize: " << get_frame_size() << std::endl;
 #endif
 	return Message();
 }

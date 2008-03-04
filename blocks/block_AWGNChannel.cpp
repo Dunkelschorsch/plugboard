@@ -14,13 +14,13 @@ public:
 
 	HumpBlock();
 
-	void process();
-	void initialize();
-
 private:
 	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
+
+	void process();
+	void initialize();
 
 	// input signals
 	const InPort* sig_in_;
@@ -45,7 +45,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("AWGNChannel");
 	set_description("Additive White Gaussian Noise Channel");
-	configure_parameters();
 }
 
 

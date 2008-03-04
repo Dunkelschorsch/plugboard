@@ -10,14 +10,14 @@
 class HumpBlock : public Block, public Source, public Sink
 {
 public:
-
 	HumpBlock();
-	void process();
-	void initialize();
 
 private:
 	void setup_input_ports();
 	void setup_output_ports();
+
+	void process();
+	void initialize();
 
 	template< typename T >
 	void do_compose();
@@ -98,7 +98,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("ComposeComplex");
 	set_description("Create a complex signal out of two real valued signals.");
-	configure_parameters();
 }
 
 

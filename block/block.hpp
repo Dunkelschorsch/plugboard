@@ -31,9 +31,11 @@ public:
 	Block();
 	virtual ~Block();
 
-	virtual void initialize();
-	virtual void process() = 0;
-	virtual void advance();
+	// non-virtual interface
+	void call_initialize();
+	void call_process();
+	void call_advance();
+	void call_configure_parameters();
 
 	const std::string& get_name() const;
 	const std::string& get_name_sys() const;
@@ -60,12 +62,17 @@ public:
 	void set_name_sys(const std::string& name_sys);
 
 protected:
-	virtual void configure_parameters();
-
 	void add_parameter(Parameter * const);
 
 	template< class PortT >
 	PortT* add_port(PortT * const p);
+
+private:
+	// actual interface
+	virtual void initialize();
+	virtual void process() = 0;
+	virtual void advance();
+	virtual void configure_parameters();
 };
 
 

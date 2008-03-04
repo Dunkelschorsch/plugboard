@@ -16,12 +16,12 @@ public:
 	HumpBlock();
 	~HumpBlock();
 
-	void initialize();
-	void process();
-
 private:
 	void setup_input_ports();
 	void configure_parameters();
+
+	void initialize();
+	void process();
 
 	const InPort *tx_in_, *rx_in_;
 	const itpp::Vec< int32_t > *tx_vec, *rx_vec;
@@ -47,8 +47,7 @@ void HumpBlock::configure_parameters()
 HumpBlock::HumpBlock()
 {
 	set_name("BitErrorCount");
-	set_description("This is a block for testing purposes. It has 2 inputs and 1 outputs.");
-	configure_parameters();
+	set_description("Counts bit errors between the two input signals");
 }
 
 

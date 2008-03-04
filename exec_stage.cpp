@@ -206,7 +206,7 @@ void ExecutionStage::exec_path(const path_t& p)
 	(
 		p.begin(),
 		p.end(),
-		bind(&Block::process, _1)
+		bind(&Block::call_process, _1)
 	);
 }
 

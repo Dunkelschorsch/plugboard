@@ -11,16 +11,15 @@
 class HumpBlock : public Block, public Sink, public Source
 {
 public:
-
 	HumpBlock();
-
-	void process();
-	void initialize();
 
 private:
 	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
+
+	void process();
+	void initialize();
 
 	// input signals
 	const InPort* sig_in_;
@@ -45,7 +44,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("RaisedCosine");
 	set_description("Raised cosine pulse shaper");
-	configure_parameters();
 }
 
 

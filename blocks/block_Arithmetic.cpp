@@ -16,10 +16,10 @@ public:
 	HumpBlock();
 	~HumpBlock();
 
+private:
 	void initialize();
 	void process();
 
-private:
 	void setup_input_ports();
 	void setup_output_ports();
 	void configure_parameters();
@@ -86,7 +86,7 @@ void HumpBlock::setup_output_ports()
 void HumpBlock::setup_input_ports()
 {
 	// only reserve that memory once
-	if(num_input_ports_ != num_inputs_[0])
+	if(get_num_input_ports() != num_inputs_[0])
 		sig_in_ = new const InPort* [num_inputs_[0]];
 
 	for(int32_t i=0; i<num_inputs_[0]; ++i)
@@ -133,9 +133,6 @@ void HumpBlock::initialize( )
 	if(input_type_ == complex)
 		do_init< complex_t >();
 }
-
-
-
 
 
 template< typename T >
@@ -231,7 +228,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("Add");
 	set_description("Add an rbitrary, user-defined number of inputs.");
-	configure_parameters();
 }
 
 

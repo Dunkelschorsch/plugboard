@@ -10,12 +10,11 @@
 class HumpBlock : public Block, public Source
 {
 public:
-
 	HumpBlock();
-	void process();
-	void initialize();
 
 private:
+	void process();
+	void initialize();
 	void configure_parameters();
 	void setup_output_ports();
 
@@ -37,7 +36,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("Scrambler");
 	set_description("Creates UMTS Scrambling sequences");
-	configure_parameters();
 }
 
 

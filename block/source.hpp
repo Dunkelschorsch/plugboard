@@ -17,9 +17,8 @@ friend class PortTraits< OutPort >;
 
 public:
 	Source();
-	virtual ~Source();
 
-	virtual void setup_output_ports() = 0;
+	inline void call_setup_output_ports() { return setup_output_ports(); }
 	uint16_t get_num_output_ports() const;
 
 	OutPort::store_t * get_port_list();
@@ -30,6 +29,11 @@ public:
 	std::vector< std::pair< OutPort::store_t::iterator, InPort::store_t::iterator > > connect_calls;
 
 protected:
+	virtual ~Source();
+
+private:
+	virtual void setup_output_ports() = 0;
+
 	uint16_t num_output_ports_;
 	OutPort::store_t ports_out_;
 	std::set< std::string > connected_blocks_;

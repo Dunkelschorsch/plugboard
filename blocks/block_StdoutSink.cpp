@@ -10,10 +10,11 @@ class HumpBlock : public Block, public Sink
 public:
 	HumpBlock();
 
-	void process();
-	void initialize();
 private:
 	void setup_input_ports();
+
+	void process();
+	void initialize();
 
 	template< typename T >
 	void do_display();
@@ -72,7 +73,6 @@ HumpBlock::HumpBlock()
 {
 	set_name("StdoutSink");
 	set_description("Display input signal on standard output.");
-	configure_parameters();
 #ifndef NDEBUG
 	std::cout << "Contructed Block_" << get_name() << "!" << std::endl;
 #endif
