@@ -3,17 +3,17 @@
 #include <cassert>
 #include <algorithm>
 
+#include "variable/variable.hpp"
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
-
-#include "variable/variable.hpp"
-
 
 using std::malloc;
 using std::realloc;
 using std::free;
 using std::memcpy;
+
 
 
 Variable::Variable() :
@@ -37,7 +37,6 @@ Variable::Variable(const Variable & other) :
 	type_(other.type_)
 {
 	this->data_ = malloc(this->size_);
-
 
 	if(type_ == string)
 	{
@@ -305,6 +304,29 @@ Variable::~ Variable()
 void* Variable::data() const
 {
 	return data_;
+}
+
+
+
+template< typename oldT, typename newT >
+void Variable::cast()
+{
+	void* new_data = malloc(typeinfo< newT >::size * this->numel_);
+	for(size_t i=0; i<this->numel_; ++i)
+	{
+		static_cast< newT* >(new_data)[i] =
+			static_cast< newT >(static_cast< oldT* >(this->data_)[i]);
+	}
+	free(this->data_);
+	this->data_ = new_data;
+
+	size_ = numel_ * typeinfo< newT >::size;
+
+	type_ = typeinfo< newT >::value;
+#ifndef NDEBUG
+	std::cout << "number of variable elements: " << numel_ << std::endl;
+	std::cout << "new variable size (bytes): " << size_ << std::endl;
+#endif
 }
 
 
