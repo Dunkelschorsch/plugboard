@@ -55,11 +55,12 @@ struct pimpl< Block >::implementation
 
 pimpl< Block >::implementation::~implementation()
 {
-	std::vector< Parameter* >::const_iterator p_it;
-	for(p_it = params_.begin(); p_it != params_.end(); ++p_it)
-	{
-		delete *p_it;
-	}
+	std::for_each
+	(
+		params_.begin(),
+		params_.end(),
+		boost::lambda::bind(boost::lambda::delete_ptr(), boost::lambda::_1)
+	);
 }
 
 
