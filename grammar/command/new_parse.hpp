@@ -593,6 +593,7 @@ void eval_add_block(tree_iter_t const& i)
 #endif
 
 	Block *b = BlockLoader::instance().new_block(block_type);
+	b->call_configure_parameters();
 
 	if(b->get_params().size() != num_args)
 	{
@@ -603,19 +604,31 @@ void eval_add_block(tree_iter_t const& i)
 	}
 
 	// fill block with provided parameters
-	for(uint32_t param_num=0; param_num<num_args; ++param_num)
+	try
 	{
-		Variable param_curr;
+		for(uint32_t param_num=0; param_num<num_args; ++param_num)
+		{
+			Variable param_curr;
 #ifndef NDEBUG
-		std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
+			std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
 #endif
-		eval_expression(i->children.begin() + param_num + 2, param_curr);
-
-		assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
-		assert(param_curr);
-
-		b->set_parameter(param_curr);
+			eval_expression(i->children.begin() + param_num + 2, param_curr);
+	
+			assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
+			assert(param_curr);
+	
+			b->set_parameter(param_curr);
+		}
 	}
+	catch(std::exception &e)
+	{
+		delete b;
+#ifndef NDEBUG
+		std::cout << "Exception caught!" << std::endl;
+#endif
+		throw;
+	}
+
 	assert(b->is_configured());
 
 	Systems::instance().get_root()->add_block(b, block_name);
