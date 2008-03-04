@@ -56,27 +56,27 @@ bool HumpFile::execute_command(const std::string& file_name)
         		if (hit)
 			{
 #ifndef NDEBUG
-			// dump ast as XML
-			std::map< parser_id, std::string > rule_names;
-			rule_names[new_command_parser::integerID] = "integer";
-			rule_names[new_command_parser::primitiveID] = "primitive";
-			rule_names[new_command_parser::realID] = "realnum";
-			rule_names[new_command_parser::scalarfactorID] = "scalar_factor";
-			rule_names[new_command_parser::scalartermID] = "scalar_term";
-			rule_names[new_command_parser::scalarexpressionID] = "scalar_expression";
-			rule_names[new_command_parser::firstID] = "first";
-			rule_names[new_command_parser::arrayID] = "array";
-			rule_names[new_command_parser::rowvecID] = "row_vec";
-			rule_names[new_command_parser::variableID] = "variable";
-			rule_names[new_command_parser::assignmentID] = "assignment";
-			rule_names[new_command_parser::rangeID] = "n_range";
-			rule_names[new_command_parser::stringID] = "string";
-			rule_names[new_command_parser::scalarpotID] = "scalar_pot";
-			rule_names[new_command_parser::identifierID] = "identifier";
-			rule_names[new_command_parser::complexID] = "complex";
-			rule_names[new_command_parser::addblockID] = "add_block";
-			rule_names[new_command_parser::runID] = "run";
-			tree_to_xml(std::cout, hit.trees, first.get_currentline(), rule_names);
+				// dump ast as XML
+				std::map< parser_id, std::string > rule_names;
+				rule_names[new_command_parser::integerID] = "integer";
+				rule_names[new_command_parser::primitiveID] = "primitive";
+				rule_names[new_command_parser::realID] = "realnum";
+				rule_names[new_command_parser::scalarfactorID] = "scalar_factor";
+				rule_names[new_command_parser::scalartermID] = "scalar_term";
+				rule_names[new_command_parser::scalarexpressionID] = "scalar_expression";
+				rule_names[new_command_parser::firstID] = "first";
+				rule_names[new_command_parser::arrayID] = "array";
+				rule_names[new_command_parser::rowvecID] = "row_vec";
+				rule_names[new_command_parser::variableID] = "variable";
+				rule_names[new_command_parser::assignmentID] = "assignment";
+				rule_names[new_command_parser::rangeID] = "n_range";
+				rule_names[new_command_parser::stringID] = "string";
+				rule_names[new_command_parser::scalarpotID] = "scalar_pot";
+				rule_names[new_command_parser::identifierID] = "identifier";
+				rule_names[new_command_parser::complexID] = "complex";
+				rule_names[new_command_parser::addblockID] = "add_block";
+				rule_names[new_command_parser::runID] = "run";
+				tree_to_xml(std::cout, hit.trees, first.get_currentline(), rule_names);
 #endif
 				if(identify_line(hit.trees.begin()) == new_command_parser::assignmentID)
 				{
@@ -115,17 +115,11 @@ bool HumpFile::execute_command(const std::string& file_name)
 		}
 		return false;
 	}
-	catch (InvalidBlockIdException& e)
-	{
-		std::cout << e.what() << ": " << e.get_id() << std::endl;
-		return false;
-	}
-
-	if(first != last)
+	catch (HumpException< std::string >& e)
 	{
 		file_position pos(first.get_position());
-		std::cout << "Syntax error in input file!" << std::endl;
-		std::cout << pos.file << ":" << pos.line << " " << first.get_currentline() << std::endl;
+		std::cout << file_name << ":" << pos.line << ": error: ";
+		std::cout << e.what() << ": »" << e.get_id() << "«" << std::endl;
 		return false;
 	}
 	return true;

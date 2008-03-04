@@ -11,12 +11,12 @@ class DSOEXPORT HumpException : public std::exception
 public:
 	HumpException(const IdentifierType& unknownId) : unknownId_(unknownId) { }
 
-	const char* what()
+	virtual const char* what() const throw()
 	{
 		return "Hump exception thrown!";
 	}
 
-	const IdentifierType get_id()
+	const IdentifierType get_id() const throw()
 	{
 		return unknownId_;
 	};
@@ -33,9 +33,9 @@ class InvalidBlockNameException : public HumpException< std::string >
 public:
 	InvalidBlockNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Invalid block name passed";
+		return "invalid block name passed";
 	}
 };
 
@@ -46,9 +46,9 @@ class InvalidBlockIdException : public HumpException< std::string >
 public:
 	InvalidBlockIdException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Invalid block ID passed";
+		return "invalid block ID passed";
 	}
 };
 
@@ -59,9 +59,9 @@ class InvalidPortNameException : public HumpException< std::string >
 public:
 	InvalidPortNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Invalid port name passed";
+		return "invalid port name passed";
 	}
 };
 
@@ -72,9 +72,9 @@ class BlockNotConfiguredException : public HumpException< std::string >
 public:
 	BlockNotConfiguredException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Block is not configured";
+		return "block is not configured";
 	}
 };
 
@@ -85,9 +85,9 @@ class DuplicatePortNameException : public HumpException< std::string >
 public:
 	DuplicatePortNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Port name already exists";
+		return "port name already exists";
 	}
 };
 
@@ -98,9 +98,9 @@ class DuplicateBlockNameException : public HumpException< std::string >
 public:
 	DuplicateBlockNameException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Block name already exists";
+		return "block name already exists";
 	}
 };
 
@@ -111,9 +111,9 @@ class SampleTimesMismatchException : public HumpException< std::string >
 public:
 	SampleTimesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Sample times of ports do not match";
+		return "sample times of ports do not match";
 	}
 };
 
@@ -124,9 +124,9 @@ class SignalTypesMismatchException : public HumpException< std::string >
 public:
 	SignalTypesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Signal types of ports do not match";
+		return "signal types of ports do not match";
 	}
 };
 
@@ -137,9 +137,9 @@ class FrameSizesMismatchException : public HumpException< std::string >
 public:
 	FrameSizesMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Frame sizes of ports do not match";
+		return "frame sizes of ports do not match";
 	}
 };
 
@@ -150,9 +150,9 @@ class IncompatibleTypesException : public HumpException< std::string >
 public:
 	IncompatibleTypesException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Incompatible types in assignement";
+		return "incompatible types in assignement";
 	}
 };
 
@@ -163,9 +163,9 @@ class ParameterCountMismatchException : public HumpException< std::string >
 public:
 	ParameterCountMismatchException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Wrong number of parameters";
+		return "wrong number of parameters";
 	}
 };
 
@@ -176,9 +176,9 @@ class UndefinedVariableException : public HumpException< std::string >
 public:
 	UndefinedVariableException(const std::string& unknownId) : HumpException< std::string >(unknownId) { }
 
-	const char* what()
+	const char* what() const throw()
 	{
-		return "Variable not defined";
+		return "variable not defined";
 	}
 };
 
