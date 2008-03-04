@@ -94,3 +94,4 @@ blocks/block_StdoutSink.cpp
 blocks/block_Scrambler/scramble.hpp
 blocks/block_Scrambler/scramble.cpp
 blocks/block_Scrambler/block_Scrambler.cpp
+blocks/block_RaisedCosine.cpp
