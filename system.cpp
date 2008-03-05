@@ -1,12 +1,6 @@
-#include "system.hpp"
-#include "exceptions.hpp"
-#include "signal.hpp"
-#include "block/block.hpp"
-#include "variable/variable.hpp"
-#include "port/port.hpp"
-#include "symtab.hpp"
-#include "types/base.hpp"
-#include "exec_matrix.hpp"
+#include <map>
+#include <set>
+#include <iostream>
 
 #include <boost/preprocessor/repetition.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -14,9 +8,16 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/bind.hpp>
 
-#include <map>
-#include <set>
-#include <iostream>
+#include "system.hpp"
+#include "exec_matrix.hpp"
+#include "exceptions.hpp"
+#include "types/base.hpp"
+#include "signal.hpp"
+#include "symtab.hpp"
+#include "variable/variable.hpp"
+#include "block/block.hpp"
+#include "block/add_get_ports.hpp"
+#include "port/port.hpp"
 
 #include "system.ipp"
 

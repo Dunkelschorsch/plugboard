@@ -1,17 +1,19 @@
+#include <vector>
+#include <map>
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
-#include <vector>
-#include <map>
 #include <boost/bind.hpp>
-#include "exceptions.hpp"
+
 #include "subsystem.hpp"
+#include "exceptions.hpp"
+#include "block/add_get_ports.hpp"
 #include "system.ipp"
 
 
 using boost::bind;
-
 
 
 struct SubsystemImpl : public SystemImpl
