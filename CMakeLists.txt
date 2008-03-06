@@ -27,8 +27,7 @@ add_executable(
 	parameter.cpp
 	port/port_in.cpp
 	port/port_out.cpp
-#	grammar/variable/actions.cpp
-#	grammar/command/actions.cpp
+	grammar/command/actions.cpp
 	input/file.cpp
 )
 
