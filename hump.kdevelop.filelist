@@ -96,3 +96,7 @@ blocks/block_Scrambler/scramble.cpp
 blocks/block_Scrambler/block_Scrambler.cpp
 blocks/block_RaisedCosine.cpp
 block/add_get_ports.hpp
+grammar/command/policies.hpp
+grammar/command/actions.hpp
+grammar/command/actions.cpp
+grammar/command/parser_id.hpp

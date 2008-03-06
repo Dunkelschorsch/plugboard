@@ -1,8 +1,8 @@
 #include <iostream>
-#include <boost/spirit/iterator/file_iterator.hpp>
-#include <boost/spirit/iterator/position_iterator.hpp>
 
 #include "grammar/command/new_parse.hpp"
+#include "grammar/command/policies.hpp"
+#include "grammar/command/actions.hpp"
 
 #include "input/file.hpp"
 #include "exceptions.hpp"
@@ -48,7 +48,7 @@ bool HumpFile::execute_command(const std::string& file_name)
 
 	ast_scanner_t scan(first, last, policies);
 
- 	try
+	try
 	{
 		while(first != last)
 		{
@@ -58,41 +58,44 @@ bool HumpFile::execute_command(const std::string& file_name)
 #ifndef NDEBUG
 				// dump ast as XML
 				std::map< parser_id, std::string > rule_names;
-				rule_names[new_command_parser::integerID] = "integer";
-				rule_names[new_command_parser::primitiveID] = "primitive";
-				rule_names[new_command_parser::realID] = "realnum";
-				rule_names[new_command_parser::scalarfactorID] = "scalar_factor";
-				rule_names[new_command_parser::scalartermID] = "scalar_term";
-				rule_names[new_command_parser::scalarexpressionID] = "scalar_expression";
-				rule_names[new_command_parser::firstID] = "first";
-				rule_names[new_command_parser::arrayID] = "array";
-				rule_names[new_command_parser::rowvecID] = "row_vec";
-				rule_names[new_command_parser::variableID] = "variable";
-				rule_names[new_command_parser::assignmentID] = "assignment";
-				rule_names[new_command_parser::rangeID] = "n_range";
-				rule_names[new_command_parser::stringID] = "string";
-				rule_names[new_command_parser::scalarpotID] = "scalar_pot";
-				rule_names[new_command_parser::identifierID] = "identifier";
-				rule_names[new_command_parser::complexID] = "complex";
-				rule_names[new_command_parser::addblockID] = "add_block";
-				rule_names[new_command_parser::runID] = "run";
+				rule_names[parserID::integer] = "integer";
+				rule_names[parserID::primitive] = "primitive";
+				rule_names[parserID::real] = "realnum";
+				rule_names[parserID::scalarfactor] = "scalar_factor";
+				rule_names[parserID::scalarterm] = "scalar_term";
+				rule_names[parserID::scalarexpression] = "scalar_expression";
+				rule_names[parserID::first] = "first";
+				rule_names[parserID::array] = "array";
+				rule_names[parserID::rowvec] = "row_vec";
+				rule_names[parserID::variable] = "variable";
+				rule_names[parserID::assignment] = "assignment";
+				rule_names[parserID::range] = "n_range";
+				rule_names[parserID::string] = "string";
+				rule_names[parserID::scalarpot] = "scalar_pot";
+				rule_names[parserID::identifier] = "identifier";
+				rule_names[parserID::complex] = "complex";
+				rule_names[parserID::addblock] = "add_block";
+				rule_names[parserID::run] = "run";
 				tree_to_xml(std::cout, hit.trees, first.get_currentline(), rule_names);
 #endif
-				if(identify_line(hit.trees.begin()) == new_command_parser::assignmentID)
+				const tree_iter_t& start_node = hit.trees.begin();
+				int id = identify_line(start_node).to_long();
+				switch(id)
 				{
-					eval_assignment(hit.trees.begin());
-				}
-				else if(identify_line(hit.trees.begin()) == new_command_parser::addblockID)
-				{
-					eval_add_block(hit.trees.begin());
-				}
-				else if(identify_line(hit.trees.begin()) == new_command_parser::connectID)
-				{
-					eval_connect(hit.trees.begin());
-				}
-				else if(identify_line(hit.trees.begin()) == new_command_parser::runID)
-				{
-					eval_run(hit.trees.begin());
+					case parserID::assignment:
+						eval_assignment(start_node);
+						break;
+					case parserID::addblock:
+						eval_add_block(start_node);
+						break;
+					case parserID::connect:
+						eval_connect(start_node);
+						break;
+					case parserID::run:
+						eval_run(start_node);
+						break;
+					default:
+						assert(0);
 				}
 			}
 			else
@@ -102,24 +105,29 @@ bool HumpFile::execute_command(const std::string& file_name)
 	catch (boost::spirit::parser_error< parse_errors, iterator_t >& e)
 	{
 		file_position pos(e.where.get_position());
-	
+
 		if(e.descriptor == opening_paren_expected)
 		{
 			std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline();
-			std::cout << " error: '(' expected." << std::endl;
+			std::cout << " error: »(« expected." << std::endl;
 		}
 		if(e.descriptor == closing_paren_expected)
 		{
 			std::cout << pos.file << ":" << pos.line << ":" << pos.column << " " << first.get_currentline();
-			std::cout << " error: ')' expected." << std::endl;
+			std::cout << " error: »)« expected." << std::endl;
 		}
 		return false;
 	}
 	catch (HumpException< std::string >& e)
 	{
 		file_position pos(first.get_position());
-		std::cout << file_name << ":" << pos.line << ": error: ";
-		std::cout << e.what() << ": »" << e.get_id() << "«" << std::endl;
+		std::cout << file_name << ":" << pos.line << ": error: " << e.what();
+
+		if(not e.get_id().empty())
+			std::cout << ": »" << e.get_id() << "«" << std::endl;
+		else
+			std::cout << std::endl;
+
 		return false;
 	}
 	return true;
