@@ -10,7 +10,7 @@
 #include "block/block.hpp"
 #include "variable/variable.hpp"
 #include "variable/variable_iterator.hpp"
-#include "exceptions.hpp"
+#include "exception/input.hpp"
 #include "constraint.hpp"
 
 

@@ -23,6 +23,7 @@ add_executable(
 	subsystem.cpp
 	exec_matrix.cpp
 	exec_stage.cpp
+	exception/exceptions.cpp
 	block_loader.cpp
 	parameter.cpp
 	port/port_in.cpp

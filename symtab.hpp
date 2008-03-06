@@ -1,7 +1,6 @@
 #ifndef SYMTAB_HPP
 #define SYMTAB_HPP
 
-#include "exceptions.hpp"
 #include <map>
 class Variable;
 
@@ -17,7 +16,7 @@ public:
 
 	bool add_var(const std::string& name, const Variable& v);
 
-	const Variable& get_var(const std::string& name) const throw(UndefinedVariableException);
+	const Variable& get_var(const std::string& name) const;
 
 private:
 	typedef std::map< const std::string, Variable > ht_t;

@@ -6,6 +6,7 @@
 
 #include "grammar/command/actions.hpp"
 #include "grammar/command/parser_id.hpp"
+#include "exception/input.hpp"
 #include "types/base.hpp"
 #include "block/block.hpp"
 #include "variable/variable.hpp"
@@ -344,10 +345,9 @@ void eval_add_block(const tree_iter_t& i)
 
 	if(b->get_params().size() != num_args)
 	{
-		std::string bad_block_name = b->get_name_sys();
 		delete b;
 		// checked ok. does not leak memory
-		throw ParameterCountMismatchException(bad_block_name);
+		throw ParameterCountMismatchException(block_name);
 	}
 
 	// fill block with provided parameters

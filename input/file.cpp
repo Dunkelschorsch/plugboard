@@ -10,7 +10,7 @@
 #endif
 
 #include "input/file.hpp"
-#include "exceptions.hpp"
+#include "exception/base.hpp"
 
 
 struct HumpFile::HumpFileImpl

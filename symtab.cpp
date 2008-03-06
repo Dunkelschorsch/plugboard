@@ -6,6 +6,7 @@
 
 #include "symtab.hpp"
 #include "variable/variable.hpp"
+#include "exception/input.hpp"
 
 
 Symtab::Symtab(const Symtab* parent) : parent_(parent)
@@ -33,7 +34,7 @@ bool Symtab::add_var(const std::string& name, const Variable& v)
 
 
 
-const Variable& Symtab::get_var(const std::string& name) const throw(UndefinedVariableException)
+const Variable& Symtab::get_var(const std::string& name) const
 {
 #ifndef NDEBUG
 	std::cout << "Symtab::get_var(). currently holding " << ht_.size() << " variables." << std::endl;

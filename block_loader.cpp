@@ -1,6 +1,6 @@
 #include "block_loader.hpp"
 #include "factory.hpp"
-#include "exceptions.hpp"
+#include "exception/block.hpp"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -8,8 +8,24 @@
 #include <map>
 #include <ltdl.h>
 
-
 namespace fs = boost::filesystem;
+
+
+template < class IdentifierType, class ProductType >
+class BlockFactoryError
+{
+protected:
+	ProductType* OnUnknownType(const IdentifierType& id);
+};
+
+
+template< class IdentifierType, class ProductType >
+ProductType* BlockFactoryError< IdentifierType, ProductType >::OnUnknownType(const IdentifierType& id)
+{
+	// checked ok. does not leak memory
+	throw InvalidBlockIdException(id);
+}
+
 
 
 template<>

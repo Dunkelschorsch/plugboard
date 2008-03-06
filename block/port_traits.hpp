@@ -5,7 +5,7 @@
 #include <iostream>
 #endif
 
-#include "exceptions.hpp"
+#include "exception/port.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"
 class Block;
