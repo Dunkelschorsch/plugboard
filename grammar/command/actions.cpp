@@ -424,3 +424,26 @@ void eval_run(const tree_iter_t& i)
 #endif
 	Systems::instance().get_root()->wakeup_sys(times);
 }
+
+
+void eval_command( const tree_iter_t & start_node )
+{
+	int id = identify_line(start_node).to_long();
+	switch(id)
+	{
+		case parserID::assignment:
+			eval_assignment(start_node);
+			break;
+		case parserID::addblock:
+			eval_add_block(start_node);
+			break;
+		case parserID::connect:
+			eval_connect(start_node);
+			break;
+		case parserID::run:
+			eval_run(start_node);
+			break;
+		default:
+			assert(0);
+	}
+}

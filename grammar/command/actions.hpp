@@ -34,4 +34,6 @@ void eval_connect(const tree_iter_t& i);
 
 void eval_run(const tree_iter_t& i);
 
+void eval_command(const tree_iter_t& i);
+
 #endif // GRAMMAR_COMMAND_ACTION_HPP

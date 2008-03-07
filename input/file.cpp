@@ -83,25 +83,7 @@ bool HumpFile::execute_command(const std::string& file_name)
 				rule_names[parserID::run] = "run";
 				tree_to_xml(std::cout, hit.trees, first.get_currentline(), rule_names);
 #endif
-				const tree_iter_t& start_node = hit.trees.begin();
-				int id = identify_line(start_node).to_long();
-				switch(id)
-				{
-					case parserID::assignment:
-						eval_assignment(start_node);
-						break;
-					case parserID::addblock:
-						eval_add_block(start_node);
-						break;
-					case parserID::connect:
-						eval_connect(start_node);
-						break;
-					case parserID::run:
-						eval_run(start_node);
-						break;
-					default:
-						assert(0);
-				}
+				eval_command(hit.trees.begin());
 			}
 			else
 				break;
