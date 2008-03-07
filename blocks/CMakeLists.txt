@@ -20,8 +20,4 @@ foreach(
 
 endforeach (blockname)
 
-
-SET(blockname "Scrambler")
-add_library (block_${blockname} SHARED block_${blockname}/block_${blockname}.cpp block_${blockname}/scramble.cpp)
-target_link_libraries (block_${blockname} block_common ${ITPP})
-
+add_subdirectory(scrambler)

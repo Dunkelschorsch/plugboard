@@ -13,7 +13,7 @@
 int main(int argc, char **argv)
 {
 	BlockLoader& bl = BlockLoader::instance();
-	bl.load_dir("blocks");
+	bl.load_dir("blocks", true);
 
 // 	Systems& ss = Systems::instance();
 // 	ss.add_subsystem("sub1", new Subsystem);

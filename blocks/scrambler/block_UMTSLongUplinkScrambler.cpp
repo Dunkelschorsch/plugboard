@@ -27,15 +27,17 @@ private:
 	int32_vec_t sequence_length_, sequence_number_, offset_;
 
 	itpp::cvec Z;
-	LongUplinkScrambler s;
+
+	typedef LongUplinkScrambler scramble_t;
+	scramble_t s;
 };
 
 
 
 HumpBlock::HumpBlock()
 {
-	set_name("Scrambler");
-	set_description("Creates UMTS Scrambling sequences");
+	set_name("UMTS Long Uplink Scrambler");
+	set_description("Creates Long UMTS Uplink Scrambling sequences");
 }
 
 
@@ -52,7 +54,7 @@ void HumpBlock::initialize()
 {
 	c_vector_ = get_signal< complex_t >(scr_out_);
 
-	s = LongUplinkScrambler(sequence_number_[0], offset_[0]);
+	s = scramble_t(sequence_number_[0], offset_[0]);
 	s.generate();
 }
 

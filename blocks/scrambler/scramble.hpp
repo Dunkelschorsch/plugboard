@@ -1,6 +1,7 @@
 #ifndef SCRAMBLE_HPP
 #define SCRAMBLE_HPP
 
+#include "visibility.hpp"
 #include "types/base.hpp"
 #include <itpp/itbase.h>
 

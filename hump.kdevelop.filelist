@@ -107,3 +107,6 @@ exception/signal.hpp
 exception/block.hpp
 exception/port.hpp
 exception/input.hpp
+blocks/scrambler/block_UMTSDownlinkScrambler.cpp
+blocks/scrambler/block_UMTSShortUplinkScrambler.cpp
+blocks/scrambler/CMakeLists.txt
