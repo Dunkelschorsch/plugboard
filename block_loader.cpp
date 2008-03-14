@@ -45,11 +45,16 @@ struct pimpl< BlockLoader >::implementation
 
 	block_factory_t f_;
 	std::vector< std::string > available_blocks_;
+
+	std::string plugin_prefix, plugin_ext;
 };
 
 
 
-pimpl< BlockLoader >::implementation::implementation() : f_()
+pimpl< BlockLoader >::implementation::implementation()
+	: f_(),
+	plugin_prefix("libblock_"),
+	plugin_ext(".so")
 {
 	uint32_t dl_errors = lt_dlinit();
 	for(uint32_t i=0; i<dl_errors; i++)
@@ -78,6 +83,7 @@ BlockLoader::BlockLoader() : base() { }
 uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 {
 	uint32_t block_count = 0;
+	implementation const& impl = **this;
 
 	fs::path block_path(fs::initial_path());
 	block_path = fs::system_complete(fs::path(dir, fs::native));
@@ -97,19 +103,19 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 		std::string block_file_curr = (block_path/block_iter->leaf()).native_directory_string();
 
-		if (block_file_curr.rfind(".so") == std::string::npos)
+		if (block_file_curr.rfind(impl.plugin_ext) == std::string::npos)
 			continue;
 
 		lt_dlhandle module = lt_dlopen(block_file_curr.c_str());
-		
+
 		if(module != NULL)
 		{
 			std::cerr << "Loading module file '" << block_file_curr << "' ... ";
 			implementation::create_block_func_t create = 0;
 
 			std::string block_id;
-			block_id = block_file_curr.substr(9+block_file_curr.find("libblock_"));
-			block_id = std::string(block_id.begin(), block_id.end()-3);
+			block_id = block_file_curr.substr(impl.plugin_prefix.length() + block_file_curr.find(impl.plugin_prefix));
+			block_id = std::string(block_id.begin(), block_id.end() - impl.plugin_ext.length());
 
 			create = reinterpret_cast< implementation::create_block_func_t >(lt_dlsym(module, "create"));
 
