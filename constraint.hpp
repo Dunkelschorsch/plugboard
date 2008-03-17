@@ -23,7 +23,7 @@ public:
 	typedef const T argument_type;
 	typedef bool result_type;
 
-	ValueConstraint(bool negative=false) : negative_(negative) { }
+	explicit ValueConstraint(bool negative=false) : negative_(negative) { }
 	virtual ~ValueConstraint() { }
 
 	inline result_type check(argument_type arg) const { return do_check(arg); }
@@ -41,7 +41,7 @@ class DSOEXPORT VariableConstraint
 public:
 	typedef bool result_type;
 
-	VariableConstraint(bool negative=false) : negative_(negative) { }
+	explicit VariableConstraint(bool negative=false) : negative_(negative) { }
 	virtual ~VariableConstraint() { }
 
 	inline result_type check(const Variable& var) const { return do_check(var); }
@@ -60,7 +60,7 @@ class SizeConstraint : public ConstraintBase, public VariableConstraint
 typedef VariableConstraint::result_type result_type;
 
 public:
-	SizeConstraint(uint64_t numel, bool neg=false) :
+	explicit SizeConstraint(uint64_t numel, bool neg=false) :
 		VariableConstraint(neg),
 		numel_(numel)
 	{ }
@@ -97,7 +97,7 @@ typedef typename ValueConstraint< T >::argument_type argument_type;
 typedef typename ValueConstraint< T >::result_type result_type;
 
 public:
-	LessThanConstraint(argument_type compare, bool neg=false) :
+	explicit LessThanConstraint(argument_type compare, bool neg=false) :
 		ValueConstraint< T >(neg),
 		compare_(compare)
 	{ }
@@ -120,7 +120,7 @@ typedef typename ValueConstraint< T >::argument_type argument_type;
 typedef typename ValueConstraint< T >::result_type result_type;
 
 public:
-	GreaterThanConstraint(argument_type compare, bool neg=false) :
+	explicit GreaterThanConstraint(argument_type compare, bool neg=false) :
 		ValueConstraint< T >(neg),
 		compare_(compare)
 	{ }
