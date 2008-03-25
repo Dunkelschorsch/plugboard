@@ -1,32 +1,68 @@
 #include <iostream>
+#include <boost/program_options.hpp>
+
 #include "block_loader.hpp"
-// #include "block/block.hpp"
-// #include "system.hpp"
-// #include "subsystem.hpp"
-// #include "variable.hpp"
-// #include "exception.hpp"
-// #include "symtab.hpp"
 #include "input/file.hpp"
-// #include "systems.hpp"
+
+
+
+namespace po = boost::program_options;
 
 
 int main(int argc, char **argv)
 {
-	BlockLoader& bl = BlockLoader::instance();
-	bl.load_dir("blocks", true);
+	bool t_threading;
 
-// 	Systems& ss = Systems::instance();
-// 	ss.add_subsystem("sub1", new Subsystem);
-	
-// 	Subsystem * subs = Systems::instance().get_subsystem("sub1");
-// 	System* root = Systems::instance();
+	try
+	{
+		po::options_description desc("Allowed options");
 
+		desc.add_options()
+			("help,h", "display this help message")
+			("threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
+		;
 
- 	HumpFile ff;
- 	ff.execute_command(argv[1]);
+	        po::options_description hidden("Hidden options");
+		hidden.add_options()
+			("input-file", po::value< std::vector < std::string > >(), "input file")
+		;
 
-// 	subs->add_block(BlockLoader::instance().new_block("1in"), "con");
+		po::options_description all_options;
+		all_options.add(desc).add(hidden);
 
+		po::positional_options_description p;
+		p.add("input-file", 1);
+		po::variables_map vm;
+		po::store(po::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
+		po::notify(vm);
 
-	return EXIT_SUCCESS;
+		if (vm.count("help"))
+		{
+			std::cout << desc << std::endl;
+			return 1;
+		}
+
+		if (vm.count("input-file") != 1)
+		{
+			throw std::logic_error("Please specify one input file.");
+		} else
+		{
+			std::string input_file =
+				vm["input-file"].as< std::vector < std::string > >()[0];
+			BlockLoader::instance().load_dir("blocks", true);
+
+			std::cout << "threading is: " << t_threading << std::endl;
+
+			HumpFile ff;
+			ff.execute_command(input_file);
+
+			return EXIT_SUCCESS;
+		}
+	}
+	catch(std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
+	return 1;
 }

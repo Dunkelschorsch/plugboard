@@ -52,6 +52,13 @@ if(NOT BOOST_THREAD)
 	message(fatal_error 'Could not find the boost::thread library!')
 endif(NOT BOOST_THREAD)
 
+# find and link against the boost::thread library
+find_library(BOOST_PROGRAM_OPTIONS boost_program_options)
+if(NOT BOOST_PROGRAM_OPTIONS)
+	message(fatal_error 'Could not find the boost::program_options library!')
+endif(NOT BOOST_PROGRAM_OPTIONS)
+
+
 FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
 
 # this is not nice. on the other hand, not having the library installed system-wide isn't nice either...
@@ -63,7 +70,7 @@ link_directories (${Boost_LIBRARY_DIRS})
 
 SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${ITPP} block_common ltdl)
+target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} block_common ltdl)
 
 add_library (block_common SHARED block/block.cpp block/source.cpp block/sink.cpp)
 
