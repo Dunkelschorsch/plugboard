@@ -16,6 +16,7 @@ include_directories (${HUMP_SOURCE_DIR})
 add_executable(
 	main
 	main.cpp
+	environment.cpp
 	symtab.cpp
 	variable/variable.cpp
 	system.cpp

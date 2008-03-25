@@ -3,7 +3,7 @@
 
 #include "block_loader.hpp"
 #include "input/file.hpp"
-
+#include "environment.hpp"
 
 
 namespace po = boost::program_options;
@@ -19,10 +19,10 @@ int main(int argc, char **argv)
 
 		desc.add_options()
 			("help,h", "display this help message")
-			("threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
+			("enable-threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
 		;
 
-	        po::options_description hidden("Hidden options");
+	        po::options_description hidden("hidden options");
 		hidden.add_options()
 			("input-file", po::value< std::vector < std::string > >(), "input file")
 		;
@@ -44,14 +44,14 @@ int main(int argc, char **argv)
 
 		if (vm.count("input-file") != 1)
 		{
-			throw std::logic_error("Please specify one input file.");
+			throw std::logic_error("Please specify an input file.");
 		} else
 		{
 			std::string input_file =
 				vm["input-file"].as< std::vector < std::string > >()[0];
 			BlockLoader::instance().load_dir("blocks", true);
 
-			std::cout << "threading is: " << t_threading << std::endl;
+			Environment::instance().set_threading(t_threading);
 
 			HumpFile ff;
 			ff.execute_command(input_file);

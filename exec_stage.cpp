@@ -1,4 +1,5 @@
 #include "exec_stage.hpp"
+#include "environment.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -136,13 +137,9 @@ const ExecutionStage::stage_t& ExecutionStage::get_paths() const
 
 void ExecutionStage::add_path(const path_t& p)
 {
-	if(get_paths().size() > 1)
-		(*this)->threading_enabled_ =
-#ifdef THREADS
-			true;
-#else
-			false;
-#endif
+	if((get_paths().size() > 1) && (Environment::instance().threading_enabled()))
+		(*this)->threading_enabled_ = true;
+
 	(*this)->paths_.push_back(p);
 }
 
