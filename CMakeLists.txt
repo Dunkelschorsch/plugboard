@@ -36,28 +36,33 @@ add_executable(
 
 find_package(Boost)
 if (NOT Boost_FOUND)
-	message(FATAL_ERROR 'Cannot find Boost!)
+	message(FATAL_ERROR "Cannot find Boost!")
 endif (NOT Boost_FOUND)
 
 
 # find and link against the boost::fileysytem library
 find_library(BOOST_FILESYSTEM boost_filesystem)
 if(NOT BOOST_FILESYSTEM)
-	message(fatal_error 'Could not find the boost::filesystem library!')
+	message(FATAL_ERROR "Could not find the boost::filesystem library!")
 endif(NOT BOOST_FILESYSTEM)
-
 
 # find and link against the boost::thread library
 find_library(BOOST_THREAD boost_thread)
 if(NOT BOOST_THREAD)
-	message(fatal_error 'Could not find the boost::thread library!')
+	message(FATAL_ERROR "Could not find the boost::thread library!")
 endif(NOT BOOST_THREAD)
 
 # find and link against the boost::thread library
 find_library(BOOST_PROGRAM_OPTIONS boost_program_options)
 if(NOT BOOST_PROGRAM_OPTIONS)
-	message(fatal_error 'Could not find the boost::program_options library!')
+	message(FATAL_ERROR "Could not find the boost::program_options library!")
 endif(NOT BOOST_PROGRAM_OPTIONS)
+
+# find and link against the ltdl library
+find_library(LTDL ltdl)
+if(NOT LTDL)
+	MESSAGE(FATAL_ERROR "Could not find the ltdl library!")
+endif(NOT LTDL)
 
 
 FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
@@ -71,7 +76,7 @@ link_directories (${Boost_LIBRARY_DIRS})
 
 SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} block_common ltdl)
+target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} ${LTDL} block_common)
 
 add_library (block_common SHARED block/block.cpp block/source.cpp block/sink.cpp)
 
