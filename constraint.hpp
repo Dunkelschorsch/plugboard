@@ -135,4 +135,26 @@ private:
 };
 
 
+
+template< typename T >
+class ModuloConstraint : public ConstraintBase, public ValueConstraint< T >
+{
+typedef typename ValueConstraint< T >::argument_type argument_type;
+typedef typename ValueConstraint< T >::result_type result_type;
+
+public:
+	explicit ModuloConstraint(argument_type modulus, bool neg=false) :
+		ValueConstraint< T >(neg),
+		modulus_(modulus)
+	{ }
+
+private:
+	result_type do_check(argument_type arg) const
+	{
+		return (arg % modulus_) == 0;
+	}
+
+	argument_type modulus_;
+};
+
 #endif // CONSTRAINT_HPP
