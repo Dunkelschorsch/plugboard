@@ -1,6 +1,8 @@
 #ifndef ENVIRONMENT_HPP
 #define ENVIRONMENT_HPP
 
+#include <string>
+#include <boost/any.hpp>
 #include <boost/pool/detail/singleton.hpp>
 #include "pimpl/pimpl.h"
 
@@ -17,8 +19,9 @@ public:
 		return self;
 	}
 
-	bool threading_enabled();
-	void set_threading(bool);
+	const boost::any& get(const std::string&);
+
+	Environment& set(const std::string&, boost::any);
 
 private:
 	Environment();

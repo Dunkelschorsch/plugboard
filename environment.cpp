@@ -1,4 +1,6 @@
 #include "environment.hpp"
+#include <tr1/unordered_map>
+
 
 typedef pimpl< Environment >::implementation EnvironmentImpl;
 
@@ -11,24 +13,25 @@ struct pimpl< Environment >::implementation
 {
 	implementation();
 
-	bool threading;
+	std::tr1::unordered_map< std::string, boost::any > properties;
 };
 
 
 EnvironmentImpl::implementation() :
-	threading(false)
+	properties()
 {
-
+	properties["threading"] = false;
 }
 
 
-void Environment::set_threading(bool b)
+const boost::any& Environment::get(const std::string& prop)
 {
-	(*this)->threading = b;
+	return (*this)->properties[prop];
 }
 
 
-bool Environment::threading_enabled()
+Environment& Environment::set(const std::string& prop, boost::any val)
 {
-	return (*this)->threading;
+	(*this)->properties[prop] = val;
+	return *this;
 }

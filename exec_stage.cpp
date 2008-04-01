@@ -137,8 +137,11 @@ const ExecutionStage::stage_t& ExecutionStage::get_paths() const
 
 void ExecutionStage::add_path(const path_t& p)
 {
-	if((get_paths().size() > 1) && (Environment::instance().threading_enabled()))
+	if((get_paths().size() > 1) &&
+		boost::any_cast< bool >(Environment::instance().get("threading")))
+	{
 		(*this)->threading_enabled_ = true;
+	}
 
 	(*this)->paths_.push_back(p);
 }

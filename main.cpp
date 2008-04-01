@@ -11,7 +11,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char **argv)
 {
-	bool t_threading;
+	bool t_threading = false;
 
 	try
 	{
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 				vm["input-file"].as< std::vector < std::string > >()[0];
 			BlockLoader::instance().load_dir("blocks", true);
 
-			Environment::instance().set_threading(t_threading);
+			Environment::instance().set("threading", t_threading);
 
 			HumpFile ff;
 			ff.execute_command(input_file);
