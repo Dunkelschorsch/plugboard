@@ -112,3 +112,4 @@ blocks/scrambler/block_UMTSShortUplinkScrambler.cpp
 blocks/scrambler/CMakeLists.txt
 environment.hpp
 environment.cpp
+blocks/block_RaisedCosineTransmit.cpp

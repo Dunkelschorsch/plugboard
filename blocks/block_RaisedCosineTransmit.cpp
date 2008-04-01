@@ -33,6 +33,8 @@ private:
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 	real_vec_t alpha_;
+	int32_vec_t filter_length_;
+	int32_vec_t upsampling_factor_;
 
 	// pulse shaper object
 	itpp::Raised_Cosine< complex_t > rc;
@@ -42,8 +44,8 @@ private:
 
 HumpBlock::HumpBlock()
 {
-	set_name("RaisedCosine");
-	set_description("Raised cosine pulse shaper");
+	set_name("RaisedCosineTransmit");
+	set_description("Raised cosine transmit filter");
 }
 
 
@@ -57,7 +59,10 @@ void HumpBlock::setup_input_ports()
 
 void HumpBlock::setup_output_ports()
 {
-	sig_out_ = add_port(new OutPort("out", complex, sig_in_->get_Ts(), sig_in_->get_frame_size()));
+	sig_out_ = add_port(new OutPort("out", complex,
+		sig_in_->get_Ts() / upsampling_factor_[0],
+		sig_in_->get_frame_size() * upsampling_factor_[0])
+	);
 }
 
 
@@ -67,7 +72,7 @@ void HumpBlock::initialize()
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
 
-	rc.set_pulse_shape(alpha_[0]);
+	rc.set_pulse_shape(alpha_[0], filter_length_[0], upsampling_factor_[0]);
 }
 
 
@@ -92,6 +97,20 @@ void HumpBlock::configure_parameters()
 	(
 		(new Parameter(&alpha_, real, "Roll-off factor"))
 		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
+		->add_constraint(new SizeConstraint(1))
+	);
+
+	add_parameter
+	(
+		(new Parameter(&filter_length_, int32, "Filter length"))
+		->add_constraint(new ModuloConstraint< int32_t >(2))
+		->add_constraint(new SizeConstraint(1))
+	);
+
+	add_parameter
+	(
+		(new Parameter(&upsampling_factor_, int32, "Upsampling factor"))
+		->add_constraint(new GreaterThanConstraint< int32_t >(1))
 		->add_constraint(new SizeConstraint(1))
 	);
 }
