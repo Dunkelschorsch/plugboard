@@ -11,6 +11,7 @@ foreach(
 	Fork
 	MPSKDemodulator
 	MPSKModulator
+	RaisedCosineReceive
 	RaisedCosineTransmit
 	RandomUniformBitGenerator
 	StdoutSink

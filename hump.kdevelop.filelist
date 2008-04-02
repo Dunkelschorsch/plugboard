@@ -113,3 +113,4 @@ blocks/scrambler/CMakeLists.txt
 environment.hpp
 environment.cpp
 blocks/block_RaisedCosineTransmit.cpp
+blocks/block_RaisedCosineReceive.cpp
