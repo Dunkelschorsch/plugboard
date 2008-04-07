@@ -124,7 +124,8 @@ HumpBlock::HumpBlock()
 
 HumpBlock::~HumpBlock()
 {
-	delete mf;
+	if(is_initialized())
+		delete mf;
 }
 
 
