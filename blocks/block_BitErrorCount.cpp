@@ -13,9 +13,7 @@
 class HumpBlock : public Block, public Sink
 {
 public:
-
 	HumpBlock();
-	~HumpBlock();
 
 private:
 	void setup_input_ports();
@@ -23,6 +21,7 @@ private:
 
 	void initialize();
 	void process();
+	void finalize();
 
 	const InPort *tx_in_, *rx_in_;
 	const itpp::Vec< int32_t > *tx_vec, *rx_vec;
@@ -62,30 +61,6 @@ HumpBlock::HumpBlock()
 
 
 
-HumpBlock::~HumpBlock()
-{
-	if(is_initialized())
-	{
-#ifndef NDEBUG
-		std::cout << "Writing BER report to file '" << filename_[0] << "'" << std::endl;
-#endif
-		using itpp::Name;
-		report_file
-			<< Name("bits_total", "total number of transmitted bits") << berc.get_total_bits()
-			<< Name("bit_errors", "number of bit errrors") << berc.get_errors()
-			<< Name("bit_corrects", "number correctly transmitted bits") << berc.get_corrects()
-			<< Name("bit_error_rate", "bit error rate") << berc.get_errorrate()
-		;
-		report_file.flush();
-#ifndef NDEBUG
-		berc.report();
-#endif
-	}
-	report_file.close();
-}
-
-
-
 void HumpBlock::setup_input_ports()
 {
 	tx_in_ = add_port(new InPort("tx", int32, 0, 0));
@@ -117,5 +92,25 @@ void HumpBlock::process()
 	berc.count(to_bvec(*tx_vec), to_bvec(*rx_vec));
 }
 
+
+
+void HumpBlock::finalize()
+{
+#ifndef NDEBUG
+	std::cout << "Writing BER report to file '" << filename_[0] << "'" << std::endl;
+#endif
+	using itpp::Name;
+	report_file
+		<< Name("bits_total", "total number of transmitted bits") << berc.get_total_bits()
+		<< Name("bit_errors", "number of bit errrors") << berc.get_errors()
+		<< Name("bit_corrects", "number correctly transmitted bits") << berc.get_corrects()
+		<< Name("bit_error_rate", "bit error rate") << berc.get_errorrate()
+	;
+	report_file.flush();
+#ifndef NDEBUG
+	berc.report();
+#endif
+	report_file.close();
+}
 
 #include "block/create.hpp"
