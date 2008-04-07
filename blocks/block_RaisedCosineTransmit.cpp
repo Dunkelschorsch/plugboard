@@ -5,7 +5,7 @@
 #include "constraint.hpp"
 
 #include <itpp/itcomm.h>
-
+#include <itpp/itstat.h>
 
 
 class HumpBlock : public Block, public Sink, public Source
@@ -37,7 +37,7 @@ private:
 	int32_vec_t upsampling_factor_;
 
 	// pulse shaper object
-	itpp::Raised_Cosine< complex_t > rc;
+	itpp::Root_Raised_Cosine< complex_t > rc;
 };
 
 
@@ -120,14 +120,16 @@ void HumpBlock::configure_parameters()
 void HumpBlock::process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " symbols in: " ;
+	std::cout << get_name_sys() << std::endl << " samples in(" << in_vector_->size() << "): " ;
+	std::cout << "rms: " << sqrt(itpp::mean(itpp::pow(itpp::abs(*in_vector_), 2))) << " ";
 	std::cout << *in_vector_ << std::endl;
 #endif
 
 	*out_vector_ = rc.shape_symbols(*in_vector_);
 
 #ifndef NDEBUG
-	std::cout << " symbols out: " ;
+	std::cout << " samples out(" << out_vector_->size() << "): " ;
+	std::cout << "rms: " << sqrt(itpp::mean(itpp::pow(itpp::abs(*out_vector_), 2))) << " ";
 	std::cout << *out_vector_ << std::endl;
 #endif
 }
