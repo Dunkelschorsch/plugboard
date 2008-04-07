@@ -107,7 +107,7 @@ template< typename T >
 void HumpBlock::do_fork()
 {
 #ifndef NDEBUG
-		std::cout << " in:  " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
+		std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
 #endif
 		for(int32_t i=0; i<num_outputs_[0]; ++i)
 		{
