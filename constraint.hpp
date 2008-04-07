@@ -7,11 +7,32 @@
 
 #include "visibility.hpp"
 #include "variable/variable.hpp"
+#include "exception/base.hpp"
 
 
-struct DSOEXPORT ConstraintBase
+class DSOEXPORT ConstraintTestException : public HumpException< std::string >
 {
+public:
+	ConstraintTestException(const std::string& unknownId)
+		: HumpException< std::string >(unknownId)
+	{ }
+
+private:
+	const char* do_what() const
+	{
+		return "constraint check failed";
+	}
+};
+
+
+class DSOEXPORT ConstraintBase
+{
+public:
 	virtual ~ConstraintBase() { }
+	inline void throw_exception() const { return do_throw_exception(); }
+
+private:
+	virtual void do_throw_exception() const = 0;
 };
 
 
@@ -64,8 +85,13 @@ public:
 		VariableConstraint(neg),
 		numel_(numel)
 	{ }
-	
-private:
+
+private:	
+	void do_throw_exception() const
+	{
+		throw ConstraintTestException("blah!");
+	}
+
 	result_type do_check(const Variable& var) const
 	{
 		return var.size() == numel_;
@@ -82,9 +108,15 @@ class NullConstraint : public ConstraintBase, public ValueConstraint< T >
 typedef typename ValueConstraint< T >::argument_type argument_type;
 typedef typename ValueConstraint< T >::result_type result_type;
 
+private:
 	result_type do_check(argument_type) const
 	{
 		return true;
+	}
+
+	void do_throw_exception() const
+	{
+		throw ConstraintTestException("blah!");
 	}
 };
 
@@ -103,6 +135,11 @@ public:
 	{ }
 
 private:
+	void do_throw_exception() const
+	{
+		throw ConstraintTestException("blah!");
+	}
+
 	result_type do_check(argument_type arg) const
 	{
 		return arg < compare_ ? true : false;
@@ -126,6 +163,11 @@ public:
 	{ }
 
 private:
+	void do_throw_exception() const
+	{
+		throw ConstraintTestException("blah!");
+	}
+
 	result_type do_check(argument_type arg) const
 	{
 		return arg > compare_ ? true : false;
@@ -149,6 +191,11 @@ public:
 	{ }
 
 private:
+	void do_throw_exception() const
+	{
+		throw ConstraintTestException("blah!");
+	}
+
 	result_type do_check(argument_type arg) const
 	{
 		return (arg % modulus_) == 0;

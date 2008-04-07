@@ -205,7 +205,7 @@ struct CheckConstraintAction
 			std::cout << "aww!" << std::endl;
 #endif
 			// TODO come up with proper exceptions here
-			throw std::exception();
+			cb->throw_exception();
 		}
 #ifndef NDEBUG
 		else
@@ -257,7 +257,7 @@ struct CheckVariableConstraintAction
 
 			if(not passed)
 			{
-				throw std::exception();
+				cb->throw_exception();
 			}
 		}
 	}
