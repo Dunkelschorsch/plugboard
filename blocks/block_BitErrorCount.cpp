@@ -1,6 +1,7 @@
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
+#include "types/vectors.hpp"
 #include "constraint.hpp"
 #include <iostream>
 
@@ -29,6 +30,9 @@ private:
 	itpp::BERC berc;
 
 	std::vector< std::string > filename_;
+	int32_vec_t delay_;
+
+	itpp::it_file report_file;
 };
 
 
@@ -38,6 +42,12 @@ void HumpBlock::configure_parameters()
 	add_parameter
 	(
 		(new Parameter(&filename_, string, "Filename to save"))
+		->add_constraint(new SizeConstraint(1))
+	);
+
+	add_parameter
+	(
+		(new Parameter(&delay_, int32, "Delay"))
 		->add_constraint(new SizeConstraint(1))
 	);
 }
@@ -54,10 +64,24 @@ HumpBlock::HumpBlock()
 
 HumpBlock::~HumpBlock()
 {
+	if(is_initialized())
+	{
 #ifndef NDEBUG
-	std::cout << filename_[0] << std::endl;
+		std::cout << "Writing BER report to file '" << filename_[0] << "'" << std::endl;
 #endif
-	berc.report();
+		using itpp::Name;
+		report_file
+			<< Name("bits_total", "total number of transmitted bits") << berc.get_total_bits()
+			<< Name("bit_errors", "number of bit errrors") << berc.get_errors()
+			<< Name("bit_corrects", "number correctly transmitted bits") << berc.get_corrects()
+			<< Name("bit_error_rate", "bit error rate") << berc.get_errorrate()
+		;
+		report_file.flush();
+#ifndef NDEBUG
+		berc.report();
+#endif
+	}
+	report_file.close();
 }
 
 
@@ -72,10 +96,12 @@ void HumpBlock::setup_input_ports()
 
 void HumpBlock::initialize()
 {
+	report_file.open(filename_[0]);
+
 	tx_vec = get_signal< int32_t >(tx_in_);
 	rx_vec = get_signal< int32_t >(rx_in_);
 
-	berc = itpp::BERC();
+	berc = itpp::BERC(delay_[0]);
 }
 
 
