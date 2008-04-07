@@ -5,6 +5,7 @@
 #include "constraint.hpp"
 
 #include <itpp/comm/modulator.h>
+#include <itpp/itbase.h>
 
 
 static const char* BLOCK_NAME = "MPSKModulator";
@@ -56,7 +57,8 @@ void HumpBlock::setup_input_ports()
 
 void HumpBlock::setup_output_ports()
 {
-	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(), bits_in_->get_frame_size()));
+	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(),
+		bits_in_->get_frame_size()/static_cast< unsigned int >(log2(M_[0]))));
 }
 
 
@@ -100,14 +102,14 @@ void HumpBlock::configure_parameters()
 void HumpBlock::process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " bits: ";
+	std::cout << get_name_sys() << std::endl << " bits(" << bit_vector_->size() << "): ";
 	std::cout << *bit_vector_ << std::endl;
 #endif
 
-	mod.modulate(*bit_vector_, *symbol_vector_);
+	mod.modulate_bits(to_bvec(*bit_vector_), *symbol_vector_);
 
 #ifndef NDEBUG
-	std::cout << " symobls: ";
+	std::cout << " symobls(" << symbol_vector_->size() << "): ";
 	std::cout << *symbol_vector_ << std::endl;
 #endif	
 }

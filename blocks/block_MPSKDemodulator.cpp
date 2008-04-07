@@ -57,9 +57,9 @@ void HumpBlock::setup_input_ports()
 void HumpBlock::setup_output_ports()
 {
 	if(soft_demod_[0] == 1)
-		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
+		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
 	else
-		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
+		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
 }
 
 
@@ -115,20 +115,24 @@ void HumpBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
-	std::cout << " input: " << *symbol_vector_ << std::endl;
-	std::cout << " output: ";
+	std::cout << " input(" << symbol_vector_->size() << "): " << *symbol_vector_ << std::endl;
+	std::cout << " output(";
 #endif
 	if(soft_demod_[0] == 1)
 	{
 		mod.demodulate_soft_bits(*symbol_vector_, 1, *static_cast< itpp::Vec< real_t >* >(bits_v_));
 #ifndef NDEBUG
-		std::cout << *static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;
+		
+		std::cout << static_cast< itpp::Vec< real_t >* >(bits_v_)->size() << "): " <<
+			*static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;
 #endif
 	}
 	else {
-		mod.demodulate(*symbol_vector_, *static_cast< itpp::Vec< int32_t >* >(bits_v_));
+		*static_cast< itpp::Vec< int32_t >* >(bits_v_) = to_ivec(mod.demodulate_bits(*symbol_vector_));
 #ifndef NDEBUG
-		std::cout << *static_cast< itpp::Vec< int32_t >* >(bits_v_) << std::endl;
+
+		std::cout << static_cast< itpp::Vec< int32_t >* >(bits_v_)->size() << "): " <<
+			*static_cast< itpp::Vec< int32_t >* >(bits_v_) << std::endl;
 #endif
 	}
 }
