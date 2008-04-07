@@ -22,7 +22,10 @@ struct pimpl< ExecutionMatrix >::implementation
 	void add_block(Block * b, uint32_t insert_where);
 
 	void add_stage(ExecutionStage s);
-	
+
+	template< class ActionT >
+	void for_each_block(const ActionT);
+
 	typedef std::map< std::string, Block * > block_map_t;
 
 	ExecutionStage::store_t stages_;
@@ -451,13 +454,25 @@ struct CallInit
 };
 
 
-void ExecutionMatrix::init()
+struct CallFinalize
+{
+	typedef void result_type;
+
+	result_type operator()(Block * const b) const
+	{
+		b->call_finalize();
+	}
+};
+
+
+template< class ActionT >
+void ExecutionMatrixImpl::for_each_block(const ActionT f)
 {
 	// iterate over all stages
 	for
 	(
-		ExecutionStage::store_t::iterator stage_it = (*this)->stages_.begin();
-		stage_it != (*this)->stages_.end();
+		ExecutionStage::store_t::iterator stage_it = stages_.begin();
+		stage_it != stages_.end();
 		++stage_it
 	)
 	// iterate over all paths in current stage
@@ -472,10 +487,16 @@ void ExecutionMatrix::init()
 	(
 		path_it->begin(),
 		path_it->end(),
-		CallInit()
+		f
 	);
 }
 
+
+void ExecutionMatrix::init()
+{
+	(*this)->for_each_block(CallInit());
+	return;
+}
 
 
 void ExecutionMatrix::exec()
@@ -488,6 +509,12 @@ void ExecutionMatrix::exec()
 	);
 }
 
+
+void ExecutionMatrix::finalize()
+{
+	(*this)->for_each_block(CallFinalize());
+	return;
+}
 
 
 void ExecutionMatrix::print(std::ostream& out) const

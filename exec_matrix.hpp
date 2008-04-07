@@ -38,6 +38,8 @@ public:
 
 	void exec();
 
+	void finalize();
+
 	void print(std::ostream&) const;
 };
 

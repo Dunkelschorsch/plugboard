@@ -30,6 +30,8 @@ public:
 
 	void wakeup_sys(uint32_t times = 1);
 
+	void finalize();
+
 protected:
 	H_DECLARE_PROTECTED(System)
 

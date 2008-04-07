@@ -36,6 +36,7 @@ public:
 	void call_initialize();
 	void call_process();
 	void call_advance();
+	void call_finalize();
 	void call_configure_parameters();
 
 	const std::string& get_name() const;
@@ -73,6 +74,7 @@ private:
 	virtual void initialize();
 	virtual void process() = 0;
 	virtual void advance();
+	virtual void finalize();
 	virtual void configure_parameters();
 };
 

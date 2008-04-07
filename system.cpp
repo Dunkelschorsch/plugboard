@@ -484,6 +484,12 @@ void System::wakeup_sys(uint32_t times)
 }
 
 
+void System::finalize()
+{
+	H_D(System)
+	d->exec_m_.finalize();
+}
+
 
 void System::add_variable( const std::string& name, const Variable& var )
 {

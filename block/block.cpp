@@ -91,6 +91,8 @@ void Block::initialize() { }
 
 void Block::advance() { }
 
+void Block::finalize() { }
+
 // non-virtual interface functions
 void Block::call_process()
 {
@@ -105,6 +107,11 @@ void Block::call_initialize()
 void Block::call_advance()
 {
 	advance();
+}
+
+void Block::call_finalize()
+{
+	finalize();
 }
 
 void Block::call_configure_parameters()

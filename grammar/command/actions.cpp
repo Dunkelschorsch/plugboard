@@ -423,6 +423,10 @@ void eval_run(const tree_iter_t& i)
 	std::cout << "starting system..." << std::endl;
 #endif
 	Systems::instance().get_root()->wakeup_sys(times);
+#ifndef NDEBUG
+	std::cout << "finalizing system..." << std::endl;
+#endif
+	Systems::instance().get_root()->finalize();
 }
 
 
