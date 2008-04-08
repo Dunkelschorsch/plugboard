@@ -13,28 +13,34 @@ template< typename T1, typename T2 >
 class Matched_Filter : public itpp::Filter< T1, T2, T1 >
 {
 public:
-    Matched_Filter(itpp::Vec<T2> filter_coefficients_in, int downsample_factor_in) :
-        filter_coefficients(filter_coefficients_in),
+    Matched_Filter(itpp::Vec<T2> coeffs_in, int downsample_factor_in) :
+        coeffs(coeffs_in),
         downsample_factor(downsample_factor_in),
-        filter_length(filter_coefficients.size()),
-        memory_size(filter_length-1),
-        shift(0)
+	inptr(0)
     {
-        memory.set_size( memory_size ) ;
-        memory.zeros();
+        mem.set_size(coeffs.size(), false) ;
+        mem.clear();
     }
 
     T1 filter(T1 const sample)
     {
-        T1 output = sample * filter_coefficients(0);
+        T1 output = 0;
+        mem(inptr) = sample;
 
-        for(unsigned int coeff_num=1; coeff_num < filter_length; coeff_num++)
+        int L = mem.length() - inptr;
+
+        for (int i = 0; i < L; i++)
         {
-            output += memory_shifted(coeff_num) * filter_coefficients(coeff_num);
+            output += coeffs(i) * mem(inptr + i);
         }
 
-        // put first sample into filter memory
-        put_sample(sample);
+        for (int i = 0; i < inptr; i++) {
+            output += coeffs(L + i) * mem(i);
+        }
+
+        inptr--;
+        if (inptr < 0)
+            inptr += mem.length();
 
         return output;
     }
@@ -55,25 +61,19 @@ public:
     }
 
 private:
-    const itpp::Vec<T2> filter_coefficients;
+    const itpp::Vec<T2> coeffs;
+    itpp::Vec<T1> mem;
+
     const unsigned int downsample_factor;
-    const unsigned int filter_length;
-    const unsigned int memory_size;
-    itpp::Vec<T1> memory;
-
-    unsigned int shift;
-
-    inline T1& memory_shifted(unsigned int n)
-    {
-        return memory[ (shift - n + memory_size) % memory_size ];
-    }
+    int inptr;
 
     void put_sample(T1 const sample)
     {
-        memory[shift] = sample;
+        mem(inptr) = sample;
 
-        if(++shift == memory_size)
-            shift = 0;
+        inptr--;
+        if (inptr < 0)
+            inptr += mem.length();
     }
 };
 
