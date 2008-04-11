@@ -8,13 +8,14 @@
 #include <cstdio>
 
 
+using namespace plugboard;
 
-class HumpBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink
 {
 public:
 
-	HumpBlock();
-	~HumpBlock();
+	PlugBoardBlock();
+	~PlugBoardBlock();
 
 private:
 	void setup_input_ports();
@@ -39,11 +40,11 @@ private:
 	int32_vec_t num_outputs_;
 	type_t input_type_;
 
-	void (HumpBlock::*proc)();
+	void (PlugBoardBlock::*proc)();
 };
 
 
-void HumpBlock::configure_parameters( )
+void PlugBoardBlock::configure_parameters( )
 {
 	add_parameter
 	(
@@ -55,13 +56,13 @@ void HumpBlock::configure_parameters( )
 }
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	sig_in1_ = add_port(new InPort("in"));
 }
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	// only reserve that memory once
 	if(get_num_output_ports() != num_outputs_[0])
@@ -79,17 +80,17 @@ void HumpBlock::setup_output_ports()
 
 
 template< typename T >
-void HumpBlock::do_init()
+void PlugBoardBlock::do_init()
 {
 	v_in_ = get_signal< T >(sig_in1_);
-	proc = &HumpBlock::do_fork< T >;
+	proc = &PlugBoardBlock::do_fork< T >;
 
 	for(int32_t i=0; i<num_outputs_[0]; ++i)
 		v_out_[i] = get_signal< T >(sig_out_[i]);
 }
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	v_out_ = new void* [num_outputs_[0]];
 	input_type_ = sig_in1_->get_type();
@@ -104,7 +105,7 @@ void HumpBlock::initialize()
 
 
 template< typename T >
-void HumpBlock::do_fork()
+void PlugBoardBlock::do_fork()
 {
 #ifndef NDEBUG
 		std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
@@ -122,7 +123,7 @@ void HumpBlock::do_fork()
 }
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
@@ -131,14 +132,14 @@ void HumpBlock::process()
 }
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("Fork");
 	set_description("Clone the input to an arbitrary, user-defined number of outputs.");
 }
 
 
-HumpBlock::~HumpBlock()
+PlugBoardBlock::~PlugBoardBlock()
 {
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;

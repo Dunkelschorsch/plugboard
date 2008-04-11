@@ -4,31 +4,31 @@
 #include "port/port_in.hpp"
 #include "visibility.hpp"
 
-
-template< class PortT > class PortTraits;
-
-
-class DSOEXPORT Sink
+namespace plugboard
 {
-friend class PortTraits< InPort >;
+	template< class PortT > class PortTraits;
 
-public:
-	Sink();
+	class DSOEXPORT Sink
+	{
+	friend class PortTraits< InPort >;
 
-	inline void call_setup_input_ports() { setup_input_ports(); }
-	uint16_t get_num_input_ports() const;
+	public:
+		Sink();
 
-	InPort::store_t * get_port_list();
-	InPort::store_t * get_port_list() const;
+		inline void call_setup_input_ports() { setup_input_ports(); }
+		uint16_t get_num_input_ports() const;
 
-protected:
-	virtual ~Sink();
+		InPort::store_t * get_port_list();
+		InPort::store_t * get_port_list() const;
 
-private:
-	virtual void setup_input_ports() = 0;
-	uint16_t num_input_ports_;
-	InPort::store_t ports_in_;
-};
+	protected:
+		virtual ~Sink();
 
+	private:
+		virtual void setup_input_ports() = 0;
+		uint16_t num_input_ports_;
+		InPort::store_t ports_in_;
+	};
+} // namespace plugboard
 
 #endif // BLOCK_SINK_HPP

@@ -3,22 +3,24 @@
 
 #include "exception/base.hpp"
 
-
-class InvalidPortNameException : public HumpException< std::string >
+namespace plugboard
 {
-public:
-	InvalidPortNameException(const std::string& unknownId);
+	class InvalidPortNameException : public Exception< std::string >
+	{
+	public:
+		InvalidPortNameException(const std::string& unknownId);
 
-	const char* do_what() const;
-};
+		const char* do_what() const;
+	};
 
 
-class DuplicatePortNameException : public HumpException< std::string >
-{
-public:
-	DuplicatePortNameException(const std::string& unknownId);
+	class DuplicatePortNameException : public Exception< std::string >
+	{
+	public:
+		DuplicatePortNameException(const std::string& unknownId);
 
-	const char* do_what() const;
-};
+		const char* do_what() const;
+	};
+}
 
 #endif // EXCEPTION_PORT_HPP

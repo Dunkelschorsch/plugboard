@@ -6,7 +6,9 @@
 #include <iterator>
 #include <iostream>
 
+
 using boost::bind;
+using namespace plugboard;
 
 
 typedef pimpl< ExecutionMatrix >::implementation ExecutionMatrixImpl;
@@ -309,7 +311,7 @@ void ExecutionMatrix::combine_stages()
 #endif
 				continue;
 			}
-	
+
 			if(is_left_terminated((stage_next)->get_paths().front()))
 			{
 				// more luck with the next stage?
@@ -318,11 +320,11 @@ void ExecutionMatrix::combine_stages()
 #endif
 				continue;
 			}
-	
+
 			const Block* block_curr = (stage_curr)->get_paths().front().back();
 			Block* block_next = (stage_next)->get_paths().front().front();
 			assert(block_next != NULL);
-	
+
 			const std::set< std::string > connections_curr
 				= dynamic_cast< const Source* >(block_curr)->get_connections();
 #ifndef NDEBUG
@@ -379,7 +381,7 @@ void ExecutionMatrix::parallelize()
 
 			const std::set< std::string > connections_curr
 				= dynamic_cast< const Source* >(block_curr)->get_connections();
-			
+
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
 				// no parallelization possible

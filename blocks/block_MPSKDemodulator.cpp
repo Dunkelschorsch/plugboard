@@ -7,11 +7,12 @@
 #include <itpp/comm/modulator.h>
 
 
+using namespace plugboard;
 
-class HumpBlock : public Block, public Sink, public Source
+class PlugBoardBlock : public Block, public Sink, public Source
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void configure_parameters();
@@ -39,7 +40,7 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("MPSKDemodulator");
 	set_description("M-Ary PSK Demodulator");
@@ -47,14 +48,14 @@ HumpBlock::HumpBlock()
 
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	if(soft_demod_[0] == 1)
 		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
@@ -64,7 +65,7 @@ void HumpBlock::setup_output_ports()
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	if(soft_demod_[0] == 1)
 		bits_v_ = get_signal< real_t >(bits_out_);
@@ -78,7 +79,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -111,7 +112,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -122,7 +123,7 @@ void HumpBlock::process()
 	{
 		mod.demodulate_soft_bits(*symbol_vector_, 1, *static_cast< itpp::Vec< real_t >* >(bits_v_));
 #ifndef NDEBUG
-		
+
 		std::cout << static_cast< itpp::Vec< real_t >* >(bits_v_)->size() << "): " <<
 			*static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;
 #endif

@@ -114,3 +114,6 @@ environment.hpp
 environment.cpp
 blocks/block_RaisedCosineTransmit.cpp
 blocks/block_RaisedCosineReceive.cpp
+blocks/scrambler/block_UMTSLongUplinkScrambler.cpp
+blocks/scrambler/scramble.cpp
+blocks/scrambler/scramble.hpp

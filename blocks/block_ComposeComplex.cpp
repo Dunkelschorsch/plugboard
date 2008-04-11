@@ -6,11 +6,12 @@
 #include <iostream>
 
 
+using namespace plugboard;
 
-class HumpBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void setup_input_ports();
@@ -33,7 +34,7 @@ private:
 
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	real_in_ = add_port(new InPort("real", empty, 0, 0));
 	imag_in_ = add_port(new InPort("imag", empty, 0, 0));
@@ -41,13 +42,13 @@ void HumpBlock::setup_input_ports()
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	complex_out_ = add_port(new OutPort("complex", complex, real_in_->get_Ts(), real_in_->get_frame_size()));
 }
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	input_type_ = real_in_->get_type();
 	if(input_type_ == int32)
@@ -65,7 +66,7 @@ void HumpBlock::initialize()
 
 
 template< typename T >
-void HumpBlock::do_compose()
+void PlugBoardBlock::do_compose()
 {
 	*v_complex_ = to_cvec(
 		to_vec(*static_cast< const itpp::Vec<T>* >(v_real_)),
@@ -78,7 +79,7 @@ void HumpBlock::do_compose()
 }
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -94,7 +95,7 @@ void HumpBlock::process()
 }
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("ComposeComplex");
 	set_description("Create a complex signal out of two real valued signals.");

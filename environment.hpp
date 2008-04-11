@@ -6,25 +6,27 @@
 #include <boost/pool/detail/singleton.hpp>
 #include "pimpl/pimpl.h"
 
-
-class Environment : public pimpl< Environment >::pointer_semantics
+namespace plugboard
 {
-typedef boost::details::pool::singleton_default< Environment > singleton;
-friend class boost::details::pool::singleton_default< Environment >;
-
-public:
-	static Environment& instance()
+	class Environment : public pimpl< Environment >::pointer_semantics
 	{
-		Environment& self = singleton::instance();
-		return self;
-	}
+	typedef boost::details::pool::singleton_default< Environment > singleton;
+	friend class boost::details::pool::singleton_default< Environment >;
 
-	const boost::any& get(const std::string&);
+	public:
+		static Environment& instance()
+		{
+			Environment& self = singleton::instance();
+			return self;
+		}
 
-	Environment& set(const std::string&, boost::any);
+		const boost::any& get(const std::string&);
 
-private:
-	Environment();
-};
+		Environment& set(const std::string&, boost::any);
+
+	private:
+		Environment();
+	};
+} // namespace plugboard
 
 #endif // ENVIRONMENT_HPP

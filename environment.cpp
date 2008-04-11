@@ -1,6 +1,7 @@
 #include "environment.hpp"
 #include <tr1/unordered_map>
 
+using namespace plugboard;
 
 typedef pimpl< Environment >::implementation EnvironmentImpl;
 

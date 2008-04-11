@@ -7,7 +7,7 @@
 
 
 namespace po = boost::program_options;
-
+namespace pb = plugboard;
 
 int main(int argc, char **argv)
 {
@@ -49,11 +49,11 @@ int main(int argc, char **argv)
 		{
 			std::string input_file =
 				vm["input-file"].as< std::vector < std::string > >()[0];
-			BlockLoader::instance().load_dir("blocks", true);
+			pb::BlockLoader::instance().load_dir("blocks", true);
 
-			Environment::instance().set("threading", t_threading);
+			pb::Environment::instance().set("threading", t_threading);
 
-			HumpFile ff;
+			pb::FileInput ff;
 			ff.execute_command(input_file);
 
 			return EXIT_SUCCESS;

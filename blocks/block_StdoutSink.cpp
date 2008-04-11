@@ -4,11 +4,12 @@
 #include <iostream>
 
 
+using namespace plugboard;
 
-class HumpBlock : public Block, public Sink
+class PlugBoardBlock : public Block, public Sink
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void setup_input_ports();
@@ -22,44 +23,44 @@ private:
 	const InPort *sig_in_;
 	const void *input_;
 
-	void(HumpBlock::*proc)();
+	void(PlugBoardBlock::*proc)();
 };
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in"));
 }
 
 
-void HumpBlock::initialize( )
+void PlugBoardBlock::initialize( )
 {
 	if(sig_in_->get_type() == int32)
 	{
 		input_ = get_signal< int32_t >(sig_in_);
-		proc = &HumpBlock::do_display< int32_t >;
+		proc = &PlugBoardBlock::do_display< int32_t >;
 	}
 	else if(sig_in_->get_type() == real)
 	{
 		input_ = get_signal< real_t >(sig_in_);
-		proc = &HumpBlock::do_display< real_t >;
+		proc = &PlugBoardBlock::do_display< real_t >;
 	}
 	else
 	{
 		input_ = get_signal< complex_t >(sig_in_);
-		proc = &HumpBlock::do_display< complex_t >;
+		proc = &PlugBoardBlock::do_display< complex_t >;
 	}
 }
 
 
 template< typename T >
-void HumpBlock::do_display()
+void PlugBoardBlock::do_display()
 {
 	std::cout << *static_cast< const itpp::Vec<T>* >(input_) << std::endl;
 }
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -69,7 +70,7 @@ void HumpBlock::process()
 }
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("StdoutSink");
 	set_description("Display input signal on standard output.");

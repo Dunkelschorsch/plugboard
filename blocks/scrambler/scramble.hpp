@@ -54,7 +54,7 @@ protected:
 	}
 
 	uint32_t seq_num_, seq_len_;
-	
+
 	itpp::Vec< int8_t > c_n_real_;
 	itpp::Vec< int8_t > c_n_imag_;
 

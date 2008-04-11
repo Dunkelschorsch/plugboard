@@ -2,22 +2,26 @@
 #define FILE_HPP
 
 #include <string>
-class BlockLoader;
-class System;
 
-
-class HumpFile
+namespace plugboard
 {
-struct HumpFileImpl;
+	class BlockLoader;
+	class System;
 
-public:
-	HumpFile();
-	~HumpFile();
+	class FileInput
+	{
+	struct FileInputImpl;
 
-	bool execute_command(const std::string& file_name);
+	public:
+		FileInput();
+		~FileInput();
 
-private:
-	HumpFileImpl * d;
-};
+		bool execute_command(const std::string& file_name);
+
+	private:
+		FileInputImpl * d;
+	};
+
+} // namespace plugboard
 
 #endif // FILE_HPP

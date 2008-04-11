@@ -1,4 +1,4 @@
-project (HUMP)
+project (PLUGBOARD)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
@@ -11,10 +11,10 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CC_RELEASE}")
 SET(CMAKE_CC_FLAGS_DEBUG "-ggdb -Werror")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CC_FLAGS_DEBUG}")
 
-include_directories (${HUMP_SOURCE_DIR})
+include_directories (${PLUGBOARD_SOURCE_DIR})
 
 add_executable(
-	main
+	pb
 	main.cpp
 	environment.cpp
 	symtab.cpp
@@ -76,7 +76,7 @@ link_directories (${Boost_LIBRARY_DIRS})
 
 SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(main ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} ${LTDL} block_common)
+target_link_libraries(pb ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} ${LTDL} block_common)
 
 add_library (block_common SHARED block/block.cpp block/source.cpp block/sink.cpp)
 

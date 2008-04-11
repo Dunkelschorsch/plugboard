@@ -3,41 +3,43 @@
 
 #include "exception/base.hpp"
 
-
-class InvalidBlockNameException : public HumpException< std::string >
+namespace plugboard
 {
-public:
-	InvalidBlockNameException(const std::string& unknownId);
+	class InvalidBlockNameException : public Exception< std::string >
+	{
+	public:
+		InvalidBlockNameException(const std::string& unknownId);
 
-	const char* do_what() const;
-};
-
-
-class InvalidBlockIdException : public HumpException< std::string >
-{
-public:
-	InvalidBlockIdException(const std::string& unknownId);
-
-	const char* do_what() const;
-};
+		const char* do_what() const;
+	};
 
 
-class DuplicateBlockNameException : public HumpException< std::string >
-{
-public:
-	DuplicateBlockNameException(const std::string& unknownId);
+	class InvalidBlockIdException : public Exception< std::string >
+	{
+	public:
+		InvalidBlockIdException(const std::string& unknownId);
 
-	const char* do_what() const;
-};
+		const char* do_what() const;
+	};
 
 
-// unused atm
-class BlockNotConfiguredException : public HumpException< std::string >
-{
-public:
-	BlockNotConfiguredException(const std::string& unknownId);
+	class DuplicateBlockNameException : public Exception< std::string >
+	{
+	public:
+		DuplicateBlockNameException(const std::string& unknownId);
 
-	const char* do_what() const;
-};
+		const char* do_what() const;
+	};
+
+
+	// unused atm
+	class BlockNotConfiguredException : public Exception< std::string >
+	{
+	public:
+		BlockNotConfiguredException(const std::string& unknownId);
+
+		const char* do_what() const;
+	};
+} // namespace plugboard
 
 #endif // EXCEPTION_BLOCK_HPP

@@ -2,28 +2,26 @@
 #define SYMTAB_HPP
 
 #include <map>
-class Variable;
 
-
-/** The Symtab class
- */
-class Symtab
+namespace plugboard
 {
-public:
-	Symtab();
+	class Variable;
 
-	Symtab(const Symtab* parent);
+	class Symtab
+	{
+	public:
+		Symtab();
+		Symtab(const Symtab* parent);
 
-	bool add_var(const std::string& name, const Variable& v);
+		bool add_var(const std::string& name, const Variable& v);
+		const Variable& get_var(const std::string& name) const;
 
-	const Variable& get_var(const std::string& name) const;
+	private:
+		typedef std::map< const std::string, Variable > ht_t;
 
-private:
-	typedef std::map< const std::string, Variable > ht_t;
-
-	ht_t ht_;
-
-	const Symtab* parent_;
-};
+		ht_t ht_;
+		const Symtab* parent_;
+	};
+} // namespace plugboard
 
 #endif // SYMTAB_HPP

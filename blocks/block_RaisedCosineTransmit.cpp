@@ -8,10 +8,12 @@
 #include <itpp/itstat.h>
 
 
-class HumpBlock : public Block, public Sink, public Source
+using namespace plugboard;
+
+class PlugBoardBlock : public Block, public Sink, public Source
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void configure_parameters();
@@ -42,7 +44,7 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("RaisedCosineTransmit");
 	set_description("Raised cosine transmit filter");
@@ -50,14 +52,14 @@ HumpBlock::HumpBlock()
 
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", complex,
 		sig_in_->get_Ts() / upsampling_factor_[0],
@@ -67,7 +69,7 @@ void HumpBlock::setup_output_ports()
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
@@ -77,7 +79,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -117,7 +119,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " samples in(" << in_vector_->size() << "): " ;

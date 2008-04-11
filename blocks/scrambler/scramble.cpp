@@ -283,13 +283,13 @@ void LongUplinkScrambler::generate_impl()
 		if(i >= offset_)
 		{
 			uint32_t idx = i - offset_;
-		
+
 			c_1_n_(idx) = mapping(tmpNewC_long_1_n);
 			c_2_n_(idx) = mapping(tmpNewC_long_2_n);
-		
+
 			// c_1_n_ is just the real part of the scrambling sequence
 			c_n_real_(idx) = mapping(tmpNewC_long_1_n);
-		
+
 			if((i % 2) == 0) // even 'i's
 				c_n_imag_(idx) = c_1_n_(idx) * c_2_n_(idx);
 			else // odd 'i's

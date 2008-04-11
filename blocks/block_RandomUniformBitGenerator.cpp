@@ -6,12 +6,12 @@
 
 #include <itpp/itbase.h>
 
+using namespace plugboard;
 
-
-class HumpBlock : public Block, public Source
+class PlugBoardBlock : public Block, public Source
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void process();
@@ -32,7 +32,7 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("RandomUniformBitGenerator");
 	set_description("Creates uniformely distributed integer values.");
@@ -40,14 +40,14 @@ HumpBlock::HumpBlock()
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	prng.setup(lo_[0], hi_[0]);
 	itpp::RNG_randomize();
@@ -57,7 +57,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -90,7 +90,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 	*i_vector_ = prng(framesize_[0]);
 #ifndef NDEBUG

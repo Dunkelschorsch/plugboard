@@ -7,6 +7,7 @@
 #include <boost/pool/object_pool.hpp>
 
 using boost::bind;
+using namespace plugboard;
 
 
 typedef pimpl< ExecutionStage >::implementation ExecutionStageImpl;

@@ -3,17 +3,17 @@
 
 #include "port/port_base.hpp"
 #include "visibility.hpp"
-class Message;
 
-
-class DSOEXPORT InPort : public BasePort< InPort >
+namespace plugboard
 {
-public:
+	class Message;
 
-	InPort(const std::string& name, const type_t type=empty, const real_t Ts=0, const uint32_t frame_size=0);
-
-	const Message receive(uint32_t buff_num);
-};
-
+	class DSOEXPORT InPort : public BasePort< InPort >
+	{
+	public:
+		InPort(const std::string& name, const type_t type=empty, const real_t Ts=0, const uint32_t frame_size=0);
+		const Message receive(uint32_t buff_num);
+	};
+} // namespace plugboard
 
 #endif // PORT_IN_HPP

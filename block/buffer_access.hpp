@@ -4,7 +4,7 @@
 #include "types/typeinfo.hpp"
 
 
-namespace
+namespace plugboard
 {
 	// direct access to the underlying c-array. use only if you must
 	template< class SignalT >
@@ -12,7 +12,7 @@ namespace
 	{
 		return static_cast< typename typeinfo< SignalT >::vector_type* >(p->get_signal_ptr())->_data();
 	}
-	
+
 	template< class SignalT >
 	inline SignalT* get_data(const OutPort *p)
 	{
@@ -30,6 +30,6 @@ namespace
 	{
 		return static_cast< typename typeinfo< SignalT >::vector_type* >(p->get_signal_ptr());
 	}
-}
+} // namespace plugboard
 
 #endif // BLOCK_BUFFER_ACCESS

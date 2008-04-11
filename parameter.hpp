@@ -5,38 +5,40 @@
 #include "visibility.hpp"
 #include <vector>
 
-class Variable;
-class ConstraintBase;
 
-
-class DSOEXPORT Parameter
+namespace plugboard
 {
-public:
-	Parameter(void * data, type_t type, const std::string& description);
-	Parameter(const Parameter&);
-	Parameter& operator=(const Parameter&);
-	~Parameter();
+	class Variable;
+	class ConstraintBase;
 
-	type_t get_type() const;
+	class DSOEXPORT Parameter
+	{
+	public:
+		Parameter(void * data, type_t type, const std::string& description);
+		Parameter(const Parameter&);
+		Parameter& operator=(const Parameter&);
+		~Parameter();
 
-	void * get_data() const;
+		type_t get_type() const;
 
-	const std::string& get_description() const;
+		void * get_data() const;
 
-	Parameter* add_constraint(const ConstraintBase* c);
+		const std::string& get_description() const;
 
-	std::vector< const ConstraintBase* >& get_constraints();
+		Parameter* add_constraint(const ConstraintBase* c);
 
-	bool is_convertible_to(const Variable& v) const;
+		std::vector< const ConstraintBase* >& get_constraints();
 
-	bool is_of_same_type_as(const Variable& v) const;
+		bool is_convertible_to(const Variable& v) const;
 
-private:
-	void *data_;
-	type_t type_;
-	std::string description_;
-	std::vector< const ConstraintBase* > constraints_;
-};
+		bool is_of_same_type_as(const Variable& v) const;
 
+	private:
+		void *data_;
+		type_t type_;
+		std::string description_;
+		std::vector< const ConstraintBase* > constraints_;
+	};
+} // namespace plugboard
 
 #endif // PARAMETER_HPP

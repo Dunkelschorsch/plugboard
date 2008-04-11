@@ -11,71 +11,72 @@
 #include "block/source.hpp"
 #include "block/sink.hpp"
 #include "parameter.hpp"
-class Variable;
-
 
 
 /** \brief The Block class
  *
  *  A more elaborate description.
  */
-
-
-class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
+namespace plugboard
 {
-// the subsystem plays some funny games with ports
-friend class SubsystemImpl;
+	class Variable;
 
-public:
-	typedef std::deque< Block * > store_t;
+	class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
+	{
+	// the subsystem plays some funny games with ports
+	friend class SubsystemImpl;
 
-	Block();
-	virtual ~Block();
+	public:
+		typedef std::deque< Block * > store_t;
 
-	// non-virtual interface
-	void call_initialize();
-	void call_process();
-	void call_advance();
-	void call_finalize();
-	void call_configure_parameters();
+		Block();
+		virtual ~Block();
 
-	const std::string& get_name() const;
-	const std::string& get_name_sys() const;
-	const std::string& get_description() const;
+		// non-virtual interface
+		void call_initialize();
+		void call_process();
+		void call_advance();
+		void call_finalize();
+		void call_configure_parameters();
 
-	void set_description(const std::string& description);
-	void set_name(const std::string& name);
+		const std::string& get_name() const;
+		const std::string& get_name_sys() const;
+		const std::string& get_description() const;
 
-	bool set_parameter(const Variable& p);
-	const std::vector< Parameter* >& get_params() const;
-	const std::string& get_parameter_description() const;
-	type_t get_parameter_type() const;
+		void set_description(const std::string& description);
+		void set_name(const std::string& name);
 
-	bool is_configured() const;
-	bool is_initialized() const;
-	void set_initialized();
+		bool set_parameter(const Variable& p);
+		const std::vector< Parameter* >& get_params() const;
+		const std::string& get_parameter_description() const;
+		type_t get_parameter_type() const;
 
-	template< class PortT >
-	typename PortT::store_t * get_port_list();
+		bool is_configured() const;
+		bool is_initialized() const;
+		void set_initialized();
 
-	template< class PortT >
-	const typename PortT::store_t * get_port_list() const;
+		template< class PortT >
+		typename PortT::store_t * get_port_list();
 
-	void set_name_sys(const std::string& name_sys);
+		template< class PortT >
+		const typename PortT::store_t * get_port_list() const;
 
-protected:
-	void add_parameter(Parameter * const);
+		void set_name_sys(const std::string& name_sys);
 
-	template< class PortT >
-	PortT* add_port(PortT * const p);
+	protected:
+		void add_parameter(Parameter * const);
 
-private:
-	// actual interface
-	virtual void initialize();
-	virtual void process() = 0;
-	virtual void advance();
-	virtual void finalize();
-	virtual void configure_parameters();
-};
+		template< class PortT >
+		PortT* add_port(PortT * const p);
+
+	private:
+		// actual interface
+		virtual void initialize();
+		virtual void process() = 0;
+		virtual void advance();
+		virtual void finalize();
+		virtual void configure_parameters();
+	};
+} // namespace plugboard
 
 #endif // BLOCK_HPP

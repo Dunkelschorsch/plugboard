@@ -8,13 +8,12 @@
 #include <itpp/itbase.h>
 
 
-static const char* BLOCK_NAME = "MPSKModulator";
+using namespace plugboard;
 
-
-class HumpBlock : public Block, public Sink, public Source
+class PlugBoardBlock : public Block, public Sink, public Source
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void configure_parameters();
@@ -40,22 +39,22 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
-	set_name(BLOCK_NAME);
+	set_name("MPSKModulator");
 	set_description("M-Ary PSK Modulator");
 }
 
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(),
 		bits_in_->get_frame_size()/static_cast< unsigned int >(log2(M_[0]))));
@@ -63,7 +62,7 @@ void HumpBlock::setup_output_ports()
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	bit_vector_ = get_signal< int32_t >(bits_in_);
 	symbol_vector_ = get_signal< complex_t >(symbols_out_);
@@ -73,7 +72,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -99,7 +98,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " bits(" << bit_vector_->size() << "): ";

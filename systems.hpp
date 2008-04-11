@@ -5,32 +5,34 @@
 #include <map>
 #include <string>
 #include "system.hpp"
-class Subsystem;
 
-
-class Systems
+namespace plugboard
 {
-typedef boost::details::pool::singleton_default< Systems > singleton;
-friend class boost::details::pool::singleton_default< Systems >;
+	class Subsystem;
 
-	Systems();
-	~Systems();
+	class Systems
+	{
+	typedef boost::details::pool::singleton_default< Systems > singleton;
+	friend class boost::details::pool::singleton_default< Systems >;
 
-	std::string root_sys_name_;
+		Systems();
+		~Systems();
 
-	std::map< const std::string, System* > sys_map_;
+		std::string root_sys_name_;
 
-public:
-	static Systems& instance();
+		std::map< const std::string, System* > sys_map_;
 
-	operator System*();
+	public:
+		static Systems& instance();
 
-	void add_subsystem(const std::string& subsys_name, Subsystem * const subsys);
+		operator System*();
 
-	Subsystem * get_subsystem(const std::string& subsys_name) const;
+		void add_subsystem(const std::string& subsys_name, Subsystem * const subsys);
 
-	System * get_root() const;
-};
+		Subsystem * get_subsystem(const std::string& subsys_name) const;
 
+		System * get_root() const;
+	};
+} // namespace plugboard
 
 #endif // SYSTEMS_HPP

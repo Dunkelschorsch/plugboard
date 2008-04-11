@@ -13,6 +13,8 @@
 #include "exception/input.hpp"
 #include "constraint.hpp"
 
+using namespace plugboard;
+
 
 template< >
 struct pimpl< Block >::implementation
@@ -52,7 +54,6 @@ struct pimpl< Block >::implementation
 };
 
 
-
 pimpl< Block >::implementation::~implementation()
 {
 	std::for_each
@@ -62,7 +63,6 @@ pimpl< Block >::implementation::~implementation()
 		boost::lambda::bind(boost::lambda::delete_ptr(), boost::lambda::_1)
 	);
 }
-
 
 
 void pimpl< Block >::implementation::register_parameter_types()
@@ -78,7 +78,6 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 #undef BOOST_PP_DEF
 }
-
 
 
 Block::Block() : base() { }
@@ -120,12 +119,10 @@ void Block::call_configure_parameters()
 }
 
 
-
 const std::string& Block::get_name() const
 {
 	return (*this)->name_;
 }
-
 
 
 void Block::set_name( const std::string & name )
@@ -134,12 +131,10 @@ void Block::set_name( const std::string & name )
 }
 
 
-
 const std::string& Block::get_name_sys() const
 {
 	return (*this)->name_sys_;
 }
-
 
 
 void Block::set_name_sys(const std::string & name_sys)
@@ -148,12 +143,10 @@ void Block::set_name_sys(const std::string & name_sys)
 }
 
 
-
 const std::string& Block::get_description() const
 {
 	return (*this)->description_;
 }
-
 
 
 void Block::set_description(const std::string& description)
@@ -162,12 +155,10 @@ void Block::set_description(const std::string& description)
 }
 
 
-
 bool Block::is_configured() const
 {
 	return (*this)->configured_;
 }
-
 
 
 bool Block::is_initialized() const
@@ -219,7 +210,6 @@ struct CheckConstraintAction
 };
 
 
-
 template< typename TargetT >
 struct CopyAction
 {
@@ -233,7 +223,7 @@ struct CopyAction
 			param_->get_constraints().end(),
 			CheckConstraintAction< TargetT >(e)
 		);
- 
+
 		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
 	}
 
@@ -264,7 +254,6 @@ struct CheckVariableConstraintAction
 
 	const Variable& var_;
 };
-
 
 
 template< typename VariableElementT >
@@ -323,13 +312,11 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, Paramet
 }
 
 
-
 void Block::add_parameter(Parameter * const p)
 {
 	(*this)->configured_ = false;
 	(*this)->params_.push_back(p);
 }
-
 
 
 bool Block::set_parameter(const Variable& p)
@@ -374,19 +361,16 @@ bool Block::set_parameter(const Variable& p)
 }
 
 
-
 const std::string& Block::get_parameter_description() const
 {
 	return (*this)->params_[(*this)->param_curr_]->get_description();
 }
 
 
-
 type_t Block::get_parameter_type() const
 {
 	return (*this)->params_[(*this)->param_curr_]->get_type();
 }
-
 
 
 const std::vector< Parameter* >& Block::get_params() const

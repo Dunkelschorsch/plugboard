@@ -6,11 +6,12 @@
 
 #include "scramble.hpp"
 
+using namespace plugboard;
 
-class HumpBlock : public Block, public Source
+class PlugBoardBlock : public Block, public Source
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void process();
@@ -34,7 +35,7 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("Scrambler");
 	set_description("Creates UMTS Scrambling sequences");
@@ -42,14 +43,14 @@ HumpBlock::HumpBlock()
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	c_vector_ = get_signal< complex_t >(scr_out_);
 
@@ -59,7 +60,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -92,7 +93,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 	*c_vector_ = s.get_scrambling_sequence();
 #ifndef NDEBUG

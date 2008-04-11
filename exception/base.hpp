@@ -5,30 +5,32 @@
 #include <stdexcept>
 #include "visibility.hpp"
 
-
-template < class IdentifierType >
-class DSOEXPORT HumpException : public std::exception
+namespace plugboard
 {
-public:
-	HumpException(const IdentifierType& unknownId)
-		: unknownId_(unknownId) { }
-
-	const char* what() const throw()
+	template < class IdentifierType >
+	class DSOEXPORT Exception : public std::exception
 	{
-		return do_what();
-	}
+	public:
+		Exception(const IdentifierType& unknownId)
+			: unknownId_(unknownId) { }
 
-	const IdentifierType get_id() const throw()
-	{
-		return unknownId_;
+		const char* what() const throw()
+		{
+			return do_what();
+		}
+
+		const IdentifierType get_id() const throw()
+		{
+			return unknownId_;
+		};
+
+		virtual ~Exception() throw() { };
+
+	private:
+		IdentifierType unknownId_;
+
+		virtual const char* do_what() const = 0;
 	};
-
-	virtual ~HumpException() throw() { };
-
-private:
-	IdentifierType unknownId_;
-
-	virtual const char* do_what() const = 0;
-};
+}
 
 #endif // EXCEPTION_BASE_HPP

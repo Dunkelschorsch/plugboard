@@ -4,39 +4,39 @@
 #include <string>
 #include "macros.hpp"
 
-class Block;
-class Variable;
-
-
-/** The System class
- */
-struct SystemImpl;
-class System
+namespace plugboard
 {
-public:
-	System();
-	virtual ~System();
+	class Block;
+	class Variable;
+	struct SystemImpl;
 
-	void add_block(Block * const b, const std::string& name_sys);
+	class System
+	{
+	public:
+		System();
+		virtual ~System();
 
-	void add_variable(const std::string& name, const Variable& var);
+		void add_block(Block * const b, const std::string& name_sys);
 
-	const Variable& get_variable(const std::string& name) const;
+		void add_variable(const std::string& name, const Variable& var);
 
-	void connect_ports(const std::string& block_source, const std::string& port_source,
-		const std::string& block_sink, const std::string& port_sink);
+		const Variable& get_variable(const std::string& name) const;
 
-	void initialize();
+		void connect_ports(const std::string& block_source, const std::string& port_source,
+			const std::string& block_sink, const std::string& port_sink);
 
-	void wakeup_sys(uint32_t times = 1);
+		void initialize();
 
-	void finalize();
+		void wakeup_sys(uint32_t times = 1);
 
-protected:
-	H_DECLARE_PROTECTED(System)
+		void finalize();
 
-private:
-	H_DECLARE_PRIVATE(System)
-};
+	protected:
+		PB_DECLARE_PROTECTED(System)
+
+	private:
+		PB_DECLARE_PRIVATE(System)
+	};
+} // namespace plugboard
 
 #endif // SYSTEM_HPP

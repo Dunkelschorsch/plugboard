@@ -7,14 +7,14 @@
 #include <iostream>
 #include <cstdio>
 
+using namespace plugboard;
 
-
-class HumpBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink
 {
 public:
 
-	HumpBlock();
-	~HumpBlock();
+	PlugBoardBlock();
+	~PlugBoardBlock();
 
 private:
 	void initialize();
@@ -55,11 +55,11 @@ private:
 	typedef enum { ADD, MUL, SUB, DIV } ops;
 	ops operation_;
 
-	void (HumpBlock::*proc)();
+	void (PlugBoardBlock::*proc)();
 };
 
 
-void HumpBlock::configure_parameters( )
+void PlugBoardBlock::configure_parameters( )
 {
 	add_parameter
 	(
@@ -77,13 +77,13 @@ void HumpBlock::configure_parameters( )
 }
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("result", sig_in_[0]->get_type(), sig_in_[0]->get_Ts(), sig_in_[0]->get_frame_size()));
 }
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	// only reserve that memory once
 	if(get_num_input_ports() != num_inputs_[0])
@@ -100,18 +100,18 @@ void HumpBlock::setup_input_ports()
 
 
 template< typename T >
-void HumpBlock::do_init()
+void PlugBoardBlock::do_init()
 {
 	v_out_ = get_signal< T >(sig_out_);
 
-	proc = &HumpBlock::do_work< T >;
+	proc = &PlugBoardBlock::do_work< T >;
 
 	for(int32_t i=0; i<num_inputs_[0]; ++i)
 		v_in_[i] = get_signal< T >(sig_in_[i]);
 }
 
 
-void HumpBlock::initialize( )
+void PlugBoardBlock::initialize( )
 {
 	if(op_[0] == "+")
 		operation_ = ADD;
@@ -136,7 +136,7 @@ void HumpBlock::initialize( )
 
 
 template< typename T >
-void HumpBlock::do_add()
+void PlugBoardBlock::do_add()
 {
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
@@ -150,7 +150,7 @@ void HumpBlock::do_add()
 
 
 template< typename T >
-void HumpBlock::do_sub()
+void PlugBoardBlock::do_sub()
 {
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
@@ -164,7 +164,7 @@ void HumpBlock::do_sub()
 
 
 template< typename T >
-void HumpBlock::do_mult()
+void PlugBoardBlock::do_mult()
 {
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
@@ -178,7 +178,7 @@ void HumpBlock::do_mult()
 
 
 template< typename T >
-void HumpBlock::do_div()
+void PlugBoardBlock::do_div()
 {
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
@@ -192,13 +192,13 @@ void HumpBlock::do_div()
 
 
 template< typename T >
-void HumpBlock::do_work()
+void PlugBoardBlock::do_work()
 {
 #ifndef NDEBUG
 	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
 #endif
 	*static_cast< itpp::Vec<T>* >(v_out_) = *static_cast< const itpp::Vec<T>* >(v_in_[0]);
-	
+
 	if(operation_ == ADD)
 		do_add< T >();
 	else if(operation_ == SUB)
@@ -215,7 +215,7 @@ void HumpBlock::do_work()
 }
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
@@ -224,14 +224,14 @@ void HumpBlock::process()
 }
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("Add");
 	set_description("Add an rbitrary, user-defined number of inputs.");
 }
 
 
-HumpBlock::~HumpBlock()
+PlugBoardBlock::~PlugBoardBlock()
 {
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;

@@ -10,6 +10,8 @@
 
 namespace fs = boost::filesystem;
 
+using namespace plugboard;
+
 
 template < class IdentifierType, class ProductType >
 class BlockFactoryError
@@ -27,6 +29,7 @@ ProductType* BlockFactoryError< IdentifierType, ProductType >::OnUnknownType(con
 }
 
 
+typedef pimpl< BlockLoader >::implementation BlockLoaderImpl;
 
 template<>
 struct pimpl< BlockLoader >::implementation
@@ -51,7 +54,7 @@ struct pimpl< BlockLoader >::implementation
 
 
 
-pimpl< BlockLoader >::implementation::implementation()
+BlockLoaderImpl::implementation()
 	: f_(),
 	plugin_prefix("libblock_"),
 	plugin_ext(".so")
@@ -69,7 +72,7 @@ pimpl< BlockLoader >::implementation::implementation()
 
 
 
-pimpl< BlockLoader >::implementation::~implementation()
+BlockLoaderImpl::~implementation()
 {
 	lt_dlexit();
 }
@@ -141,7 +144,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 Block* BlockLoader::new_block(const std::string& name)
 {
- 	return (*this)->f_.CreateObject(name);
+	return (*this)->f_.CreateObject(name);
 }
 
 

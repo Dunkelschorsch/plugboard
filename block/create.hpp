@@ -3,17 +3,16 @@
 
 #include "visibility.hpp"
 
-// #define HumpBlock HumpBlock
 
-namespace
+namespace plugboard
 {
     extern "C"
     DSOEXPORT Block* create();
 
     Block* create()
     {
-        return new HumpBlock;
+        return new PlugBoardBlock;
     }
-}
+} // namespace plugboard
 
 #endif // BLOCK_CREATE_HPP

@@ -6,6 +6,8 @@
 #include <boost/spirit/error_handling/exceptions.hpp>
 
 #include "grammar/command/parser_id.hpp"
+namespace plugboard
+{
 
 enum parse_errors
 {
@@ -204,5 +206,6 @@ struct new_command_parser : public grammar< new_command_parser >
         }
     }; // struct definition
 }; // struct new_command_parser
+} // namespace plugboard
 
 #endif

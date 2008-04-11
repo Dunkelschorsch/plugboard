@@ -10,36 +10,37 @@
 namespace boost { class thread; }
 
 
-
-class ExecutionStage : public pimpl< ExecutionStage >::pointer_semantics
+namespace plugboard
 {
-public:
-	typedef std::list< ExecutionStage > store_t;
-	typedef Block::store_t path_t;
-	typedef std::list< path_t > stage_t;
+	class ExecutionStage : public pimpl< ExecutionStage >::pointer_semantics
+	{
+	public:
+		typedef std::list< ExecutionStage > store_t;
+		typedef Block::store_t path_t;
+		typedef std::list< path_t > stage_t;
 
-	ExecutionStage();
+		ExecutionStage();
 
-	explicit ExecutionStage(Block * const b, bool threading_enabled=false);
+		explicit ExecutionStage(Block * const b, bool threading_enabled=false);
 
-	void add_block(Block * const b);
-	void add_path(const path_t& p);
+		void add_block(Block * const b);
+		void add_path(const path_t& p);
 
-	bool block_is_placed(const std::string& name) const;
+		bool block_is_placed(const std::string& name) const;
 
-	const stage_t& get_paths() const;
-	stage_t& get_paths();
+		const stage_t& get_paths() const;
+		stage_t& get_paths();
 
-	Block* operator[](const std::string& name) const;
+		Block* operator[](const std::string& name) const;
 
-	void exec();
-	void exec_path(const path_t& p);
+		void exec();
+		void exec_path(const path_t& p);
 
-	void print(std::ostream&) const;
-};
+		void print(std::ostream&) const;
+	};
+} // namespace plugboard
 
 
-
-std::ostream& operator<<(std::ostream&, const ExecutionStage&);
+std::ostream& operator<<(std::ostream&, const plugboard::ExecutionStage&);
 
 #endif // EXEC_STAGE_HPP

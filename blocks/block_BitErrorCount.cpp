@@ -8,12 +8,12 @@
 #include <itpp/comm/error_counters.h>
 #include <itpp/itbase.h>
 
+using namespace plugboard;
 
-
-class HumpBlock : public Block, public Sink
+class PlugBoardBlock : public Block, public Sink
 {
 public:
-	HumpBlock();
+	PlugBoardBlock();
 
 private:
 	void setup_input_ports();
@@ -36,7 +36,7 @@ private:
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -53,7 +53,7 @@ void HumpBlock::configure_parameters()
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("BitErrorCount");
 	set_description("Counts bit errors between the two input signals");
@@ -61,7 +61,7 @@ HumpBlock::HumpBlock()
 
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	tx_in_ = add_port(new InPort("tx", int32, 0, 0));
 	rx_in_ = add_port(new InPort("rx", int32, 0, 0));
@@ -69,7 +69,7 @@ void HumpBlock::setup_input_ports()
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	report_file.open(filename_[0]);
 
@@ -81,7 +81,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
@@ -94,7 +94,7 @@ void HumpBlock::process()
 
 
 
-void HumpBlock::finalize()
+void PlugBoardBlock::finalize()
 {
 #ifndef NDEBUG
 	std::cout << "Writing BER report to file '" << filename_[0] << "'" << std::endl;

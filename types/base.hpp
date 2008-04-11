@@ -40,37 +40,38 @@
 
 #define SIGNAL_TYPE_CNT 11
 
-
-// pack all names in the "name in type_t" column into an enumeration
-typedef enum
+namespace plugboard
 {
-#define BOOST_PP_DEF(z, I, _) \
-	TYPE_VALUE(I) BOOST_PP_IF(BOOST_PP_EQUAL(I, 0), = I, BOOST_PP_EMPTY()) \
-	BOOST_PP_COMMA_IF(BOOST_PP_LESS(I, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1)))
+	// pack all names in the "name in type_t" column into an enumeration
+	typedef enum
+	{
+	#define BOOST_PP_DEF(z, I, _) \
+		TYPE_VALUE(I) BOOST_PP_IF(BOOST_PP_EQUAL(I, 0), = I, BOOST_PP_EMPTY()) \
+		BOOST_PP_COMMA_IF(BOOST_PP_LESS(I, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1)))
 
-BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-#undef BOOST_PP_DEF
-} type_t;
+	#undef BOOST_PP_DEF
+	} type_t;
+}
 
-
-
-// creates all necessary typedefs from the "name of C++ type" and "typedef'ed from" columns
-#define BOOST_PP_DEF(z, I, _) \
+	// creates all necessary typedefs from the "name of C++ type" and "typedef'ed from" columns
+	#define BOOST_PP_DEF(z, I, _) \
 	typedef ORIG_TYPE(I) CPP_TYPE(I);
 
-BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-#undef BOOST_PP_DEF
+	#undef BOOST_PP_DEF
 
-
-
-// these assertions make sure the Variable::save_type_change methods works as expected
-namespace type_ordering
+namespace plugboard
 {
-	BOOST_STATIC_ASSERT(complex > real);
-	BOOST_STATIC_ASSERT(real > int32);
-	BOOST_STATIC_ASSERT(int32 > empty);
+	// these assertions make sure the Variable::save_type_change methods works as expected
+	namespace type_ordering
+	{
+		BOOST_STATIC_ASSERT(complex > real);
+		BOOST_STATIC_ASSERT(real > int32);
+		BOOST_STATIC_ASSERT(int32 > empty);
+	}
 }
 
 #endif // TYPES_HPP

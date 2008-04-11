@@ -71,7 +71,7 @@ public:
 
 private:
 	typedef std::map< IdentifierType, ProductCreator > factory_map_t;
-	
+
 	factory_map_t f_;
 };
 

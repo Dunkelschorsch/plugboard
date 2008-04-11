@@ -8,6 +8,8 @@
 #include <itpp/itstat.h>
 #include <itpp/signal/filter.h>
 
+using namespace plugboard;
+
 
 template< typename T1, typename T2 >
 class Matched_Filter : public itpp::Filter< T1, T2, T1 >
@@ -79,11 +81,11 @@ private:
 
 
 
-class HumpBlock : public Block, public Sink, public Source
+class PlugBoardBlock : public Block, public Sink, public Source
 {
 public:
-	HumpBlock();
-	~HumpBlock();
+	PlugBoardBlock();
+	~PlugBoardBlock();
 private:
 	void configure_parameters();
 	void setup_input_ports();
@@ -115,28 +117,28 @@ private:
 
 
 
-HumpBlock::HumpBlock()
+PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("RaisedCosineReceive");
 	set_description("Raised cosine receive filter");
 }
 
 
-HumpBlock::~HumpBlock()
+PlugBoardBlock::~PlugBoardBlock()
 {
 	if(is_initialized())
 		delete mf;
 }
 
 
-void HumpBlock::setup_input_ports()
+void PlugBoardBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
 }
 
 
 
-void HumpBlock::setup_output_ports()
+void PlugBoardBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", complex,
 		sig_in_->get_Ts() * downsampling_factor_[0],
@@ -146,7 +148,7 @@ void HumpBlock::setup_output_ports()
 
 
 
-void HumpBlock::initialize()
+void PlugBoardBlock::initialize()
 {
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
@@ -160,7 +162,7 @@ void HumpBlock::initialize()
 
 
 
-void HumpBlock::configure_parameters()
+void PlugBoardBlock::configure_parameters()
 {
 	add_parameter
 	(
@@ -200,7 +202,7 @@ void HumpBlock::configure_parameters()
 
 
 
-void HumpBlock::process()
+void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl << " samples in(" << in_vector_->size() << "): " ;

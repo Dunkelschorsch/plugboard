@@ -6,43 +6,41 @@
 #include "exec_matrix.hpp"
 #include "symtab.hpp"
 
-
-using std::tr1::function;
-
-struct SystemImpl
+namespace plugboard
 {
-	SystemImpl();
-	~SystemImpl();
+	using std::tr1::function;
 
-	void register_basic_types();
+	struct SystemImpl
+	{
+		SystemImpl();
+		~SystemImpl();
 
-	uint32_t create_signal_buffer(type_t type, uint32_t size);
+		void register_basic_types();
 
-	void set_buffer_ptrs(OutPort& out, InPort& in, Signal *s);
+		uint32_t create_signal_buffer(type_t type, uint32_t size);
+		void set_buffer_ptrs(OutPort& out, InPort& in, Signal *s);
 
-	void linearize(const std::string& block_start);
+		void linearize(const std::string& block_start);
 
-	void propagate_signal_attributes();
+		void propagate_signal_attributes();
 
-	void execute_row(uint32_t stage_num, uint32_t row_num);
+		void execute_row(uint32_t stage_num, uint32_t row_num);
 
-	Signal::store_t signal_buffers_;
+		Signal::store_t signal_buffers_;
+		uint32_t signal_buffer_count_;
 
-	uint32_t signal_buffer_count_;
+		typedef std::map< type_t, function< Signal*(size_t) > > signal_assoc_t;
+		typedef std::map< type_t, void* (*)(Signal*) > get_buffer_assoc_t;
 
-	typedef std::map< type_t, function< Signal*(size_t) > > signal_assoc_t;
+		signal_assoc_t signal_factory_;
+		get_buffer_assoc_t get_buffer_factory_;
 
-	typedef std::map< type_t, void* (*)(Signal*) > get_buffer_assoc_t;
+		double simulation_time_;
 
-	signal_assoc_t signal_factory_;
+		Symtab symtab_;
 
-	get_buffer_assoc_t get_buffer_factory_;
-
-	double simulation_time_;
-
-	Symtab symtab_;
-
-	ExecutionMatrix exec_m_;
-};
+		ExecutionMatrix exec_m_;
+	};
+} // namespace plugboard
 
 #endif // _SYSTEM_IPP
