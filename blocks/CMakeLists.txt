@@ -28,6 +28,8 @@ foreach(
 	Arithmetic
 	AWGNChannel
 	BitErrorCount
+	BlockDeinterleaver
+	BlockInterleaver
 	ComposeComplex
 	ConvolutionalDecoder
 	ConvolutionalEncoder

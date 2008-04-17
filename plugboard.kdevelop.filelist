@@ -118,3 +118,5 @@ blocks/scrambler/block_UMTSLongUplinkScrambler.cpp
 blocks/scrambler/scramble.cpp
 blocks/scrambler/scramble.hpp
 COPYING
+blocks/block_BlockInterleaver.cpp
+blocks/block_BlockDeinterleaver.cpp
