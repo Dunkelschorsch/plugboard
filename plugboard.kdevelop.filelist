@@ -120,3 +120,4 @@ blocks/scrambler/scramble.hpp
 COPYING
 blocks/block_BlockInterleaver.cpp
 blocks/block_BlockDeinterleaver.cpp
+block/dynamic.hpp
