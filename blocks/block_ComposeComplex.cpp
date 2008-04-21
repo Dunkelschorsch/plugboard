@@ -26,6 +26,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "block/dynamic.hpp"
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
@@ -36,8 +37,10 @@
 
 using namespace plugboard;
 
-class PlugBoardBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink, public Dynamic< PlugBoardBlock >
 {
+	PB_DYNAMIC_BLOCK
+
 public:
 	PlugBoardBlock();
 
@@ -48,18 +51,12 @@ private:
 	void process();
 	void initialize();
 
-	template< typename T >
-	void do_compose();
-
 	OutPort *complex_out_;
 	const InPort *real_in_, *imag_in_;
 
 	itpp::cvec *v_complex_;
 	const void *v_real_, *v_imag_;
-
-	type_t input_type_;
 };
-
 
 
 void PlugBoardBlock::setup_input_ports()
@@ -69,32 +66,29 @@ void PlugBoardBlock::setup_input_ports()
 }
 
 
-
 void PlugBoardBlock::setup_output_ports()
 {
 	complex_out_ = add_port(new OutPort("complex", complex, real_in_->get_Ts(), real_in_->get_frame_size()));
 }
 
 
+template< typename T >
+void PlugBoardBlock::dynamic_init()
+{
+	v_real_ = get_signal< T >(real_in_);
+	v_imag_ = get_signal< T >(imag_in_);
+}
+
+
 void PlugBoardBlock::initialize()
 {
-	input_type_ = real_in_->get_type();
-	if(input_type_ == int32)
-	{
-		v_real_ = get_signal< int32_t >(real_in_);
-		v_imag_ = get_signal< int32_t >(imag_in_);
-	} else
-	{
-		v_real_ = get_signal< real_t >(real_in_);
-		v_imag_ = get_signal< real_t >(imag_in_);
-	}
-
 	v_complex_ = get_signal< complex_t >(complex_out_);
+	Dynamic< PlugBoardBlock >::initialize< boost::mpl::set< int32_t, real_t > >(real_in_);
 }
 
 
 template< typename T >
-void PlugBoardBlock::do_compose()
+void PlugBoardBlock::dynamic_process()
 {
 	*v_complex_ = to_cvec(
 		to_vec(*static_cast< const itpp::Vec<T>* >(v_real_)),
@@ -112,22 +106,22 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
 #endif
-	if(input_type_ == int32)
-		do_compose< int32_t >();
-	else
-		do_compose< real_t >();
-
+	(this->*proc)();
 #ifndef NDEBUG
 	std::cout << " complex: " << *v_complex_ << std::endl;
 #endif
 }
 
 
-PlugBoardBlock::PlugBoardBlock()
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("ComposeComplex");
 	set_description("Create a complex signal out of two real valued signals.");
 }
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_delete() { }
 
 
 #include "block/create.hpp"

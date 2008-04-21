@@ -26,6 +26,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "block/dynamic.hpp"
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
@@ -37,10 +38,11 @@
 
 using namespace plugboard;
 
-class PlugBoardBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink, public Dynamic< PlugBoardBlock >
 {
-public:
+	PB_DYNAMIC_BLOCK
 
+public:
 	PlugBoardBlock();
 	~PlugBoardBlock();
 
@@ -51,12 +53,6 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 	void configure_parameters();
-
-	template< typename T >
-	void do_init();
-
-	template< typename T >
-	void do_work();
 
 	template< typename T >
 	void do_add();
@@ -78,13 +74,18 @@ private:
 
 	int32_vec_t num_inputs_;
 	type_t input_type_;
-	std::vector< std::string > op_;
+	string_vec_t op_;
 
 	typedef enum { ADD, MUL, SUB, DIV } ops;
 	ops operation_;
-
-	void (PlugBoardBlock::*proc)();
 };
+
+
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
+{
+	set_name("Arithmetic");
+	set_description("Add an rbitrary, user-defined number of inputs.");
+}
 
 
 void PlugBoardBlock::configure_parameters( )
@@ -105,9 +106,20 @@ void PlugBoardBlock::configure_parameters( )
 }
 
 
-void PlugBoardBlock::setup_output_ports()
+void PlugBoardBlock::initialize( )
 {
-	sig_out_ = add_port(new OutPort("result", sig_in_[0]->get_type(), sig_in_[0]->get_Ts(), sig_in_[0]->get_frame_size()));
+	if(op_[0] == "+")
+		operation_ = ADD;
+	else if(op_[0] == "-")
+		operation_ = SUB;
+	else if(op_[0] == "*")
+		operation_ = MUL;
+	else if(op_[0] == "/")
+		operation_ = DIV;
+
+	v_in_ = new const void* [num_inputs_[0]];
+
+	Dynamic< PlugBoardBlock >::initialize(sig_in_[0]);
 }
 
 
@@ -127,39 +139,19 @@ void PlugBoardBlock::setup_input_ports()
 }
 
 
-template< typename T >
-void PlugBoardBlock::do_init()
+void PlugBoardBlock::setup_output_ports()
 {
-	v_out_ = get_signal< T >(sig_out_);
-
-	proc = &PlugBoardBlock::do_work< T >;
-
-	for(int32_t i=0; i<num_inputs_[0]; ++i)
-		v_in_[i] = get_signal< T >(sig_in_[i]);
+	sig_out_ = add_port(new OutPort("result", sig_in_[0]->get_type(), sig_in_[0]->get_Ts(), sig_in_[0]->get_frame_size()));
 }
 
 
-void PlugBoardBlock::initialize( )
+template< typename T >
+void PlugBoardBlock::dynamic_init()
 {
-	if(op_[0] == "+")
-		operation_ = ADD;
-	else if(op_[0] == "-")
-		operation_ = SUB;
-	else if(op_[0] == "*")
-		operation_ = MUL;
-	else if(op_[0] == "/")
-		operation_ = DIV;
+	v_out_ = get_signal< T >(sig_out_);
 
-	v_in_ = new const void* [num_inputs_[0]];
-
-	input_type_ = sig_in_[0]->get_type();
-
-	if(input_type_ == int32)
-		do_init< int32_t >();
-	if(input_type_ == real)
-		do_init< real_t >();
-	if(input_type_ == complex)
-		do_init< complex_t >();
+	for(int32_t i=0; i<num_inputs_[0]; ++i)
+		v_in_[i] = get_signal< T >(sig_in_[i]);
 }
 
 
@@ -219,8 +211,17 @@ void PlugBoardBlock::do_div()
 }
 
 
+void PlugBoardBlock::process()
+{
+#ifndef NDEBUG
+	std::cout << this->get_name_sys() << std::endl;
+#endif
+	(this->*proc)();
+}
+
+
 template< typename T >
-void PlugBoardBlock::do_work()
+void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
 	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
@@ -235,27 +236,16 @@ void PlugBoardBlock::do_work()
 		do_mult< T >();
 	else if(operation_ == DIV)
 		do_div< T >();
-
 #ifndef NDEBUG
 	std::cout << " out: " << *static_cast< itpp::Vec<T>* >(v_out_) << std::endl;
 #endif
-
 }
 
 
-void PlugBoardBlock::process()
+template< typename T >
+void PlugBoardBlock::dynamic_delete()
 {
-#ifndef NDEBUG
-	std::cout << this->get_name_sys() << std::endl;
-#endif
-	(this->*proc)();
-}
-
-
-PlugBoardBlock::PlugBoardBlock()
-{
-	set_name("Add");
-	set_description("Add an rbitrary, user-defined number of inputs.");
+	delete[] v_in_;
 }
 
 
@@ -264,8 +254,6 @@ PlugBoardBlock::~PlugBoardBlock()
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
 #endif
-	if(is_initialized())
-		delete[] v_in_;
 	if(is_configured())
 		delete[] sig_in_;
 }

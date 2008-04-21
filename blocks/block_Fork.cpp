@@ -26,6 +26,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "block/dynamic.hpp"
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
@@ -35,15 +36,14 @@
 #include <iostream>
 #include <cstdio>
 
-
 using namespace plugboard;
 
-class PlugBoardBlock : public Block, public Source, public Sink
+class PlugBoardBlock : public Block, public Source, public Sink, public Dynamic< PlugBoardBlock >
 {
-public:
+	PB_DYNAMIC_BLOCK
 
+public:
 	PlugBoardBlock();
-	~PlugBoardBlock();
 
 private:
 	void setup_input_ports();
@@ -53,12 +53,6 @@ private:
 	void initialize();
 	void process();
 
-	template< typename T >
-	void do_fork();
-
-	template< typename T >
-	void do_init();
-
 	OutPort **sig_out_;
 	const InPort *sig_in1_;
 
@@ -67,9 +61,14 @@ private:
 
 	int32_vec_t num_outputs_;
 	type_t input_type_;
-
-	void (PlugBoardBlock::*proc)();
 };
+
+
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
+{
+	set_name("Fork");
+	set_description("Clone the input to an arbitrary, user-defined number of outputs.");
+}
 
 
 void PlugBoardBlock::configure_parameters( )
@@ -107,75 +106,58 @@ void PlugBoardBlock::setup_output_ports()
 }
 
 
-template< typename T >
-void PlugBoardBlock::do_init()
+void PlugBoardBlock::initialize()
 {
+	Dynamic< PlugBoardBlock >::initialize(sig_in1_);
+}
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_init()
+{
+	v_out_ = new void* [num_outputs_[0]];
+
 	v_in_ = get_signal< T >(sig_in1_);
-	proc = &PlugBoardBlock::do_fork< T >;
 
 	for(int32_t i=0; i<num_outputs_[0]; ++i)
 		v_out_[i] = get_signal< T >(sig_out_[i]);
 }
 
 
-void PlugBoardBlock::initialize()
-{
-	v_out_ = new void* [num_outputs_[0]];
-	input_type_ = sig_in1_->get_type();
-
-	if(input_type_ == int32)
-		do_init< int32_t >();
-	if(input_type_ == real)
-		do_init< real_t >();
-	if(input_type_ == complex)
-		do_init< complex_t >();
-}
-
-
 template< typename T >
-void PlugBoardBlock::do_fork()
+void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
-		std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
+	std::cout << this->get_name_sys() << std::endl;
+	std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
 #endif
-		for(int32_t i=0; i<num_outputs_[0]; ++i)
-		{
-			*static_cast< itpp::Vec<T>* >(v_out_[i]) =
+	for(int32_t i=0; i<num_outputs_[0]; ++i)
+	{
+		*static_cast< itpp::Vec<T>* >(v_out_[i]) =
 			*static_cast< const itpp::Vec<T>* >(v_in_);
 #ifndef NDEBUG
-			std::cout << " out" << i+1 << ": " << *static_cast< itpp::Vec<T>* >(v_out_[i]) << std::endl;
+		std::cout << " out" << i+1 << ": " << *static_cast< itpp::Vec<T>* >(v_out_[i]) << std::endl;
 #endif
-			assert(*static_cast< itpp::Vec<T>* >(v_out_[i]) ==
-				*static_cast< const itpp::Vec<T>* >(v_in_));
-		}
+		assert(*static_cast< itpp::Vec<T>* >(v_out_[i]) ==
+			*static_cast< const itpp::Vec<T>* >(v_in_));
+	}
 }
 
 
 void PlugBoardBlock::process()
 {
-#ifndef NDEBUG
-	std::cout << this->get_name_sys() << std::endl;
-#endif
 	(this->*proc)();
 }
 
 
-PlugBoardBlock::PlugBoardBlock()
-{
-	set_name("Fork");
-	set_description("Clone the input to an arbitrary, user-defined number of outputs.");
-}
-
-
-PlugBoardBlock::~PlugBoardBlock()
+template< typename T >
+void PlugBoardBlock::dynamic_delete()
 {
 #ifndef NDEBUG
 	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
 #endif
-	if(is_initialized())
-		delete[] v_out_;
-	if(is_configured())
-		delete[] sig_out_;
+	delete[] v_out_;
+	delete[] sig_out_;
 }
 
 

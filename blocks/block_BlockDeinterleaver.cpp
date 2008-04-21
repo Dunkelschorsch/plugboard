@@ -26,6 +26,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include "block/dynamic.hpp"
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
 #include "types/base.hpp"
@@ -38,8 +39,11 @@
 
 using namespace plugboard;
 
-class PlugBoardBlock : public Block, public Sink, public Source
+
+class PlugBoardBlock : public Block, public Sink, public Source, public Dynamic< PlugBoardBlock >
 {
+	PB_DYNAMIC_BLOCK
+
 public:
 	PlugBoardBlock();
 
@@ -48,24 +52,26 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
 	const InPort* symbols_in_;
-	const itpp::ivec *symbol_vector_in_;
-
+	const void *symbol_vector_in;
+	type_t input_type_;
+	
 	OutPort* symbols_out_;
-	itpp::ivec *symbol_vector_out_;
-
+	void *symbol_vector_out;
+	
 	// Input parameters
 	int32_vec_t framesize_, rows_, cols_;
 	real_vec_t Ts_;
 
-	itpp::Block_Interleaver< int32_t > interleaver_;
+	void *interleaver_;
 };
 
 
-PlugBoardBlock::PlugBoardBlock()
+
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("BlockDeinterleaver");
 	set_description("Block Deinterleaver");
@@ -74,25 +80,20 @@ PlugBoardBlock::PlugBoardBlock()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	symbols_in_ = add_port(new InPort("in", int32, Ts_[0], framesize_[0]));
+	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	symbols_out_ = add_port(new OutPort("out", int32, symbols_in_->get_Ts(),
+	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(), symbols_in_->get_Ts(),
 		symbols_in_->get_frame_size()));
 }
 
 
 void PlugBoardBlock::initialize()
 {
-	symbol_vector_in_ = get_signal< int32_t >(symbols_in_);
-	symbol_vector_out_ = get_signal< int32_t >(symbols_out_);
-
-	interleaver_.set_rows(rows_[0]);
-	interleaver_.set_cols(cols_[0]);
-	interleaver_.interleave(itpp::ivec(symbols_in_->get_frame_size()));
+	Dynamic< PlugBoardBlock >::initialize(symbols_in_);
 }
 
 
@@ -128,19 +129,45 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
-void PlugBoardBlock::process()
+template< typename T >
+void PlugBoardBlock::dynamic_init()
+{
+	symbol_vector_in = get_signal< T >(symbols_in_);
+	symbol_vector_out = get_signal< T >(symbols_out_);
+
+	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
+	static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->interleave(itpp::Vec<T>(symbols_in_->get_frame_size()));
+}
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_delete()
+{
+	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
+}
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " symbols_in(" << symbol_vector_in_->size() << "): ";
-	std::cout << *symbol_vector_in_ << std::endl;
+	std::cout << get_name_sys() << std::endl << " symbols_in(" << static_cast< const itpp::Vec<T>* >(symbol_vector_in)->size() << "): ";
+	std::cout << *static_cast< const itpp::Vec<T>* >(symbol_vector_in) << std::endl;
 #endif
 
-	*symbol_vector_out_ = interleaver_.deinterleave(*symbol_vector_in_);
+	*static_cast< itpp::Vec<T>* >(symbol_vector_out) = static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->deinterleave(*static_cast< const itpp::Vec<T>* >(symbol_vector_in));
 
 #ifndef NDEBUG
-	std::cout << " symbols_out(" << symbol_vector_out_->size() << "): ";
-	std::cout << *symbol_vector_out_ << std::endl;
+	std::cout << " symbols_out(" << static_cast< itpp::Vec<T>* >(symbol_vector_out)->size() << "): ";
+	std::cout << *static_cast< itpp::Vec<T>* >(symbol_vector_out) << std::endl;
 #endif
 }
+
+
+void PlugBoardBlock::process()
+{
+	(this->*proc)();
+}
+
 
 #include "block/create.hpp"
