@@ -45,12 +45,12 @@ enum parse_errors
 
 using namespace boost::spirit;
 
-struct new_command_parser : public grammar< new_command_parser >
+struct command_parser : public grammar< command_parser >
 {
     template <typename ScannerT>
     struct definition
     {
-        definition(new_command_parser const& /*self*/)
+        definition(command_parser const& /*self*/)
         {
             assertion< parse_errors > expect_opening_paren(opening_paren_expected);
             assertion< parse_errors > expect_closing_paren(closing_paren_expected);
@@ -233,7 +233,7 @@ struct new_command_parser : public grammar< new_command_parser >
             return first;
         }
     }; // struct definition
-}; // struct new_command_parser
+}; // struct command_parser
 } // namespace plugboard
 
 #endif

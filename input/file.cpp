@@ -45,7 +45,7 @@ namespace plugboard
 {
 	struct FileInput::FileInputImpl
 	{
-		new_command_parser parser_;
+		command_parser parser_;
 	};
 
 
