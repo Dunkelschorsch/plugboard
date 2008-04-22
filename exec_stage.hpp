@@ -66,9 +66,8 @@ namespace plugboard
 
 		void print(std::ostream&) const;
 	};
+
+	std::ostream& operator<<(std::ostream&, const plugboard::ExecutionStage&);
 } // namespace plugboard
-
-
-std::ostream& operator<<(std::ostream&, const plugboard::ExecutionStage&);
 
 #endif // EXEC_STAGE_HPP

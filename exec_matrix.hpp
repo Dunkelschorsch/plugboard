@@ -62,9 +62,8 @@ namespace plugboard
 
 		void print(std::ostream&) const;
 	};
+
+	std::ostream& operator<<(std::ostream&, const plugboard::ExecutionMatrix&);
 } // namespace plugboard
-
-
-std::ostream& operator<<(std::ostream&, const plugboard::ExecutionMatrix&);
 
 #endif // EXEC_MATRIX_HPP

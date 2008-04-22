@@ -55,14 +55,6 @@ struct pimpl< ExecutionStage >::implementation
 };
 
 
-std::ostream& operator<<(std::ostream& out, const ExecutionStage& what)
-{
-	what.print(out);
-	return out;
-}
-
-
-
 ExecutionStage::ExecutionStage() :
 	base()
 { }
@@ -263,5 +255,15 @@ void ExecutionStage::print(std::ostream& out) const
 		}
 		out << std::endl;
 
+	}
+}
+
+
+namespace plugboard
+{
+	std::ostream& operator<<(std::ostream& out, const ExecutionStage& what)
+	{
+		what.print(out);
+		return out;
 	}
 }

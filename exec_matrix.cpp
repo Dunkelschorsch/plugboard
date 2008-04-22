@@ -88,14 +88,6 @@ ExecutionMatrixImpl::~implementation()
 
 
 
-std::ostream& operator<<(std::ostream& out, const ExecutionMatrix& what)
-{
-	what.print(out);
-	return out;
-}
-
-
-
 template< typename SequenceT >
 bool is_left_terminated(const SequenceT& v)
 {
@@ -566,4 +558,14 @@ void ExecutionMatrix::print(std::ostream& out) const
 #ifndef NDEBUG
 		out << "-------------" << std::endl;
 #endif
+}
+
+
+namespace plugboard
+{
+	std::ostream& operator<<(std::ostream& out, const ExecutionMatrix& what)
+	{
+		what.print(out);
+		return out;
+	}
 }
