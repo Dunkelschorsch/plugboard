@@ -43,7 +43,7 @@ using namespace plugboard;
 class PlugBoardBlock : public Block, public Sink, public Source, public Dynamic< PlugBoardBlock >
 {
 	PB_DYNAMIC_BLOCK
-
+	
 public:
 	PlugBoardBlock();
 
@@ -53,7 +53,7 @@ private:
 	void setup_output_ports();
 
 	void initialize();
-	void process();
+// 	void process();
 
 	const InPort* symbols_in_;
 	const void *symbol_vector_in;
@@ -86,8 +86,8 @@ void PlugBoardBlock::setup_input_ports()
 
 void PlugBoardBlock::setup_output_ports()
 {
-	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(), symbols_in_->get_Ts(),
-		symbols_in_->get_frame_size()));
+	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(),
+		symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
 }
 
 
@@ -99,33 +99,21 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_, "Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&rows_, int32, "Rows"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&rows_,"Rows")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&cols_, int32, "Columns"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&cols_, "Columns")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 }
 
 
@@ -162,12 +150,5 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << *static_cast< itpp::Vec<T>* >(symbol_vector_out) << std::endl;
 #endif
 }
-
-
-void PlugBoardBlock::process()
-{
-	(this->*proc)();
-}
-
 
 #include "block/create.hpp"

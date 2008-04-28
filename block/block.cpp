@@ -36,10 +36,10 @@
 #include <boost/lambda/construct.hpp>
 
 #include "block/block.hpp"
+#include "constraint.hpp"
 #include "variable/variable.hpp"
 #include "variable/variable_iterator.hpp"
 #include "exception/input.hpp"
-#include "constraint.hpp"
 
 using namespace plugboard;
 
@@ -340,11 +340,28 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, Paramet
 }
 
 
-void Block::add_parameter(Parameter * const p)
+template< class T >
+ParameterTypedProxy< T > * Block::add_parameter(std::vector< T > *v, const std::string & description)
 {
+	Parameter *p = new Parameter(v, plugboard::typeinfo< T >::value, description);
 	(*this)->configured_ = false;
 	(*this)->params_.push_back(p);
+
+	p->proxy = malloc(sizeof(ParameterTypedProxy< T >));
+	p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back());
+
+	return static_cast< ParameterTypedProxy< T >* >(p->proxy);
 }
+
+
+// instantiate for all possible types. we cannot define this function in the .hpp file
+// beause we need access to the private implementation which is only forward declared there
+#define BOOST_PP_DEF(z, I, _) \
+	template ParameterTypedProxy<CPP_TYPE(I)>* Block::add_parameter(std::vector< CPP_TYPE(I) >* v, const std::string& description); \
+	
+	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+
+#undef BOOST_PP_DEF
 
 
 bool Block::set_parameter(const Variable& p)

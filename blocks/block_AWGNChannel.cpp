@@ -67,13 +67,11 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("AWGNChannel");
 	set_description("Additive White Gaussian Noise Channel");
 }
-
 
 
 void PlugBoardBlock::setup_input_ports()
@@ -82,12 +80,10 @@ void PlugBoardBlock::setup_input_ports()
 }
 
 
-
 void PlugBoardBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", complex, sig_in_->get_Ts(), sig_in_->get_frame_size()));
 }
-
 
 
 void PlugBoardBlock::initialize()
@@ -99,31 +95,20 @@ void PlugBoardBlock::initialize()
 }
 
 
-
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_, "Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&noisevar_, real, "Sigma squared"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&noisevar_, "Sigma squared")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 }
-
 
 
 void PlugBoardBlock::process()
@@ -140,6 +125,5 @@ void PlugBoardBlock::process()
 	std::cout << *out_vector_ << std::endl;
 #endif
 }
-
 
 #include "block/create.hpp"

@@ -48,7 +48,6 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
 
 	OutPort *complex_out_;
@@ -90,6 +89,9 @@ void PlugBoardBlock::initialize()
 template< typename T >
 void PlugBoardBlock::dynamic_process()
 {
+#ifndef NDEBUG
+	std::cout << get_name_sys() << std::endl;
+#endif
 	*v_complex_ = to_cvec(
 		to_vec(*static_cast< const itpp::Vec<T>* >(v_real_)),
 		to_vec(*static_cast< const itpp::Vec<T>* >(v_imag_))
@@ -97,17 +99,6 @@ void PlugBoardBlock::dynamic_process()
 #ifndef NDEBUG
 	std::cout << " real part: " << *static_cast< const itpp::Vec<T>* >(v_real_) << std::endl;
 	std::cout << " imaginary part: " << *static_cast< const itpp::Vec<T>* >(v_imag_) << std::endl;
-#endif
-}
-
-
-void PlugBoardBlock::process()
-{
-#ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl;
-#endif
-	(this->*proc)();
-#ifndef NDEBUG
 	std::cout << " complex: " << *v_complex_ << std::endl;
 #endif
 }

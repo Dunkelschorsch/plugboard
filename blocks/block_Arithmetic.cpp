@@ -48,7 +48,6 @@ public:
 
 private:
 	void initialize();
-	void process();
 
 	void setup_input_ports();
 	void setup_output_ports();
@@ -90,19 +89,13 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 
 void PlugBoardBlock::configure_parameters( )
 {
-	add_parameter
-	(
-		(new Parameter(&num_inputs_, int32, "Number of inputs"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new LessThanConstraint< int32_t >(1000))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&num_inputs_, "Number of inputs")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint< LessThanConstraint >(1000)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&op_, string, "Operation"))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&op_, "Operation")
+		->add_constraint(SizeConstraint(1));
 }
 
 
@@ -211,19 +204,11 @@ void PlugBoardBlock::do_div()
 }
 
 
-void PlugBoardBlock::process()
-{
-#ifndef NDEBUG
-	std::cout << this->get_name_sys() << std::endl;
-#endif
-	(this->*proc)();
-}
-
-
 template< typename T >
 void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
+	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " in1: " << *static_cast< const itpp::Vec<T>* >(v_in_[0]) << std::endl;
 #endif
 	*static_cast< itpp::Vec<T>* >(v_out_) = *static_cast< const itpp::Vec<T>* >(v_in_[0]);

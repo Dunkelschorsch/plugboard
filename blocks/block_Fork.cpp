@@ -51,7 +51,6 @@ private:
 	void configure_parameters();
 
 	void initialize();
-	void process();
 
 	OutPort **sig_out_;
 	const InPort *sig_in1_;
@@ -73,13 +72,10 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 
 void PlugBoardBlock::configure_parameters( )
 {
-	add_parameter
-	(
-		(new Parameter(&num_outputs_, int32, "Number of outputs"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new LessThanConstraint< int32_t >(1000))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&num_outputs_, "Number of outputs")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint< LessThanConstraint >(1000)
+		->add_constraint(SizeConstraint(1));
 }
 
 
@@ -141,12 +137,6 @@ void PlugBoardBlock::dynamic_process()
 		assert(*static_cast< itpp::Vec<T>* >(v_out_[i]) ==
 			*static_cast< const itpp::Vec<T>* >(v_in_));
 	}
-}
-
-
-void PlugBoardBlock::process()
-{
-	(this->*proc)();
 }
 
 

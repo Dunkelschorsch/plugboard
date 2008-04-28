@@ -31,6 +31,7 @@
 
 #include "types/base.hpp"
 #include "visibility.hpp"
+#include "constraint.hpp"
 #include <vector>
 
 
@@ -66,6 +67,33 @@ namespace plugboard
 		type_t type_;
 		std::string description_;
 		std::vector< const ConstraintBase* > constraints_;
+	public:
+		void * proxy;
+	};
+
+
+	template< class T >
+	class ParameterTypedProxy
+	{
+	public:
+		ParameterTypedProxy(Parameter * const pp) : pp_(pp) { }
+
+		template< template< class > class ConstraintT >
+		ParameterTypedProxy< T >* add_constraint(const T& val, bool reverse=false)
+		{
+			pp_->add_constraint(new ConstraintT< T >(val, reverse));
+			return this;
+		}
+
+		template< class ConstraintT >
+		ParameterTypedProxy< T >* add_constraint(const ConstraintT& vc)
+		{
+			pp_->add_constraint(dynamic_cast< ConstraintBase* >(new ConstraintT(vc)));
+			return this;
+		}
+
+	private:
+		Parameter * const pp_;
 	};
 } // namespace plugboard
 

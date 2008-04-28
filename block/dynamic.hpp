@@ -25,7 +25,13 @@
 	template< class T >\
 	void dynamic_delete();\
 	template< class T >\
-	void dynamic_process();
+	void dynamic_process();\
+	\
+	void process()\
+	{\
+		(this->*proc)();\
+	}
+
 
 
 class PlugBoardBlock;
@@ -44,50 +50,8 @@ namespace plugboard
 		mpl::pair< complex_t, mpl::int_< complex > >,
 		mpl::pair< empty_t,   mpl::int_< empty > >
 	> types_m;
-}
-// 	/* all unsigned integers */
-// 	typedef mpl::set< uint8_t, uint16_t, uint32_t >::type unsigned_ints;
-// 
-// 	/* all signed integers */
-// 	typedef mpl::set< int8_t, int16_t, int32_t >::type signed_ints;
-// 
-// 	/* all integers */
-// 	typedef mpl::copy<
-// 		mpl::iterator_range< mpl::begin<unsigned_ints>::type, mpl::end<unsigned_ints>::type >,
-// 		mpl::inserter<
-// 			signed_ints,
-// 			mpl::insert< mpl::_1, mpl::_2 >
-// 		>
-// 	>::type ints;
-// 
-// 	/* double. only used for completeness */
-// 	typedef mpl::set< real_t > reals;
-// 
-// 	/* all integers and real numbers */
-// 	typedef mpl::copy<
-// 		mpl::iterator_range< mpl::begin<ints>::type, mpl::end<ints>::type >,
-// 		mpl::inserter<
-// 			reals,
-// 			mpl::insert< mpl::_1, mpl::_2 >
-// 		>
-// 	>::type ints_and_reals;
-// 
-// 	/* complex. only used for completeness */
-// 	typedef mpl::set< complex_t > complex_nums;
-// 
-// 	/* all numeric types */
-// 	typedef mpl::copy<
-// 		mpl::iterator_range< mpl::begin<complex_nums>::type, mpl::end<complex_nums>::type >,
-// 		mpl::inserter<
-// 			ints_and_reals,
-// 			mpl::insert< mpl::_1, mpl::_2 >
-// 		>
-// 	>::type numeric;
-//
 
 
-namespace plugboard
-{
 	template< class ParentT >
 	class Dynamic
 	{

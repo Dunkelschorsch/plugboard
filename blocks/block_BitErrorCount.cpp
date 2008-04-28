@@ -66,17 +66,11 @@ private:
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&filename_, string, "Filename to save"))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&filename_, "Filename to save")
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&delay_, int32, "Delay"))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&delay_, "Delay")
+		->add_constraint(SizeConstraint(1));
 }
 
 

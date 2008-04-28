@@ -91,40 +91,25 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new GreaterThanConstraint< real_t >(0.0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_,  "Sample Time")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&sequence_length_, int32, "Scrambling sequence length"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&sequence_length_, "Scrambling sequence length")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&sequence_number_, int32, "Scrambling sequence number"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&sequence_number_, "Scrambling sequence number")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&offset_, int32, "Offset"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&offset_, "Offset")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 }
 
 

@@ -32,8 +32,6 @@
 #include <deque>
 #include <vector>
 
-#include <boost/bind.hpp>
-
 #include "pimpl/pimpl.h"
 #include "block/port_traits.hpp"
 #include "block/source.hpp"
@@ -48,6 +46,8 @@
 namespace plugboard
 {
 	class Variable;
+	class Parameter;
+	template< class T > class ParameterTypedProxy;
 
 	class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
 	{
@@ -92,7 +92,8 @@ namespace plugboard
 		void set_name_sys(const std::string& name_sys);
 
 	protected:
-		void add_parameter(Parameter * const);
+		template< class T >
+		ParameterTypedProxy< T >* add_parameter(std::vector< T >* const v, const std::string& description);
 
 		template< class PortT >
 		PortT* add_port(PortT * const p);

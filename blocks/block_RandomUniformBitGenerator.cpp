@@ -87,33 +87,21 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new GreaterThanConstraint< real_t >(0.0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_,  "Sample Time")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&lo_, int32, "Minimum value"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&lo_, "Minimum value")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&hi_, int32, "Maximum value"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&hi_, "Maximum value")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 }
 
 

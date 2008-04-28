@@ -51,7 +51,6 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
 
 	const InPort* symbols_in_;
@@ -115,33 +114,21 @@ void PlugBoardBlock::dynamic_delete()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_, "Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&rows_, int32, "Rows"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&rows_, "Rows")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&cols_, int32, "Columns"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&cols_, "Columns")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 }
 
 
@@ -161,10 +148,5 @@ void PlugBoardBlock::dynamic_process()
 #endif
 }
 
-
-void PlugBoardBlock::process()
-{
-	(this->*proc)();
-}
 
 #include "block/create.hpp"

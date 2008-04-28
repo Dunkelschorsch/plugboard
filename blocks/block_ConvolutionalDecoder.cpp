@@ -118,39 +118,24 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_, "Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&code_rate_, real, "Code Rate"))
-		->add_constraint(new GreaterThanConstraint< real_t >(0.0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&code_rate_, "Code Rate")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&constraint_length_, int32, "Constraint Length"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(0))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&constraint_length_, "Constraint Length")
+		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&code_type_, int32, "Code Type"))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&code_type_, "Code Type")
+		->add_constraint(SizeConstraint(1));
 }
 
 

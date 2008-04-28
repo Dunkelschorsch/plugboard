@@ -37,7 +37,8 @@ namespace plugboard
 		data_(data),
 		type_(type),
 		description_(description),
-		constraints_()
+		constraints_(),
+		proxy(NULL)
 	{
 	}
 
@@ -93,6 +94,8 @@ namespace plugboard
 		{
 			delete *c_it;
 		}
+		if(not (proxy == NULL))
+			free(proxy);
 	}
 
 

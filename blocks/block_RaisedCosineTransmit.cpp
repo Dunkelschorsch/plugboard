@@ -109,40 +109,25 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::configure_parameters()
 {
-	add_parameter
-	(
-		(new Parameter(&Ts_, real, "Sample Time"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&Ts_,"Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&framesize_, int32, "Frame Size"))
-		->add_constraint(new LessThanConstraint< int32_t >(0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&alpha_, real, "Roll-off factor"))
-		->add_constraint(new LessThanConstraint< real_t >(0.0, true))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&alpha_, "Roll-off factor")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&filter_length_, int32, "Filter length"))
-		->add_constraint(new ModuloConstraint< int32_t >(2))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&filter_length_, "Filter length")
+		->add_constraint< ModuloConstraint >(2)
+		->add_constraint(SizeConstraint(1));
 
-	add_parameter
-	(
-		(new Parameter(&upsampling_factor_, int32, "Upsampling factor"))
-		->add_constraint(new GreaterThanConstraint< int32_t >(1))
-		->add_constraint(new SizeConstraint(1))
-	);
+	add_parameter(&upsampling_factor_, "Upsampling factor")
+		->add_constraint< GreaterThanConstraint >(1)
+		->add_constraint(SizeConstraint(1));
 }
 
 
