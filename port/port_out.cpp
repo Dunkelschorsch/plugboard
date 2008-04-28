@@ -89,7 +89,7 @@ namespace plugboard
 
 
 
-	void OutPort::disconnect(const InPort & other)
+	void OutPort::disconnect(const InPort &)
 	{
 		send = 0;
 		buffer_access_ = 0;

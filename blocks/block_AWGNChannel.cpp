@@ -32,7 +32,7 @@
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
-#include <itpp/itcomm.h>
+#include <itpp/comm/channel.h>
 
 using namespace plugboard;
 

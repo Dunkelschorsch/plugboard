@@ -58,7 +58,7 @@ namespace plugboard
 
 
 	template< class IteratorT, typename PointerT >
-	InPort* PortTraits< InPort >::name_exists_action(IteratorT it, InPort * const p, const PointerT * const self)
+	InPort* PortTraits< InPort >::name_exists_action(IteratorT, InPort * const p, const PointerT * const self)
 	{
 		throw DuplicatePortNameException(self->get_name() + "::" + p->get_name());
 		return NULL;
@@ -87,7 +87,12 @@ namespace plugboard
 
 
 	template< class IteratorT, typename PointerT >
-	OutPort* PortTraits< OutPort >::name_exists_action(IteratorT it, OutPort * const p, const PointerT * const self)
+	OutPort* PortTraits< OutPort >::name_exists_action
+#ifndef NDEBUG
+	(IteratorT it, OutPort * const p, const PointerT * const self)
+#else
+	(IteratorT it, OutPort * const p, const PointerT * const)
+#endif
 	{
 	#ifndef NDEBUG
 		std::cout << "    " << self->get_name_sys() <<

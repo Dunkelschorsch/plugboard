@@ -33,7 +33,6 @@
 #include "constraint.hpp"
 
 #include <itpp/comm/modulator.h>
-#include <itpp/itbase.h>
 
 
 using namespace plugboard;

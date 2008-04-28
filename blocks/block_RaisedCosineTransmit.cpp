@@ -32,9 +32,10 @@
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
-#include <itpp/itcomm.h>
-#include <itpp/itstat.h>
-
+#include <itpp/comm/pulse_shape.h>
+#ifndef NDEBUG
+#include <itpp/stat/misc_stat.h>
+#endif
 
 using namespace plugboard;
 

@@ -34,7 +34,6 @@
 #include "constraint.hpp"
 
 #include <itpp/comm/interleave.h>
-#include <itpp/itbase.h>
 
 
 using namespace plugboard;
