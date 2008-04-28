@@ -30,7 +30,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CC_FLAGS}")
 SET(CMAKE_CC_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -s" CACHE STRING "This is appended to the C++ flags in release mode.")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CC_RELEASE}")
 
-SET(CMAKE_CC_FLAGS_DEBUG "-ggdb -Werror")
+SET(CMAKE_CC_FLAGS_DEBUG "-ggdb -Werror" CACHE STRING "This is appended to the C++ flags in debug mode.")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CC_FLAGS_DEBUG}")
 
 include_directories (${PLUGBOARD_SOURCE_DIR})
