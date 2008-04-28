@@ -150,7 +150,8 @@ namespace plugboard
 	template< class ParentT >
 	Dynamic< ParentT >::~Dynamic()
 	{
-		(this->*destroy)();
+		if(parent_->is_initialized())
+			(this->*destroy)();
 	}
 
 
@@ -168,7 +169,6 @@ namespace plugboard
 		using namespace boost::mpl;
 
 		typedef typename copy<
-			// "types_m" is defined in "types/base.hpp"
 			iterator_range< begin<types_m>::type, end<types_m>::type >,
 			inserter<
 				map<>,
@@ -203,8 +203,7 @@ namespace plugboard
 	template< class T >
 	void Dynamic< ParentT >::dynamic_delete()
 	{
-		if(parent_->is_initialized())
-			parent_->dynamic_delete< T >();
+		parent_->dynamic_delete< T >();
 	}
 
 
