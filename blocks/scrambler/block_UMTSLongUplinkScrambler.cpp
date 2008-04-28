@@ -42,11 +42,13 @@ public:
 	PlugBoardBlock();
 
 private:
-	void process();
-	void initialize();
 	void configure_parameters();
 	void setup_output_ports();
 
+	void initialize();
+	void process();
+
+	// signals
 	OutPort *scr_out_;
 	itpp::cvec *c_vector_;
 
@@ -68,25 +70,6 @@ PlugBoardBlock::PlugBoardBlock()
 	set_name("UMTS Long Uplink Scrambler");
 	set_description("Creates Long UMTS Uplink Scrambling sequences");
 }
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
-}
-
-
-
-
-void PlugBoardBlock::initialize()
-{
-	c_vector_ = get_signal< complex_t >(scr_out_);
-
-	s = scramble_t(sequence_number_[0], offset_[0]);
-	s.generate();
-}
-
 
 
 void PlugBoardBlock::configure_parameters()
@@ -113,6 +96,20 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_output_ports()
+{
+	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	c_vector_ = get_signal< complex_t >(scr_out_);
+
+	s = scramble_t(sequence_number_[0], offset_[0]);
+	s.generate();
+}
+
 
 void PlugBoardBlock::process()
 {
@@ -122,5 +119,6 @@ void PlugBoardBlock::process()
 	std::cout << " generated: " << *c_vector_ << std::endl;
 #endif
 }
+
 
 #include "block/create.hpp"

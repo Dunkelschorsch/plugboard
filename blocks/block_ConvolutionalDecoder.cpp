@@ -47,8 +47,8 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
 	// input signals
 	const InPort* sig_in_;
@@ -72,48 +72,11 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("ConvolutionalDecoder");
 	set_description("Decoder for Convolutional Codes");
 }
-
-
-
-void PlugBoardBlock::setup_input_ports()
-{
-	sig_in_ = add_port(new InPort("in", real, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(),
-		sig_in_->get_frame_size() / static_cast< int32_t >(1/code_rate_[0])
-		- constraint_length_[0]+1));
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	in_vector_ = get_signal< real_t >(sig_in_);
-	out_vector_ = get_signal< int32_t >(sig_out_);
-
-	code = itpp::Convolutional_Code();
-	code.set_method(itpp::Tail);
-
-	itpp::CONVOLUTIONAL_CODE_TYPE type = code_type_[0] == 0 ? itpp::MFD : itpp::ODS;
-#ifndef NDEBUG
-	std::cout << this->get_name_sys() << " parameters: " << std::endl;
-	std::cout << "inverse rate: " << static_cast< int32_t >(1/code_rate_[0]) << std::endl;
-	std::cout << "constraint length: " << constraint_length_[0] << std::endl;
-#endif
-	code.set_code(type, static_cast< int32_t >(1/code_rate_[0]), constraint_length_[0]);
-}
-
 
 
 void PlugBoardBlock::configure_parameters()
@@ -138,6 +101,37 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 }
 
+
+void PlugBoardBlock::setup_input_ports()
+{
+	sig_in_ = add_port(new InPort("in", real, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(),
+		sig_in_->get_frame_size() / static_cast< int32_t >(1/code_rate_[0])
+		- constraint_length_[0]+1));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	in_vector_ = get_signal< real_t >(sig_in_);
+	out_vector_ = get_signal< int32_t >(sig_out_);
+
+	code = itpp::Convolutional_Code();
+	code.set_method(itpp::Tail);
+
+	itpp::CONVOLUTIONAL_CODE_TYPE type = code_type_[0] == 0 ? itpp::MFD : itpp::ODS;
+#ifndef NDEBUG
+	std::cout << this->get_name_sys() << " parameters: " << std::endl;
+	std::cout << "inverse rate: " << static_cast< int32_t >(1/code_rate_[0]) << std::endl;
+	std::cout << "constraint length: " << constraint_length_[0] << std::endl;
+#endif
+	code.set_code(type, static_cast< int32_t >(1/code_rate_[0]), constraint_length_[0]);
+}
 
 
 void PlugBoardBlock::process()

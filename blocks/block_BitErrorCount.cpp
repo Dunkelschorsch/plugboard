@@ -44,13 +44,14 @@ public:
 	PlugBoardBlock();
 
 private:
-	void setup_input_ports();
 	void configure_parameters();
-
+	void setup_input_ports();
 	void initialize();
+
 	void process();
 	void finalize();
 
+	// signals
 	const InPort *tx_in_, *rx_in_;
 	const itpp::Vec< int32_t > *tx_vec, *rx_vec;
 
@@ -63,6 +64,12 @@ private:
 };
 
 
+PlugBoardBlock::PlugBoardBlock()
+{
+	set_name("BitErrorCount");
+	set_description("Counts bit errors between the two input signals");
+}
+
 
 void PlugBoardBlock::configure_parameters()
 {
@@ -74,21 +81,11 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
-
-PlugBoardBlock::PlugBoardBlock()
-{
-	set_name("BitErrorCount");
-	set_description("Counts bit errors between the two input signals");
-}
-
-
-
 void PlugBoardBlock::setup_input_ports()
 {
 	tx_in_ = add_port(new InPort("tx", int32, 0, 0));
 	rx_in_ = add_port(new InPort("rx", int32, 0, 0));
 }
-
 
 
 void PlugBoardBlock::initialize()
@@ -102,7 +99,6 @@ void PlugBoardBlock::initialize()
 }
 
 
-
 void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
@@ -113,7 +109,6 @@ void PlugBoardBlock::process()
 #endif
 	berc.count(to_bvec(*tx_vec), to_bvec(*rx_vec));
 }
-
 
 
 void PlugBoardBlock::finalize()
@@ -134,5 +129,6 @@ void PlugBoardBlock::finalize()
 #endif
 	report_file.close();
 }
+
 
 #include "block/create.hpp"

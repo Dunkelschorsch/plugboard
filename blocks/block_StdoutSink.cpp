@@ -52,6 +52,16 @@ private:
 };
 
 
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
+{
+	set_name("StdoutSink");
+	set_description("Display input signal on standard output.");
+#ifndef NDEBUG
+	std::cout << "Contructed Block_" << get_name() << "!" << std::endl;
+#endif
+}
+
+
 void PlugBoardBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in"));
@@ -72,12 +82,6 @@ void PlugBoardBlock::dynamic_init()
 
 
 template< typename T >
-void PlugBoardBlock::dynamic_delete()
-{
-}
-
-
-template< typename T >
 void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
@@ -87,14 +91,8 @@ void PlugBoardBlock::dynamic_process()
 }
 
 
-PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
-{
-	set_name("StdoutSink");
-	set_description("Display input signal on standard output.");
-#ifndef NDEBUG
-	std::cout << "Contructed Block_" << get_name() << "!" << std::endl;
-#endif
-}
+template< typename T >
+void PlugBoardBlock::dynamic_delete() { }
 
 
 #include "block/create.hpp"

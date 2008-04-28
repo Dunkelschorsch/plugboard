@@ -42,12 +42,13 @@ public:
 	PlugBoardBlock();
 
 private:
-	void process();
-	void initialize();
-
 	void configure_parameters();
 	void setup_output_ports();
 
+	void initialize();
+	void process();
+
+	// signals
 	OutPort *bits_out_;
 	itpp::ivec *i_vector_;
 
@@ -59,30 +60,11 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("RandomUniformBitGenerator");
 	set_description("Creates uniformely distributed integer values.");
 }
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	prng.setup(lo_[0], hi_[0]);
-	itpp::RNG_randomize();
-
-	i_vector_ = get_signal< int32_t >(bits_out_);
-}
-
 
 
 void PlugBoardBlock::configure_parameters()
@@ -105,12 +87,30 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_output_ports()
+{
+	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	prng.setup(lo_[0], hi_[0]);
+	itpp::RNG_randomize();
+
+	i_vector_ = get_signal< int32_t >(bits_out_);
+}
+
 
 void PlugBoardBlock::process()
 {
-	*i_vector_ = prng(framesize_[0]);
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
+#endif
+
+	*i_vector_ = prng(framesize_[0]);
+
+#ifndef NDEBUG
 	std::cout << " generated: " << *i_vector_ << std::endl;
 #endif
 }

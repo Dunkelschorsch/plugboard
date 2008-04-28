@@ -119,8 +119,8 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
 	// input signals
 	const InPort* sig_in_;
@@ -152,44 +152,6 @@ PlugBoardBlock::PlugBoardBlock()
 }
 
 
-PlugBoardBlock::~PlugBoardBlock()
-{
-	if(is_initialized())
-		delete mf;
-}
-
-
-void PlugBoardBlock::setup_input_ports()
-{
-	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	sig_out_ = add_port(new OutPort("out", complex,
-		sig_in_->get_Ts() * downsampling_factor_[0],
-		sig_in_->get_frame_size() / downsampling_factor_[0])
-	);
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	in_vector_ = get_signal< complex_t >(sig_in_);
-	out_vector_ = get_signal< complex_t >(sig_out_);
-
-	framesize_[0] = sig_in_->get_frame_size();
-
-	rc = new itpp::Root_Raised_Cosine< complex_t >(alpha_[0], filter_length_[0], downsampling_factor_[0]);
-	mf = new Matched_Filter< complex_t, double >(rc->get_pulse_shape(), downsampling_factor_[0]);
-	delete rc;
-}
-
-
-
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_,"Sample Time")
@@ -214,6 +176,33 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_input_ports()
+{
+	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	sig_out_ = add_port(new OutPort("out", complex,
+		sig_in_->get_Ts() * downsampling_factor_[0],
+		sig_in_->get_frame_size() / downsampling_factor_[0])
+	);
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	in_vector_ = get_signal< complex_t >(sig_in_);
+	out_vector_ = get_signal< complex_t >(sig_out_);
+
+	framesize_[0] = sig_in_->get_frame_size();
+
+	rc = new itpp::Root_Raised_Cosine< complex_t >(alpha_[0], filter_length_[0], downsampling_factor_[0]);
+	mf = new Matched_Filter< complex_t, double >(rc->get_pulse_shape(), downsampling_factor_[0]);
+	delete rc;
+}
+
 
 void PlugBoardBlock::process()
 {
@@ -230,6 +219,13 @@ void PlugBoardBlock::process()
 	std::cout << "rms: " << sqrt(itpp::mean(itpp::sqr(*out_vector_))) << " ";
 	std::cout << *out_vector_ << std::endl;
 #endif
+}
+
+
+PlugBoardBlock::~PlugBoardBlock()
+{
+	if(is_initialized())
+		delete mf;
 }
 
 

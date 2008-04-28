@@ -46,12 +46,13 @@ public:
 	PlugBoardBlock();
 
 private:
+	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
-	void configure_parameters();
 
 	void initialize();
 
+	// signals
 	OutPort **sig_out_;
 	const InPort *sig_in1_;
 

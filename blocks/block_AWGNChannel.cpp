@@ -46,8 +46,8 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
 	// input signals
 	const InPort* sig_in_;
@@ -74,6 +74,22 @@ PlugBoardBlock::PlugBoardBlock()
 }
 
 
+void PlugBoardBlock::configure_parameters()
+{
+	add_parameter(&Ts_, "Sample Time")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
+
+	add_parameter(&framesize_, "Frame Size")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
+
+	add_parameter(&noisevar_, "Sigma squared")
+		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint(SizeConstraint(1));
+}
+
+
 void PlugBoardBlock::setup_input_ports()
 {
 	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
@@ -92,22 +108,6 @@ void PlugBoardBlock::initialize()
 	out_vector_ = get_signal< complex_t >(sig_out_);
 
 	awgn.set_noise(noisevar_[0]);
-}
-
-
-void PlugBoardBlock::configure_parameters()
-{
-	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
-		->add_constraint(SizeConstraint(1));
-
-	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
-		->add_constraint(SizeConstraint(1));
-
-	add_parameter(&noisevar_, "Sigma squared")
-		->add_constraint< LessThanConstraint >(0, true)
-		->add_constraint(SizeConstraint(1));
 }
 
 

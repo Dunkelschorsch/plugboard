@@ -53,11 +53,10 @@ private:
 	void setup_output_ports();
 
 	void initialize();
-// 	void process();
 
+	// signals
 	const InPort* symbols_in_;
 	const void *symbol_vector_in;
-	type_t input_type_;
 	
 	OutPort* symbols_out_;
 	void *symbol_vector_out;
@@ -70,30 +69,10 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("BlockDeinterleaver");
 	set_description("Block Deinterleaver");
-}
-
-
-void PlugBoardBlock::setup_input_ports()
-{
-	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
-}
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(),
-		symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
-}
-
-
-void PlugBoardBlock::initialize()
-{
-	Dynamic< PlugBoardBlock >::initialize(symbols_in_);
 }
 
 
@@ -117,6 +96,25 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_input_ports()
+{
+	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(),
+		symbols_in_->get_Ts(), symbols_in_->get_frame_size()));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	Dynamic< PlugBoardBlock >::initialize(symbols_in_);
+}
+
+
 template< typename T >
 void PlugBoardBlock::dynamic_init()
 {
@@ -125,13 +123,6 @@ void PlugBoardBlock::dynamic_init()
 
 	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
 	static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->interleave(itpp::Vec<T>(symbols_in_->get_frame_size()));
-}
-
-
-template< typename T >
-void PlugBoardBlock::dynamic_delete()
-{
-	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
 }
 
 
@@ -150,5 +141,13 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << *static_cast< itpp::Vec<T>* >(symbol_vector_out) << std::endl;
 #endif
 }
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_delete()
+{
+	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
+}
+
 
 #include "block/create.hpp"

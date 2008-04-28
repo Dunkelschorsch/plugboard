@@ -48,9 +48,10 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
+	// signals
 	const InPort* bits_in_;
 	const itpp::ivec *bit_vector_;
 
@@ -66,38 +67,11 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("MPSKModulator");
 	set_description("M-Ary PSK Modulator");
 }
-
-
-
-void PlugBoardBlock::setup_input_ports()
-{
-	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(),
-		bits_in_->get_frame_size()/static_cast< unsigned int >(log2(M_[0]))));
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	bit_vector_ = get_signal< int32_t >(bits_in_);
-	symbol_vector_ = get_signal< complex_t >(symbols_out_);
-
-	mod = itpp::PSK(M_[0]);
-}
-
 
 
 void PlugBoardBlock::configure_parameters()
@@ -116,6 +90,27 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_input_ports()
+{
+	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(),
+		bits_in_->get_frame_size()/static_cast< unsigned int >(log2(M_[0]))));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	bit_vector_ = get_signal< int32_t >(bits_in_);
+	symbol_vector_ = get_signal< complex_t >(symbols_out_);
+
+	mod = itpp::PSK(M_[0]);
+}
+
 
 void PlugBoardBlock::process()
 {
@@ -129,7 +124,7 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << " symobls(" << symbol_vector_->size() << "): ";
 	std::cout << *symbol_vector_ << std::endl;
-#endif	
+#endif
 }
 
 

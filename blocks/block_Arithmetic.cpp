@@ -47,11 +47,11 @@ public:
 	~PlugBoardBlock();
 
 private:
-	void initialize();
-
+	void configure_parameters();
 	void setup_input_ports();
 	void setup_output_ports();
-	void configure_parameters();
+
+	void initialize();
 
 	template< typename T >
 	void do_add();
@@ -236,9 +236,6 @@ void PlugBoardBlock::dynamic_delete()
 
 PlugBoardBlock::~PlugBoardBlock()
 {
-#ifndef NDEBUG
-	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
-#endif
 	if(is_configured())
 		delete[] sig_in_;
 }

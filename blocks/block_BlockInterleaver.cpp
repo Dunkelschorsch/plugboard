@@ -53,6 +53,7 @@ private:
 
 	void initialize();
 
+	// signals
 	const InPort* symbols_in_;
 	const void *symbol_vector_in;
 
@@ -71,44 +72,6 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("BlockInterleaver");
 	set_description("Block Interleaver");
-}
-
-
-void PlugBoardBlock::setup_input_ports()
-{
-	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
-}
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(), symbols_in_->get_Ts(),
-		symbols_in_->get_frame_size()));
-}
-
-
-void PlugBoardBlock::initialize()
-{
-	Dynamic< PlugBoardBlock >::initialize(symbols_in_);
-
-
-}
-
-
-template< typename T >
-void PlugBoardBlock::dynamic_init()
-{
-	symbol_vector_in = get_signal< T >(symbols_in_);
-	symbol_vector_out = get_signal< T >(symbols_out_);
-
-	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
-}
-
-
-template< typename T >
-void PlugBoardBlock::dynamic_delete()
-{
-	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
 }
 
 
@@ -132,6 +95,35 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_input_ports()
+{
+	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	symbols_out_ = add_port(new OutPort("out", symbols_in_->get_type(), symbols_in_->get_Ts(),
+		symbols_in_->get_frame_size()));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	Dynamic< PlugBoardBlock >::initialize(symbols_in_);
+}
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_init()
+{
+	symbol_vector_in = get_signal< T >(symbols_in_);
+	symbol_vector_out = get_signal< T >(symbols_out_);
+
+	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
+}
+
+
 template< typename T >
 void PlugBoardBlock::dynamic_process()
 {
@@ -146,6 +138,13 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << " symbols_out(" << static_cast< itpp::Vec<T>* >(symbol_vector_out)->size() << "): ";
 	std::cout << *static_cast< itpp::Vec<T>* >(symbol_vector_out) << std::endl;
 #endif
+}
+
+
+template< typename T >
+void PlugBoardBlock::dynamic_delete()
+{
+	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
 }
 
 

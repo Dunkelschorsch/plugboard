@@ -42,11 +42,13 @@ public:
 	PlugBoardBlock();
 
 private:
-	void process();
-	void initialize();
 	void configure_parameters();
 	void setup_output_ports();
 
+	void initialize();
+	void process();
+
+	// signals
 	OutPort *scr_out_;
 	itpp::cvec *c_vector_;
 
@@ -62,30 +64,11 @@ private:
 };
 
 
-
 PlugBoardBlock::PlugBoardBlock()
 {
 	set_name("Scrambler");
 	set_description("Creates UMTS Scrambling sequences");
 }
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	c_vector_ = get_signal< complex_t >(scr_out_);
-
-	s = scrambler_t(sequence_number_[0]);
-	s.generate();
-}
-
 
 
 void PlugBoardBlock::configure_parameters()
@@ -108,14 +91,33 @@ void PlugBoardBlock::configure_parameters()
 }
 
 
+void PlugBoardBlock::setup_output_ports()
+{
+	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	c_vector_ = get_signal< complex_t >(scr_out_);
+
+	s = scrambler_t(sequence_number_[0]);
+	s.generate();
+}
+
 
 void PlugBoardBlock::process()
 {
-	*c_vector_ = s.get_scrambling_sequence();
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
+#endif
+
+	*c_vector_ = s.get_scrambling_sequence();
+#ifndef NDEBUG
+
 	std::cout << " generated: " << *c_vector_ << std::endl;
 #endif
 }
+
 
 #include "block/create.hpp"

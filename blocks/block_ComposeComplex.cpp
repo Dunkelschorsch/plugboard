@@ -50,6 +50,7 @@ private:
 
 	void initialize();
 
+	// signals
 	OutPort *complex_out_;
 	const InPort *real_in_, *imag_in_;
 
@@ -58,10 +59,17 @@ private:
 };
 
 
+PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
+{
+	set_name("ComposeComplex");
+	set_description("Create a complex signal out of two real valued signals.");
+}
+
+
 void PlugBoardBlock::setup_input_ports()
 {
-	real_in_ = add_port(new InPort("real", empty, 0, 0));
-	imag_in_ = add_port(new InPort("imag", empty, 0, 0));
+	real_in_ = add_port(new InPort("real"));
+	imag_in_ = add_port(new InPort("imag"));
 }
 
 
@@ -71,18 +79,18 @@ void PlugBoardBlock::setup_output_ports()
 }
 
 
+void PlugBoardBlock::initialize()
+{
+	v_complex_ = get_signal< complex_t >(complex_out_);
+	Dynamic< PlugBoardBlock >::initialize< boost::mpl::set< int32_t, real_t > >(real_in_);
+}
+
+
 template< typename T >
 void PlugBoardBlock::dynamic_init()
 {
 	v_real_ = get_signal< T >(real_in_);
 	v_imag_ = get_signal< T >(imag_in_);
-}
-
-
-void PlugBoardBlock::initialize()
-{
-	v_complex_ = get_signal< complex_t >(complex_out_);
-	Dynamic< PlugBoardBlock >::initialize< boost::mpl::set< int32_t, real_t > >(real_in_);
 }
 
 
@@ -101,13 +109,6 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << " imaginary part: " << *static_cast< const itpp::Vec<T>* >(v_imag_) << std::endl;
 	std::cout << " complex: " << *v_complex_ << std::endl;
 #endif
-}
-
-
-PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
-{
-	set_name("ComposeComplex");
-	set_description("Create a complex signal out of two real valued signals.");
 }
 
 

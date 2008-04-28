@@ -47,9 +47,10 @@ private:
 	void setup_input_ports();
 	void setup_output_ports();
 
-	void process();
 	void initialize();
+	void process();
 
+	// signals
 	OutPort* bits_out_;
 	void *bits_v_;
 
@@ -75,38 +76,6 @@ PlugBoardBlock::PlugBoardBlock()
 }
 
 
-
-void PlugBoardBlock::setup_input_ports()
-{
-	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
-}
-
-
-
-void PlugBoardBlock::setup_output_ports()
-{
-	if(soft_demod_[0] == 1)
-		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
-	else
-		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
-}
-
-
-
-void PlugBoardBlock::initialize()
-{
-	if(soft_demod_[0] == 1)
-		bits_v_ = get_signal< real_t >(bits_out_);
-	else
-		bits_v_ = get_signal< int32_t >(bits_out_);
-
-	symbol_vector_ = get_signal< complex_t >(symbols_in_);
-
-	mod = itpp::PSK(M_[0]);
-}
-
-
-
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
@@ -126,6 +95,33 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 }
 
+
+void PlugBoardBlock::setup_input_ports()
+{
+	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
+}
+
+
+void PlugBoardBlock::setup_output_ports()
+{
+	if(soft_demod_[0] == 1)
+		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
+	else
+		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
+}
+
+
+void PlugBoardBlock::initialize()
+{
+	if(soft_demod_[0] == 1)
+		bits_v_ = get_signal< real_t >(bits_out_);
+	else
+		bits_v_ = get_signal< int32_t >(bits_out_);
+
+	symbol_vector_ = get_signal< complex_t >(symbols_in_);
+
+	mod = itpp::PSK(M_[0]);
+}
 
 
 void PlugBoardBlock::process()
