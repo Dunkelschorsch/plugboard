@@ -40,6 +40,7 @@ namespace pb = plugboard;
 int main(int argc, char **argv)
 {
 	bool t_threading = false;
+	bool t_show_blocks = false;
 
 	try
 	{
@@ -48,6 +49,12 @@ int main(int argc, char **argv)
 		desc.add_options()
 			("help,h", "display this help message")
 			("enable-threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
+#ifdef NDEBUG
+			("verbose-module-load", po::bool_switch(&t_show_blocks), "display which block plugins are being loaded")
+#else
+			("verbose-module-load", po::bool_switch(&t_show_blocks),
+			"display which block plugins are being loaded. CAUTION: This is a debug build. Plugin loading progess is always shown.")
+#endif
 		;
 
 	        po::options_description hidden("hidden options");
@@ -77,9 +84,18 @@ int main(int argc, char **argv)
 		{
 			std::string input_file =
 				vm["input-file"].as< std::vector < std::string > >()[0];
-			pb::BlockLoader::instance().load_dir("blocks", true);
 
 			pb::Environment::instance().set("threading", t_threading);
+
+
+			pb::Environment::instance().set("verbose_plugin_load",
+#ifdef NDEBUG
+										t_show_blocks
+#else
+										true
+#endif
+										);
+			pb::BlockLoader::instance().load_dir("blocks", true);
 
 			pb::FileInput ff;
 			ff.execute_command(input_file);

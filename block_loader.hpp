@@ -29,7 +29,6 @@
 #ifndef BLOCK_LOADER_HPP
 #define BLOCK_LOADER_HPP
 
-#include "types/base.hpp"
 #include "pimpl/pimpl.h"
 #include <vector>
 #include <string>

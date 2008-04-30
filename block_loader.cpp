@@ -29,6 +29,7 @@
 #include "block_loader.hpp"
 #include "factory.hpp"
 #include "exception/block.hpp"
+#include "environment.hpp"
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -122,6 +123,8 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 	const fs::directory_iterator last_lib_file;
 	fs::directory_iterator block_iter(block_path);
 
+	bool verbose_plugin_load = boost::any_cast< bool >(Environment::instance().get("verbose_plugin_load"));
+
 	for(/*no init*/; block_iter != last_lib_file; ++block_iter)
 	{
 		if (fs::is_directory(*block_iter))
@@ -141,7 +144,11 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 		if(module != NULL)
 		{
-			std::cerr << "Loading module file '" << block_file_curr << "' ... ";
+			if(verbose_plugin_load)
+			{
+				std::cerr << "Loading module file '" << block_file_curr << "' ... ";
+			}
+
 			implementation::create_block_func_t create = 0;
 
 			std::string block_id;
@@ -154,16 +161,28 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 			{
 				if (!(*this)->f_.Register(block_id, create))
 				{
-					std::cerr << "already exists." << std::endl;
+					if(verbose_plugin_load)
+					{
+						std::cerr << "already exists." << std::endl;
+					}
 					continue;
 				}
 
-				std::cerr << "ok" << " (id=" << block_id << ")" << std::endl;
+				if(verbose_plugin_load)
+				{
+					std::cerr << "ok" << " (id=" << block_id << ")" << std::endl;
+				}
+
 				++block_count;
 				(*this)->available_blocks_.push_back(block_id);
 			}
 		} else
-			std::cerr << lt_dlerror() << " ... ignoring" << std::endl;
+		{
+			if(verbose_plugin_load)
+			{
+				std::cerr << lt_dlerror() << " ... ignoring" << std::endl;
+			}
+		}
 	}
 	return block_count;
 }
