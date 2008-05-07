@@ -32,6 +32,9 @@
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
+#include <boost/random.hpp>
+#include <boost/random/uniform_int.hpp>
+
 #include <itpp/itbase.h>
 
 using namespace plugboard;
@@ -47,16 +50,22 @@ private:
 
 	void initialize();
 	void process();
+	void finalize();
 
 	// signals
 	OutPort *bits_out_;
+
 	itpp::ivec *i_vector_;
+	int32_t* i_array_;
 
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 	int32_vec_t hi_, lo_;
 
-	itpp::I_Uniform_RNG prng;
+	// random number generation
+	boost::mt19937 generator;
+	boost::uniform_int< > uni_dist;
+	boost::variate_generator< boost::mt19937&, boost::uniform_int< > > *make_bit;
 };
 
 
@@ -65,6 +74,12 @@ PlugBoardBlock::PlugBoardBlock()
 	set_name("RandomUniformBitGenerator");
 	set_description("Creates uniformely distributed integer values.");
 }
+
+
+// PlugBoardBlock::~PlugBoardBlock()
+// {
+// 	delete make_bit;
+// }
 
 
 void PlugBoardBlock::configure_parameters()
@@ -95,10 +110,13 @@ void PlugBoardBlock::setup_output_ports()
 
 void PlugBoardBlock::initialize()
 {
-	prng.setup(lo_[0], hi_[0]);
-	itpp::RNG_randomize();
+	uni_dist = boost::uniform_int< >(lo_[0], hi_[0]);
 
+	make_bit = new boost::variate_generator< boost::mt19937&, boost::uniform_int< > >(generator, uni_dist);
+
+	i_array_ = get_data< int32_t >(bits_out_);
 	i_vector_ = get_signal< int32_t >(bits_out_);
+
 }
 
 
@@ -107,13 +125,21 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 #endif
-
-	*i_vector_ = prng(framesize_[0]);
+	uint32_t s = framesize_[0];
+	for(uint32_t i=0; i < s; i++)
+	{
+		i_array_[i] = (*make_bit)();
+	}
 
 #ifndef NDEBUG
 	std::cout << " generated: " << *i_vector_ << std::endl;
 #endif
 }
 
+
+void PlugBoardBlock::finalize()
+{
+	delete make_bit;
+}
 
 #include "block/create.hpp"
