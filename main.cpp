@@ -28,11 +28,14 @@
 
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "block_loader.hpp"
 #include "input/file.hpp"
 #include "environment.hpp"
 
+// incredibly global variable
+boost::mutex pb_io_mutex;
 
 namespace po = boost::program_options;
 namespace pb = plugboard;

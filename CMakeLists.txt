@@ -44,6 +44,7 @@ add_executable(
 	system.cpp
 	systems.cpp
 	subsystem.cpp
+	thread_mgm.cpp
 	exec_matrix.cpp
 	exec_stage.cpp
 	exception/exceptions.cpp

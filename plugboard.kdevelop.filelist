@@ -121,3 +121,5 @@ COPYING
 blocks/block_BlockInterleaver.cpp
 blocks/block_BlockDeinterleaver.cpp
 block/dynamic.hpp
+thread_mgm.hpp
+thread_mgm.cpp

@@ -28,14 +28,21 @@
 
 #include "exec_stage.hpp"
 #include "environment.hpp"
+#include "thread_mgm.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/pool/object_pool.hpp>
+#include <boost/thread/mutex.hpp>
+
 
 using boost::bind;
 using namespace plugboard;
+
+// this one is declared in main.cpp
+extern boost::mutex pb_io_mutex;
+
+boost::mutex worker_creation_mutex;
 
 
 typedef pimpl< ExecutionStage >::implementation ExecutionStageImpl;
@@ -49,19 +56,22 @@ struct pimpl< ExecutionStage >::implementation
 
 	void add_block_impl(Block * const b);
 
-	ExecutionStage::stage_t paths_;
+	plugboard::ExecutionStage::stage_t paths_;
 	bool threading_enabled_;
-	std::vector< boost::thread* > thread_group_;
+
+	boost::thread_group threads;
+
+	Boss boss;
 };
 
 
-ExecutionStage::ExecutionStage() :
+plugboard::ExecutionStage::ExecutionStage() :
 	base()
 { }
 
 
 
-ExecutionStage::ExecutionStage(Block * const b, bool threading_enabled) :
+plugboard::ExecutionStage::ExecutionStage(Block * const b, bool threading_enabled) :
 	base(b, threading_enabled)
 { }
 
@@ -73,8 +83,6 @@ ExecutionStageImpl::implementation() :
 { }
 
 
-
-
 ExecutionStageImpl::implementation(Block * const b, bool threading_enabled) :
 	threading_enabled_(threading_enabled)
 {
@@ -82,24 +90,21 @@ ExecutionStageImpl::implementation(Block * const b, bool threading_enabled) :
 }
 
 
-
 void ExecutionStageImpl::add_block_impl(Block * const b)
 {
-	ExecutionStage::path_t path_temp;
+	plugboard::ExecutionStage::path_t path_temp;
 	path_temp.push_back(b);
 	paths_.push_back(path_temp);
 }
 
 
-
-void ExecutionStage::add_block(Block * const b)
+void plugboard::ExecutionStage::add_block(Block * const b)
 {
 	(*this)->add_block_impl(b);
 }
 
 
-
-Block* ExecutionStage::operator[](const std::string& name) const
+Block* plugboard::ExecutionStage::operator[](const std::string& name) const
 {
 	path_t::const_iterator block_curr;
 	stage_t::const_iterator path_curr;
@@ -122,8 +127,7 @@ Block* ExecutionStage::operator[](const std::string& name) const
 }
 
 
-
-bool ExecutionStage::block_is_placed(const std::string& name) const
+bool plugboard::ExecutionStage::block_is_placed(const std::string& name) const
 {
 	for
 	(
@@ -148,15 +152,13 @@ bool ExecutionStage::block_is_placed(const std::string& name) const
 }
 
 
-
-const ExecutionStage::stage_t& ExecutionStage::get_paths() const
+const plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths() const
 {
 	return (*this)->paths_;
 }
 
 
-
-void ExecutionStage::add_path(const path_t& p)
+void plugboard::ExecutionStage::add_path(const path_t& p)
 {
 	if((get_paths().size() > 1) &&
 		boost::any_cast< bool >(Environment::instance().get("threading")))
@@ -168,44 +170,20 @@ void ExecutionStage::add_path(const path_t& p)
 }
 
 
-
-ExecutionStage::stage_t& ExecutionStage::get_paths()
+plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths()
 {
 	return (*this)->paths_;
 }
 
 
-
-void ExecutionStage::exec()
+void plugboard::ExecutionStage::exec()
 {
 	implementation& impl = **this;
 
 	if(impl.threading_enabled_)
 	{
-		assert(get_paths().size() > 1);
-		boost::object_pool< boost::thread > thread_pool;
-
-		// iterate through paths
-		stage_t::const_iterator path_it;
-		stage_t::const_iterator paths_end = get_paths().end();
-		for
-		(
-			path_it = get_paths().begin();
-			path_it != paths_end;
-			++path_it
-		)
-		{
-			boost::thread* t = thread_pool.construct(bind(&ExecutionStage::exec_path, this, *path_it));
-			impl.thread_group_.push_back(t);
-		}
-		// wait for all threads to finish
-		std::for_each
-		(
-			impl.thread_group_.begin(),
-			impl.thread_group_.end(),
-			bind(&boost::thread::join, _1)
-		);
- 		impl.thread_group_.clear();
+		impl.boss.continue_all();
+		impl.boss.sync_post_process();
 	}
 	// execute all paths sequentially
 	else
@@ -214,14 +192,13 @@ void ExecutionStage::exec()
 		(
 			get_paths().begin(),
 			get_paths().end(),
-			bind(&ExecutionStage::exec_path, this, _1)
+			bind(&plugboard::ExecutionStage::exec_path, this, _1)
 		);
 	}
 }
 
 
-
-void ExecutionStage::exec_path(const path_t& p)
+void plugboard::ExecutionStage::exec_path(const path_t& p)
 {
 	std::for_each
 	(
@@ -232,29 +209,77 @@ void ExecutionStage::exec_path(const path_t& p)
 }
 
 
-
-void ExecutionStage::print(std::ostream& out) const
+void plugboard::ExecutionStage::print(std::ostream& out) const
 {
 	uint32_t path_num=0;
 	for
 	(
-		ExecutionStage::stage_t::const_iterator path_it = get_paths().begin();
+		plugboard::ExecutionStage::stage_t::const_iterator path_it = get_paths().begin();
 		path_it != get_paths().end();
 		++path_it
 	)
 	{
-		out << "  Path: " << path_num++ << std::endl;
+		{
+			const boost::mutex::scoped_lock lock(pb_io_mutex);
+			out << "  Path: " << path_num++ << std::endl;
+		}
+
 		for
 		(
-			ExecutionStage::path_t::const_iterator block_it = path_it->begin();
+			plugboard::ExecutionStage::path_t::const_iterator block_it = path_it->begin();
 			block_it != path_it->end();
 			++block_it
 		)
 		{
-			out << "   " << (*block_it)->get_name_sys();
+			{
+				const boost::mutex::scoped_lock lock(pb_io_mutex);
+				out << "   " << (*block_it)->get_name_sys();
+			}
 		}
-		out << std::endl;
 
+		{
+			const boost::mutex::scoped_lock lock(pb_io_mutex);
+			out << std::endl;
+		}
+	}
+}
+
+
+void plugboard::ExecutionStage::setup_threading()
+{
+	implementation& impl = **this;
+
+	const boost::mutex::scoped_lock lock(worker_creation_mutex);
+
+	if(not impl.threading_enabled_)
+	{
+		return;
+	}
+
+	impl.boss = Boss(impl.threads, this);
+	
+	std::for_each
+	(
+		get_paths().begin(),
+		get_paths().end(),
+		boost::bind(&Boss::new_thread_from_path, boost::ref(impl.boss), _1)
+	);
+}
+
+
+plugboard::ExecutionStage::~ExecutionStage()
+{
+	implementation& impl = **this;
+
+	if(impl.threading_enabled_)
+	{
+#ifndef NDEBUG
+		{
+			const boost::mutex::scoped_lock lock(pb_io_mutex);
+			std::cout << "shutting down threads" << std::endl;
+		}
+#endif
+		impl.boss.shutdown_now();
 	}
 }
 

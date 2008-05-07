@@ -48,6 +48,7 @@ namespace plugboard
 		typedef std::list< path_t > stage_t;
 
 		ExecutionStage();
+		~ExecutionStage();
 
 		explicit ExecutionStage(Block * const b, bool threading_enabled=false);
 
@@ -58,6 +59,8 @@ namespace plugboard
 
 		const stage_t& get_paths() const;
 		stage_t& get_paths();
+
+		void setup_threading();
 
 		Block* operator[](const std::string& name) const;
 

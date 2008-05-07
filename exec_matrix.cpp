@@ -30,10 +30,15 @@
 #include "exec_stage.hpp"
 
 #include <boost/bind.hpp>
+#include <boost/thread/mutex.hpp>
 #include <algorithm>
-#include <iterator>
-#include <iostream>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
+// this one is declared in main.cpp
+extern boost::mutex pb_io_mutex;
 
 using boost::bind;
 using namespace plugboard;
@@ -70,11 +75,9 @@ ExecutionMatrix::ExecutionMatrix() : base() { }
 ExecutionMatrix::~ExecutionMatrix() { }
 
 
-
 ExecutionMatrixImpl::implementation() :
 	stages_(), blocks_()
 { }
-
 
 
 ExecutionMatrixImpl::~implementation()
@@ -85,7 +88,6 @@ ExecutionMatrixImpl::~implementation()
 		delete curr_block->second;
 	}
 }
-
 
 
 template< typename SequenceT >
@@ -156,13 +158,11 @@ struct UnwrapPair
 };
 
 
-
 template< typename ContainerT >
 inline UnwrapPair< ContainerT > pair_unwrapper(ContainerT& c)
 {
 	return UnwrapPair< ContainerT >(c);
 }
-
 
 
 bool ExecutionMatrix::block_is_placed(const std::string& name) const
@@ -186,7 +186,6 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 }
 
 
-
 void ExecutionMatrixImpl::add_block(Block *b)
 {
 	assert(b != NULL);
@@ -204,19 +203,16 @@ void ExecutionMatrixImpl::add_block(Block *b)
 }
 
 
-
 void ExecutionMatrixImpl::add_stage(ExecutionStage s)
 {
 	stages_.push_back(s);
 }
 
 
-
 const ExecutionStage::store_t & ExecutionMatrix::get_stages( ) const
 {
 	return (*this)->stages_;
 }
-
 
 
 Block * ExecutionMatrix::operator[](const std::string & name) const
@@ -231,7 +227,6 @@ Block * ExecutionMatrix::operator[](const std::string & name) const
 		return block->second;
 	}
 }
-
 
 
 void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
@@ -268,12 +263,10 @@ void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
 }
 
 
-
 void ExecutionMatrix::store_block(Block * b, const std::string & name)
 {
 	(*this)->blocks_[name] = b;
 }
-
 
 
 void ExecutionMatrix::add_block(const std::string & name)
@@ -282,12 +275,10 @@ void ExecutionMatrix::add_block(const std::string & name)
 }
 
 
-
 void ExecutionMatrix::place_block(const std::string & name, const std::string & insert_after)
 {
 	(*this)->add_block((*this)->blocks_[name], insert_after);
 }
-
 
 
 bool ExecutionMatrix::block_exists(const std::string & name) const
@@ -303,7 +294,6 @@ bool ExecutionMatrix::block_exists(const std::string & name) const
 		return false;
 	}
 }
-
 
 
 void ExecutionMatrix::combine_stages()
@@ -362,7 +352,6 @@ void ExecutionMatrix::combine_stages()
 		stage_next = ++stage_curr;
 	} while(stage_curr != impl.stages_.end());
 }
-
 
 
 void ExecutionMatrix::parallelize()
@@ -434,8 +423,14 @@ void ExecutionMatrix::parallelize()
 			stage_next = stage_curr;
 		}
 	}
-}
 
+	std::for_each
+	(
+		impl.stages_.begin(),
+		impl.stages_.end(),
+		boost::bind(&ExecutionStage::setup_threading, ::_1)
+	);
+}
 
 
 const std::vector< Block * > ExecutionMatrix::find_start_blocks() const
@@ -542,21 +537,30 @@ void ExecutionMatrix::finalize()
 void ExecutionMatrix::print(std::ostream& out) const
 {
 #ifndef NDEBUG
+	{
+		const boost::mutex::scoped_lock lock(pb_io_mutex);
 		out << std::endl << "-------------" << std::endl;
+	}
 #endif
-		uint32_t j=0;
-		for
-		(
-			ExecutionStage::store_t::const_iterator stage_it = get_stages().begin();
-			stage_it != get_stages().end();
-			++stage_it
-		)
+	uint32_t j=0;
+	for
+	(
+		ExecutionStage::store_t::const_iterator stage_it = get_stages().begin();
+		stage_it != get_stages().end();
+		++stage_it
+	)
+	{
 		{
+			const boost::mutex::scoped_lock lock(pb_io_mutex);
 			out << "Stage: " << j++ << std::endl;
-			out << *stage_it;
 		}
+		out << *stage_it;
+	}
 #ifndef NDEBUG
-		out << "-------------" << std::endl;
+	{
+		const boost::mutex::scoped_lock lock(pb_io_mutex);
+		out << std::endl << "-------------" << std::endl;
+	}
 #endif
 }
 
