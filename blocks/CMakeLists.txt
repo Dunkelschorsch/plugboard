@@ -31,6 +31,7 @@ foreach(
 	BlockDeinterleaver
 	BlockInterleaver
 	ComposeComplex
+	ConjugateComplex
 	ConvolutionalDecoder
 	ConvolutionalEncoder
 	Fork
