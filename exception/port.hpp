@@ -30,6 +30,8 @@
 #define EXCEPTION_PORT_HPP
 
 #include "exception/base.hpp"
+#include "visibility.hpp"
+
 
 namespace plugboard
 {
@@ -42,7 +44,7 @@ namespace plugboard
 	};
 
 
-	class DuplicatePortNameException : public Exception< std::string >
+	class DSOEXPORT DuplicatePortNameException : public Exception< std::string >
 	{
 	public:
 		DuplicatePortNameException(const std::string& unknownId);

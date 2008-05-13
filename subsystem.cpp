@@ -38,7 +38,6 @@
 #include "subsystem.hpp"
 #include "exception/block.hpp"
 #include "exception/port.hpp"
-#include "block/add_get_ports.hpp"
 #include "system.ipp"
 
 namespace plugboard

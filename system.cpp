@@ -45,7 +45,6 @@
 #include "exception/block.hpp"
 #include "exception/port.hpp"
 #include "block/block.hpp"
-#include "block/add_get_ports.hpp"
 #include "port/port.hpp"
 
 #include "system.ipp"
@@ -55,7 +54,6 @@ namespace plugboard
 	using boost::bind;
 	using boost::lambda::new_ptr;
 	using boost::lambda::delete_ptr;
-
 
 
 	SystemImpl::SystemImpl() :
@@ -71,12 +69,11 @@ namespace plugboard
 	}
 
 
-
 	SystemImpl::~SystemImpl()
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "Bye from System." << std::endl;
-	#endif
+#endif
 		for_each
 		(
 			signal_buffers_.begin(),
@@ -86,17 +83,14 @@ namespace plugboard
 	}
 
 
-
 	System::System() : d_ptr(new SystemImpl)
 	{
 	}
 
 
-
 	System::System(SystemImpl &dd) : d_ptr(&dd)
 	{
 	}
-
 
 
 	System::~System()
@@ -105,13 +99,11 @@ namespace plugboard
 	}
 
 
-
 	template< class SignalT >
 	inline void* get_sig(Signal *s)
 	{
 		return static_cast< SignalT* >(s)->get_data();
 	}
-
 
 
 	void SystemImpl::register_basic_types()
@@ -122,41 +114,38 @@ namespace plugboard
 	//	get_buffer_factory_.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
 	//	signal_factory_.insert(std::make_pair(int32,
 
-	#define BOOST_PP_DEF(z, I, _) \
-		signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
-			bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1))); \
-		get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_sig< SIG_TYPE(I) >));
+#define BOOST_PP_DEF(z, I, _) \
+	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
+		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1))); \
+	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_sig< SIG_TYPE(I) >));
 
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 
-	#undef BOOST_PP_DEF
+#undef BOOST_PP_DEF
 	}
-
 
 
 	uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "  creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
 		std::cout << "    type: " << type << ", size: " << size << std::endl;
-	#endif
+#endif
 		signal_buffers_.push_back(signal_factory_[type](size));
 		return signal_buffer_count_++;
 	}
 
 
-
 	void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "    setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
-	#endif
+#endif
 		void* (*f)(Signal*) = get_buffer_factory_[out.get_type()];
 
 		out.buffer_access_ = bind(f, s);
 		in.buffer_access_ = bind(f, s);
 	}
-
 
 
 	void System::add_block(Block * const b, const std::string& name_sys)
@@ -190,7 +179,6 @@ namespace plugboard
 	}
 
 
-
 	template< typename SystemT >
 	struct PlaceBlockAction
 	{
@@ -200,21 +188,21 @@ namespace plugboard
 		{
 			if(not sys_->exec_m_.block_is_placed(block_next))
 			{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << std::endl << "  placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
-	#endif
+#endif
 				sys_->exec_m_.place_block(block_next, block_curr_);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << sys_->exec_m_;
-	#endif
+#endif
 				sys_->linearize(block_next);
 			}
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			else
 			{
 				std::cout << "block '" << block_next << "' has already been placed. skipping..." << std::endl;
 			}
-	#endif
+#endif
 		}
 
 		const std::string& block_curr_;
@@ -224,13 +212,11 @@ namespace plugboard
 	};
 
 
-
 	template< typename SystemT >
 	inline PlaceBlockAction< SystemT > place_block_a(const std::string& block_start, SystemT& sys)
 	{
 		return PlaceBlockAction< SystemT >(block_start, sys);
 	}
-
 
 
 	template< class SystemT >
@@ -256,13 +242,11 @@ namespace plugboard
 	};
 
 
-
 	template< class SystemT >
 	inline MakeConnectionAction< SystemT > make_connections_a(SystemT* sys)
 	{
 		return MakeConnectionAction< SystemT >(sys);
 	}
-
 
 
 	template< class SystemT >
@@ -292,13 +276,11 @@ namespace plugboard
 	};
 
 
-
 	template< class SystemT >
 	inline SignalAttributePropagationAction< SystemT > create_buffers_and_stuff_a(SystemT sys)
 	{
 		return SignalAttributePropagationAction< SystemT >(sys);
 	}
-
 
 
 	void SystemImpl::linearize(const std::string& block_start)
@@ -314,7 +296,6 @@ namespace plugboard
 	}
 
 
-
 	void SystemImpl::propagate_signal_attributes()
 	{
 		std::for_each
@@ -324,7 +305,6 @@ namespace plugboard
 			create_buffers_and_stuff_a(this)
 		);
 	}
-
 
 
 	void System::connect_ports(const std::string & block_source,
@@ -460,46 +440,45 @@ namespace plugboard
 
 			if(d->exec_m_.block_is_placed(start_block_name))
 			{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << "block named '" << start_block_name << "' has already been placed." << std::endl;
-	#endif
+#endif
 				continue;
 			}
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "starting linearization with block '" << start_block_name << "'." << std::endl;
-	#endif
+#endif
 			d->exec_m_.add_block(start_block_name);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << std::endl << "linearizing system..." << std::endl;
-	#endif
+#endif
 			d->linearize(start_block_name);
 		}
 
 		if(start_blocks.empty())
 		{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "no start blocks!" << std::endl;
-	#endif
+#endif
 		}
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << d->exec_m_ << std::endl;
 		std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
-	#endif
+#endif
 		d->propagate_signal_attributes();
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << std::endl << "combining execution stages..." << std::endl;
-	#endif
+#endif
 		d->exec_m_.combine_stages();
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "parallelizing..." << std::endl;
-	#endif
+#endif
 		d->exec_m_.parallelize();
 		d->exec_m_.init();
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << d->exec_m_ << std::endl;
-	#endif
+#endif
 	}
-
 
 
 	void System::wakeup_sys(uint32_t times)
@@ -523,16 +502,15 @@ namespace plugboard
 	void System::add_variable( const std::string& name, const Variable& var )
 	{
 		PB_D(System)
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		bool var_name_is_available =
-	#endif
+#endif
 		d->symtab_.add_var(name, var);
 		assert(var_name_is_available == true);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "added variable '" << name << "'." << std::endl;
-	#endif
+#endif
 	}
-
 
 
 	const Variable& System::get_variable(const std::string& name) const

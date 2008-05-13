@@ -33,7 +33,6 @@
 #include <vector>
 
 #include "pimpl/pimpl.h"
-#include "block/port_traits.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"
 #include "parameter.hpp"
@@ -47,7 +46,6 @@ namespace plugboard
 {
 	class Variable;
 	class Parameter;
-	template< class T > class ParameterTypedProxy;
 
 	class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
 	{
@@ -85,9 +83,6 @@ namespace plugboard
 
 		template< class PortT >
 		typename PortT::store_t * get_port_list();
-
-		template< class PortT >
-		const typename PortT::store_t * get_port_list() const;
 
 		void set_name_sys(const std::string& name_sys);
 
