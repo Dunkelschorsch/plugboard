@@ -33,10 +33,8 @@
 #include <vector>
 
 #include "pimpl/pimpl.h"
-#include "block/source.hpp"
-#include "block/sink.hpp"
-#include "parameter.hpp"
-
+#include "visibility.hpp"
+#include "types/base.hpp"
 
 /** \brief The Block class
  *
@@ -46,6 +44,8 @@ namespace plugboard
 {
 	class Variable;
 	class Parameter;
+	template< class T >
+	class ParameterTypedProxy;
 
 	class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
 	{
@@ -69,8 +69,8 @@ namespace plugboard
 		const std::string& get_name_sys() const;
 		const std::string& get_description() const;
 
-		void set_description(const std::string& description);
-		void set_name(const std::string& name);
+		void set_description(const std::string&);
+		void set_name(const std::string&);
 
 		bool set_parameter(const Variable& p);
 		const std::vector< Parameter* >& get_params() const;
@@ -84,14 +84,14 @@ namespace plugboard
 		template< class PortT >
 		typename PortT::store_t * get_port_list();
 
-		void set_name_sys(const std::string& name_sys);
+		void set_name_sys(const std::string&);
 
 	protected:
 		template< class T >
-		ParameterTypedProxy< T >* add_parameter(std::vector< T >* const v, const std::string& description);
+		ParameterTypedProxy< T >* add_parameter(std::vector< T >* const, const std::string&);
 
 		template< class PortT >
-		PortT* add_port(PortT * const p);
+		PortT* add_port(PortT * const);
 
 	private:
 		// actual interface

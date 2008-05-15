@@ -37,7 +37,10 @@
 #include <boost/bind.hpp>
 
 #include "block/block.hpp"
+#include "block/source.hpp"
+#include "block/sink.hpp"
 #include "block/port_traits.hpp"
+#include "parameter.hpp"
 #include "constraint.hpp"
 #include "variable/variable.hpp"
 #include "variable/variable_iterator.hpp"
@@ -110,102 +113,10 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 }
 
 
-Block::Block() : base() { }
-Block::~Block() { }
-
-// virtual members with empty default implementation
-void Block::configure_parameters() { }
-
-void Block::initialize() { }
-
-void Block::advance() { }
-
-void Block::finalize() { }
-
-// non-virtual interface functions
-void Block::call_process()
+template< class TargetT >
+class CheckConstraintAction
 {
-	process();
-}
-
-void Block::call_initialize()
-{
-	initialize();
-}
-
-void Block::call_advance()
-{
-	advance();
-}
-
-void Block::call_finalize()
-{
-	finalize();
-}
-
-void Block::call_configure_parameters()
-{
-	configure_parameters();
-}
-
-
-const std::string& Block::get_name() const
-{
-	return (*this)->name_;
-}
-
-
-void Block::set_name( const std::string & name )
-{
-	(*this)->name_ = name;
-}
-
-
-const std::string& Block::get_name_sys() const
-{
-	return (*this)->name_sys_;
-}
-
-
-void Block::set_name_sys(const std::string & name_sys)
-{
-	(*this)->name_sys_ = name_sys;
-}
-
-
-const std::string& Block::get_description() const
-{
-	return (*this)->description_;
-}
-
-
-void Block::set_description(const std::string& description)
-{
-	(*this)->description_ = description;
-}
-
-
-bool Block::is_configured() const
-{
-	return (*this)->configured_;
-}
-
-
-bool Block::is_initialized() const
-{
-	return (*this)->initialized_;
-}
-
-
-void Block::set_initialized()
-{
-	(*this)->initialized_ = true;
-}
-
-
-template< typename TargetT >
-struct CheckConstraintAction
-{
+public:
 	CheckConstraintAction(const TargetT& e) : e_(e) { }
 
 	void operator()(const ConstraintBase * const cb) const
@@ -235,34 +146,14 @@ struct CheckConstraintAction
 		}
 #endif
 	}
-
+private:
 	const TargetT& e_;
 };
 
 
-template< typename TargetT >
-struct CopyAction
+class CheckVariableConstraintAction
 {
-	CopyAction(Parameter * const param) : param_(param) { }
-
-	void operator()(const TargetT& e) const
-	{
-		std::for_each
-		(
-			param_->get_constraints().begin(),
-			param_->get_constraints().end(),
-			CheckConstraintAction< TargetT >(e)
-		);
-
-		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
-	}
-
-	 Parameter * const param_;
-};
-
-
-struct CheckVariableConstraintAction
-{
+public:
 	CheckVariableConstraintAction(const Variable& var) : var_(var) { }
 
 	void operator()(const ConstraintBase * const cb) const
@@ -281,8 +172,30 @@ struct CheckVariableConstraintAction
 			}
 		}
 	}
-
+private:
 	const Variable& var_;
+};
+
+
+template< typename TargetT >
+class CopyAction
+{
+public:
+	CopyAction(Parameter * const param) : param_(param) { }
+
+	void operator()(const TargetT& e) const
+	{
+		std::for_each
+		(
+			param_->get_constraints().begin(),
+			param_->get_constraints().end(),
+			CheckConstraintAction< TargetT >(e)
+		);
+
+		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
+	}
+private:
+	 Parameter * const param_;
 };
 
 
@@ -342,123 +255,217 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, Paramet
 }
 
 
-template< class T >
-ParameterTypedProxy< T > * Block::add_parameter(std::vector< T > *v, const std::string & description)
+namespace plugboard
 {
-	Parameter *p = new Parameter(v, plugboard::typeinfo< T >::value, description);
-	(*this)->configured_ = false;
-	(*this)->params_.push_back(p);
+	Block::Block() : base() { }
+	Block::~Block() { }
 
-	p->proxy = malloc(sizeof(ParameterTypedProxy< T >));
-	p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back());
+	// virtual members with empty default implementation
+	void Block::configure_parameters() { }
 
-	return static_cast< ParameterTypedProxy< T >* >(p->proxy);
-}
+	void Block::initialize() { }
+
+	void Block::advance() { }
+
+	void Block::finalize() { }
+
+	// non-virtual interface functions
+	void Block::call_process()
+	{
+		process();
+	}
+
+	void Block::call_initialize()
+	{
+		initialize();
+	}
+
+	void Block::call_advance()
+	{
+		advance();
+	}
+
+	void Block::call_finalize()
+	{
+		finalize();
+	}
+
+	void Block::call_configure_parameters()
+	{
+		configure_parameters();
+	}
 
 
-// instantiate for all possible types. we cannot define this function in the .hpp file
-// beause we need access to the private implementation which is only forward declared there
+	const std::string& Block::get_name() const
+	{
+		return (*this)->name_;
+	}
+
+
+	void Block::set_name( const std::string & name )
+	{
+		(*this)->name_ = name;
+	}
+
+
+	const std::string& Block::get_name_sys() const
+	{
+		return (*this)->name_sys_;
+	}
+
+
+	void Block::set_name_sys(const std::string & name_sys)
+	{
+		(*this)->name_sys_ = name_sys;
+	}
+
+
+	const std::string& Block::get_description() const
+	{
+		return (*this)->description_;
+	}
+
+
+	void Block::set_description(const std::string& description)
+	{
+		(*this)->description_ = description;
+	}
+
+
+	bool Block::is_configured() const
+	{
+		return (*this)->configured_;
+	}
+
+
+	bool Block::is_initialized() const
+	{
+		return (*this)->initialized_;
+	}
+
+
+	void Block::set_initialized()
+	{
+		(*this)->initialized_ = true;
+	}
+
+
+	template< class T >
+	ParameterTypedProxy< T > * Block::add_parameter(std::vector< T > *v, const std::string & description)
+	{
+		Parameter *p = new Parameter(v, plugboard::typeinfo< T >::value, description);
+		(*this)->configured_ = false;
+		(*this)->params_.push_back(p);
+
+		p->proxy = malloc(sizeof(ParameterTypedProxy< T >));
+		p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back());
+
+		return static_cast< ParameterTypedProxy< T >* >(p->proxy);
+	}
+
+
+	// instantiate for all possible types. we cannot define this function in the .hpp file
+	// beause we need access to the private implementation which is only forward declared there
 #define BOOST_PP_DEF(z, I, _) \
-	template ParameterTypedProxy<CPP_TYPE(I)>* Block::add_parameter(std::vector< CPP_TYPE(I) >* v, const std::string& description); \
-	
+		template ParameterTypedProxy<CPP_TYPE(I)>* Block::add_parameter(std::vector< CPP_TYPE(I) >* v, const std::string& description); \
+
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 #undef BOOST_PP_DEF
 
 
-bool Block::set_parameter(const Variable& p)
-{
-	implementation& impl = **this;
-
-	if (is_configured())
+	bool Block::set_parameter(const Variable& p)
 	{
-		std::cout << "Block is already configured." << std::endl;
-		return false;
-	}
+		implementation& impl = **this;
 
-	// check if type is safely convertible
-	if (impl.params_[impl.param_curr_]->is_convertible_to(p))
-	{
-		// we do not want to typecast the original variable
-		Variable var_tmp(p);
-
-		if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
+		if (is_configured())
 		{
+			std::cout << "Block is already configured." << std::endl;
+			return false;
+		}
+
+		// check if type is safely convertible
+		if (impl.params_[impl.param_curr_]->is_convertible_to(p))
+		{
+			// we do not want to typecast the original variable
+			Variable var_tmp(p);
+
+			if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
+			{
 #ifndef NDEBUG
-			std::cout << "changing type of variable." << std::endl;
+				std::cout << "changing type of variable." << std::endl;
 #endif
-			var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
-		}
+				var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
+			}
 
-		implementation::parameter_factory_func_t
-			fill_block_parameter_with_values_from_variable = impl.parameter_factory_[var_tmp.get_type()];
+			implementation::parameter_factory_func_t
+				fill_block_parameter_with_values_from_variable = impl.parameter_factory_[var_tmp.get_type()];
 
-		fill_block_parameter_with_values_from_variable(var_tmp, impl.params_[impl.param_curr_]);
+			fill_block_parameter_with_values_from_variable(var_tmp, impl.params_[impl.param_curr_]);
 
-		// if this was the last parameter the block is completely configured
-		if (impl.params_.size() == impl.param_curr_)
+			// if this was the last parameter the block is completely configured
+			if (impl.params_.size() == impl.param_curr_)
+			{
+				impl.configured_ = true;
+			}
+		} else
 		{
-			impl.configured_ = true;
+			throw IncompatibleTypesException(get_name_sys());
 		}
-	} else
-	{
-		throw IncompatibleTypesException(get_name_sys());
-	}
-	return true;
-}
-
-
-const std::string& Block::get_parameter_description() const
-{
-	return (*this)->params_[(*this)->param_curr_]->get_description();
-}
-
-
-type_t Block::get_parameter_type() const
-{
-	return (*this)->params_[(*this)->param_curr_]->get_type();
-}
-
-
-const std::vector< Parameter* >& Block::get_params() const
-{
-	return (*this)->params_;
-}
-
-
-template< class PortT >
-PortT* Block::add_port(PortT * const p)
-{
-	typename PortT::store_t *port_list = get_port_list< PortT >();
-	typename PortT::store_t::iterator it =
-		std::find_if
-		(
-			port_list->begin(),
-			port_list->end(),
-			boost::bind(&PortT::get_name, _1) == p->get_name()
-		);
-
-	if (it != port_list->end())
-	{
-		return PortTraits< PortT >::name_exists_action(it, p, this);
+		return true;
 	}
 
-	p->set_owner_block_name(get_name_sys());
-	port_list->push_back(*p);
-	PortTraits< PortT >::increment_no_of_ports(this);
-	delete p;
 
-	return &(port_list->back());
-}
+	const std::string& Block::get_parameter_description() const
+	{
+		return (*this)->params_[(*this)->param_curr_]->get_description();
+	}
 
-namespace plugboard
-{
+
+	type_t Block::get_parameter_type() const
+	{
+		return (*this)->params_[(*this)->param_curr_]->get_type();
+	}
+
+
+	const std::vector< Parameter* >& Block::get_params() const
+	{
+		return (*this)->params_;
+	}
+
+
+	template< class PortT >
+	PortT* Block::add_port(PortT * const p)
+	{
+		typename PortT::store_t *port_list = get_port_list< PortT >();
+		typename PortT::store_t::iterator it =
+			std::find_if
+			(
+				port_list->begin(),
+				port_list->end(),
+				boost::bind(&PortT::get_name, _1) == p->get_name()
+			);
+
+		if (it != port_list->end())
+		{
+			return PortTraits< PortT >::name_exists_action(it, p, this);
+		}
+
+		p->set_owner_block_name(get_name_sys());
+		port_list->push_back(*p);
+		PortTraits< PortT >::increment_no_of_ports(this);
+		delete p;
+
+		return &(port_list->back());
+	}
+
+
 	template< >
 	InPort::store_t * Block::get_port_list< InPort >()
 	{
 		return dynamic_cast< Sink* >(this)->get_port_list();
 	}
-	
+
 	template< >
 	OutPort::store_t * Block::get_port_list< OutPort >()
 	{

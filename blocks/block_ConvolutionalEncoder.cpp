@@ -28,6 +28,9 @@
 
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
+#include "block/sink.hpp"
+#include "block/source.hpp"
+#include "parameter.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"

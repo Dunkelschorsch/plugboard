@@ -26,9 +26,11 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _SYSTEM_IPP
-#define _SYSTEM_IPP
+#ifndef SYSTEM_IPP
+#define SYSTEM_IPP
 
+#include <tr1/functional>
+#include <map>
 
 #include "signal.hpp"
 #include "exec_matrix.hpp"
@@ -37,6 +39,8 @@
 namespace plugboard
 {
 	using std::tr1::function;
+	class OutPort;
+	class InPort;
 
 	struct SystemImpl
 	{
@@ -71,4 +75,4 @@ namespace plugboard
 	};
 } // namespace plugboard
 
-#endif // _SYSTEM_IPP
+#endif // SYSTEM_IPP

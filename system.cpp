@@ -45,6 +45,8 @@
 #include "exception/block.hpp"
 #include "exception/port.hpp"
 #include "block/block.hpp"
+#include "block/source.hpp"
+#include "block/sink.hpp"
 #include "port/port.hpp"
 
 #include "system.ipp"

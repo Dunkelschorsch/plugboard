@@ -30,6 +30,7 @@
 #define BLOCK_BUFFER_ACCESS
 
 #include "types/typeinfo.hpp"
+#include "port/port.hpp"
 
 
 namespace plugboard

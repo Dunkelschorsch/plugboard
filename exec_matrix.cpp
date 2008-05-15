@@ -26,9 +26,6 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "exec_matrix.hpp"
-#include "exec_stage.hpp"
-
 #include <boost/bind.hpp>
 #include <boost/thread/mutex.hpp>
 #include <algorithm>
@@ -36,6 +33,11 @@
 #ifndef NDEBUG
 #include <iostream>
 #endif
+
+#include "exec_matrix.hpp"
+#include "exec_stage.hpp"
+#include "block/sink.hpp"
+#include "block/source.hpp"
 
 // this one is declared in main.cpp
 extern boost::mutex pb_io_mutex;

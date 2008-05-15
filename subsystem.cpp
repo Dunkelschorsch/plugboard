@@ -39,6 +39,8 @@
 #include "exception/block.hpp"
 #include "exception/port.hpp"
 #include "system.ipp"
+#include "port/port.hpp"
+
 
 namespace plugboard
 {

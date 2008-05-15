@@ -28,6 +28,8 @@
 
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
+#include "block/source.hpp"
+#include "parameter.hpp"
 #include "types/base.hpp"
 #include "types/vectors.hpp"
 #include "constraint.hpp"
@@ -76,12 +78,6 @@ PlugBoardBlock::PlugBoardBlock()
 }
 
 
-// PlugBoardBlock::~PlugBoardBlock()
-// {
-// 	delete make_bit;
-// }
-
-
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_,  "Sample Time")
@@ -116,7 +112,6 @@ void PlugBoardBlock::initialize()
 
 	i_array_ = get_data< int32_t >(bits_out_);
 	i_vector_ = get_signal< int32_t >(bits_out_);
-
 }
 
 
