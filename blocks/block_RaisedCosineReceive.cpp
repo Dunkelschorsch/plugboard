@@ -35,6 +35,7 @@
 #include "types/vectors.hpp"
 #include "constraint.hpp"
 
+#include <tr1/memory>
 #include <itpp/signal/filter.h>
 #include <itpp/comm/pulse_shape.h>
 #ifndef NDEBUG
@@ -118,7 +119,7 @@ class PlugBoardBlock : public Block, public Sink, public Source
 {
 public:
 	PlugBoardBlock();
-	~PlugBoardBlock();
+
 private:
 	void configure_parameters();
 	void setup_input_ports();
@@ -142,10 +143,8 @@ private:
 	int32_vec_t filter_length_;
 	int32_vec_t downsampling_factor_;
 
-	// pulse shaper object
-	itpp::Root_Raised_Cosine< complex_t > *rc;
 	// filter object
-	Matched_Filter< complex_t, double > *mf;
+	std::tr1::shared_ptr< Matched_Filter< complex_t, double > > mf;
 };
 
 
@@ -203,9 +202,8 @@ void PlugBoardBlock::initialize()
 
 	framesize_[0] = sig_in_->get_frame_size();
 
-	rc = new itpp::Root_Raised_Cosine< complex_t >(alpha_[0], filter_length_[0], downsampling_factor_[0]);
-	mf = new Matched_Filter< complex_t, double >(rc->get_pulse_shape(), downsampling_factor_[0]);
-	delete rc;
+	itpp::Root_Raised_Cosine< complex_t > rc(alpha_[0], filter_length_[0], downsampling_factor_[0]);
+	mf.reset(new Matched_Filter< complex_t, double >(rc.get_pulse_shape(), downsampling_factor_[0]));
 }
 
 
@@ -224,13 +222,6 @@ void PlugBoardBlock::process()
 	std::cout << "rms: " << sqrt(itpp::mean(itpp::sqr(*out_vector_))) << " ";
 	std::cout << *out_vector_ << std::endl;
 #endif
-}
-
-
-PlugBoardBlock::~PlugBoardBlock()
-{
-	if(is_initialized())
-		delete mf;
 }
 
 
