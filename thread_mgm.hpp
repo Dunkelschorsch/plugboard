@@ -1,6 +1,7 @@
 #ifndef THREAD_MGM_HPP
 #define THREAD_MGM_HPP
 
+#include <tr1/memory>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/mutex.hpp>
@@ -26,7 +27,7 @@ namespace plugboard
 	private:
 		boost::thread_group* tt_;
 		ExecutionStage* stage_;
-		boost::barrier *before_process, *after_process;
+		std::tr1::shared_ptr< boost::barrier > before_process, after_process;
 		bool shutdown_;
 		static uint32_t id;
 	};

@@ -21,8 +21,8 @@ namespace plugboard
 		}
 #endif
 
-		before_process = new boost::barrier(1 + stage_->get_paths().size());
-		after_process = new boost::barrier(1 + stage_->get_paths().size());
+		before_process.reset(new boost::barrier(1 + stage_->get_paths().size()));
+		after_process.reset(new boost::barrier(1 + stage_->get_paths().size()));
 
 #ifndef NDEBUG
 		{
@@ -82,9 +82,6 @@ namespace plugboard
 		}
 #endif
 		tt_->join_all();
-
-		delete before_process;
-		delete after_process;
 	}
 
 
