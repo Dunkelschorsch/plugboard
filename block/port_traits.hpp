@@ -111,7 +111,6 @@ namespace plugboard
 		it->set_frame_size(framesize);
 		it->set_Ts(Ts);
 
-		delete p;
 		return &(*it);
 	}
 

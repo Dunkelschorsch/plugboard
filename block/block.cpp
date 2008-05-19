@@ -32,6 +32,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "block/block.hpp"
 #include "block/source.hpp"
@@ -403,6 +404,9 @@ namespace plugboard
 	template< class PortT >
 	PortT* Block::add_port(PortT * const p)
 	{
+		// we store a copy of "p" later, so the original can be deleted when we exit the function
+		boost::scoped_ptr< PortT > port_ptr(p);
+
 		typename PortT::store_t *port_list = get_port_list< PortT >();
 		typename PortT::store_t::iterator it =
 			std::find_if
@@ -418,9 +422,10 @@ namespace plugboard
 		}
 
 		p->set_owner_block_name(get_name_sys());
+
+		// that's where the copy is created
 		port_list->push_back(*p);
 		PortTraits< PortT >::increment_no_of_ports(this);
-		delete p;
 
 		return &(port_list->back());
 	}
