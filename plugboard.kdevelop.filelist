@@ -124,3 +124,4 @@ thread_mgm.hpp
 thread_mgm.cpp
 blocks/block_ConjugateComplex.cpp
 block/block_ptr.hpp
+block/block_ptr.cpp

@@ -60,7 +60,8 @@ struct pimpl< Block >::implementation
 		initialized_(false),
 		name_sys_(),
 		name_(),
-		description_() 
+		description_(),
+		ref_count(0)
 	{
 		register_parameter_types();
 	}
@@ -79,6 +80,8 @@ struct pimpl< Block >::implementation
 	std::string name_sys_;
 	std::string name_;
 	std::string description_;
+
+	int ref_count;
 
 	template< typename T >
 	void copy_parameter(const Variable&, Parameter * const);
@@ -471,9 +474,21 @@ namespace plugboard
 	{
 		return dynamic_cast< Source* >(this)->get_port_list();
 	}
+
+
+	int Block::add_ref()
+	{
+		return ++((*this)->ref_count);
+	}
+	
+	int Block::release( )
+	{
+		return --((*this)->ref_count);
+	}
 }
 
 template plugboard::OutPort::store_t* plugboard::Block::get_port_list< plugboard::OutPort >();
 template plugboard::InPort::store_t*  plugboard::Block::get_port_list< plugboard::InPort >();
 template plugboard::InPort* plugboard::Block::add_port< plugboard::InPort >(plugboard::InPort*);
 template plugboard::OutPort* plugboard::Block::add_port< plugboard::OutPort >(plugboard::OutPort*);
+

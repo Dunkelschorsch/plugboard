@@ -101,6 +101,6 @@ SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(pb ${BOOST_FILESYSTEM} ${BOOST_THREAD} ${BOOST_PROGRAM_OPTIONS} ${ITPP} ${LTDL} block_common)
 
-add_library (block_common SHARED block/block.cpp block/source.cpp block/sink.cpp)
+add_library (block_common SHARED block/block.cpp block/source.cpp block/sink.cpp block/block_ptr.cpp)
 
 add_subdirectory (blocks)

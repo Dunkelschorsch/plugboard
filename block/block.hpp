@@ -54,6 +54,10 @@ namespace plugboard
 	// the subsystem plays some funny games with ports
 	friend class SubsystemImpl;
 
+	// function for intrusive pointer reference counting and destruction
+	friend int plugboard::intrusive_ptr_add_ref(Block*);
+	friend int plugboard::intrusive_ptr_release(Block*);
+
 	public:
 		typedef std::deque< block_ptr > store_t;
 
@@ -102,6 +106,10 @@ namespace plugboard
 		virtual void advance();
 		virtual void finalize();
 		virtual void configure_parameters();
+
+		// reference counting
+		int add_ref();
+		int release();
 	};
 } // namespace plugboard
 
