@@ -50,9 +50,9 @@ namespace plugboard
 		ExecutionStage();
 		~ExecutionStage();
 
-		explicit ExecutionStage(Block * const b, bool threading_enabled=false);
+		explicit ExecutionStage(block_ptr const b, bool threading_enabled=false);
 
-		void add_block(Block * const b);
+		void add_block(block_ptr const b);
 		void add_path(const path_t& p);
 
 		bool block_is_placed(const std::string& name) const;
@@ -62,7 +62,7 @@ namespace plugboard
 
 		void setup_threading();
 
-		Block* operator[](const std::string& name) const;
+		block_ptr operator[](const std::string& name) const;
 
 		void exec();
 		void exec_path(const path_t& p);

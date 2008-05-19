@@ -52,9 +52,9 @@ template< >
 struct pimpl< ExecutionStage >::implementation
 {
 	implementation();
-	implementation(Block * const b, bool threading_enabled);
+	implementation(block_ptr const b, bool threading_enabled);
 
-	void add_block_impl(Block * const b);
+	void add_block_impl(block_ptr const b);
 
 	plugboard::ExecutionStage::stage_t paths_;
 	bool threading_enabled_;
@@ -71,7 +71,7 @@ plugboard::ExecutionStage::ExecutionStage() :
 
 
 
-plugboard::ExecutionStage::ExecutionStage(Block * const b, bool threading_enabled) :
+plugboard::ExecutionStage::ExecutionStage(block_ptr const b, bool threading_enabled) :
 	base(b, threading_enabled)
 { }
 
@@ -83,14 +83,14 @@ ExecutionStageImpl::implementation() :
 { }
 
 
-ExecutionStageImpl::implementation(Block * const b, bool threading_enabled) :
+ExecutionStageImpl::implementation(block_ptr const b, bool threading_enabled) :
 	threading_enabled_(threading_enabled)
 {
 	add_block_impl(b);
 }
 
 
-void ExecutionStageImpl::add_block_impl(Block * const b)
+void ExecutionStageImpl::add_block_impl(block_ptr const b)
 {
 	plugboard::ExecutionStage::path_t path_temp;
 	path_temp.push_back(b);
@@ -98,13 +98,13 @@ void ExecutionStageImpl::add_block_impl(Block * const b)
 }
 
 
-void plugboard::ExecutionStage::add_block(Block * const b)
+void plugboard::ExecutionStage::add_block(block_ptr const b)
 {
 	(*this)->add_block_impl(b);
 }
 
 
-Block* plugboard::ExecutionStage::operator[](const std::string& name) const
+block_ptr plugboard::ExecutionStage::operator[](const std::string& name) const
 {
 	path_t::const_iterator block_curr;
 	stage_t::const_iterator path_curr;

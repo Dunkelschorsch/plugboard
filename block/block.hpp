@@ -35,6 +35,7 @@
 #include "pimpl/pimpl.h"
 #include "visibility.hpp"
 #include "types/base.hpp"
+#include "block/block_ptr.hpp"
 
 /** \brief The Block class
  *
@@ -42,6 +43,7 @@
  */
 namespace plugboard
 {
+	class Block;
 	class Variable;
 	class Parameter;
 	template< class T >
@@ -53,7 +55,7 @@ namespace plugboard
 	friend class SubsystemImpl;
 
 	public:
-		typedef std::deque< Block * > store_t;
+		typedef std::deque< block_ptr > store_t;
 
 		Block();
 		virtual ~Block();

@@ -29,12 +29,12 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
+#include "block/block_ptr.hpp"
 #include <string>
 #include "macros.hpp"
 
 namespace plugboard
 {
-	class Block;
 	class Variable;
 	struct SystemImpl;
 
@@ -44,18 +44,18 @@ namespace plugboard
 		System();
 		virtual ~System();
 
-		void add_block(Block * const b, const std::string& name_sys);
+		void add_block(block_ptr const, const std::string&);
 
-		void add_variable(const std::string& name, const Variable& var);
+		void add_variable(const std::string&, const Variable&);
 
-		const Variable& get_variable(const std::string& name) const;
+		const Variable& get_variable(const std::string&) const;
 
-		void connect_ports(const std::string& block_source, const std::string& port_source,
-			const std::string& block_sink, const std::string& port_sink);
+		void connect_ports(const std::string&, const std::string&,
+			const std::string&, const std::string&);
 
 		void initialize();
 
-		void wakeup_sys(uint32_t times = 1);
+		void wakeup_sys(uint32_t = 1);
 
 		void finalize();
 

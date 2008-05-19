@@ -112,9 +112,9 @@ namespace plugboard
 	{
 	//	this macro inserts entries for all Singal types.
 	//	for integer valued signals, the expansion would look like this:
-	//	bind< IntegerSignal* >(new_ptr< IntegerSignal >(), ::_1)));
-	//	get_buffer_factory_.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
 	//	signal_factory_.insert(std::make_pair(int32,
+	//		bind< IntegerSignal* >(new_ptr< IntegerSignal >(), ::_1)));
+	//	get_buffer_factory_.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
 
 #define BOOST_PP_DEF(z, I, _) \
 	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
@@ -150,14 +150,12 @@ namespace plugboard
 	}
 
 
-	void System::add_block(Block * const b, const std::string& name_sys)
+	void System::add_block(block_ptr const b, const std::string& name_sys)
 	{
 		PB_D(System)
 
 		if(d->exec_m_.block_exists(name_sys))
 		{
-			delete b;
-			// checked ok. does not leak memory
 			throw DuplicateBlockNameException(name_sys);
 		}
 
@@ -167,14 +165,14 @@ namespace plugboard
 		// give it its unique name
 		b->set_name_sys(name_sys);
 
-		if(dynamic_cast< Sink* >(b))
+		if(dynamic_cast< Sink* >(b.get()))
 		{
-			dynamic_cast< Sink* >(b)->call_setup_input_ports();
+			dynamic_cast< Sink* >(b.get())->call_setup_input_ports();
 		}
 
-		if(dynamic_cast< Source* >(b))
+		if(dynamic_cast< Source* >(b.get()))
 		{
-			dynamic_cast< Source* >(b)->call_setup_output_ports();
+			dynamic_cast< Source* >(b.get())->call_setup_output_ports();
 		}
 
 		d->exec_m_.store_block(b, name_sys);
@@ -260,7 +258,7 @@ namespace plugboard
 		void operator()(const StageT& stage_curr) const
 		{
 			Source * const src =
-				dynamic_cast< Source* const >(stage_curr.get_paths().front().front());
+				dynamic_cast< Source* const >(stage_curr.get_paths().front().front().get());
 
 			if(src)
 			{
@@ -287,7 +285,7 @@ namespace plugboard
 
 	void SystemImpl::linearize(const std::string& block_start)
 	{
-		Source * src = dynamic_cast< Source* >(exec_m_[block_start]);
+		Source * src = dynamic_cast< Source* >(exec_m_[block_start].get());
 		if(src)
 		std::for_each
 		(
@@ -380,34 +378,34 @@ namespace plugboard
 		*  all provided block- and port names were valid, now let's connect them
 		*/
 
-		dynamic_cast< Source* >(d->exec_m_[block_source])->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
-		dynamic_cast< Source* >(d->exec_m_[block_source])->add_connection(block_sink);
+		dynamic_cast< Source* >(d->exec_m_[block_source].get())->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
+		dynamic_cast< Source* >(d->exec_m_[block_source].get())->add_connection(block_sink);
 	}
 
 
 	struct SourceBlocksFirst
 	{
-		bool operator()(const Block* b1, const Block* b2) const
+		bool operator()(const block_ptr b1, const block_ptr b2) const
 		{
 			uint16_t num_inputs_b1 = 0, num_outputs_b1 = 0;
 			uint16_t num_inputs_b2 = 0, num_outputs_b2 = 0;
 			const Source* src;
 			const Sink* sink;
 
-			src = dynamic_cast< const Source* >(b1);
+			src = dynamic_cast< const Source* >(b1.get());
 			num_outputs_b1 = src->get_num_output_ports();
 
-			src = dynamic_cast< const Source* >(b2);
+			src = dynamic_cast< const Source* >(b2.get());
 			num_outputs_b2 = src->get_num_output_ports();
 
 			// source-only block are always preferred
-			sink = dynamic_cast< const Sink* >(b1);
+			sink = dynamic_cast< const Sink* >(b1.get());
 			if(sink)
 				num_inputs_b1 = sink->get_num_input_ports();
 			else
 				return true;
 
-			sink = dynamic_cast< const Sink* >(b2);
+			sink = dynamic_cast< const Sink* >(b2.get());
 			if(sink)
 				num_inputs_b2 = sink->get_num_input_ports();
 			else
@@ -422,7 +420,7 @@ namespace plugboard
 	{
 		PB_D(System);
 
-		std::vector< Block * > start_blocks = d->exec_m_.find_start_blocks();
+		std::vector< block_ptr > start_blocks = d->exec_m_.find_start_blocks();
 
 		std::sort
 		(
@@ -433,7 +431,7 @@ namespace plugboard
 
 		for
 		(
-			std::vector< Block * >::iterator source_block = start_blocks.begin();
+			std::vector< block_ptr >::iterator source_block = start_blocks.begin();
 			source_block != start_blocks.end();
 			source_block++
 		)

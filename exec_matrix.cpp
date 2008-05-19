@@ -54,16 +54,16 @@ struct pimpl< ExecutionMatrix >::implementation
 	implementation();
 	~implementation();
 
-	void add_block(Block * b) ;
-	void add_block(Block * b, const std::string& insert_after);
-	void add_block(Block * b, uint32_t insert_where);
+	void add_block(block_ptr b) ;
+	void add_block(block_ptr b, const std::string& insert_after);
+	void add_block(block_ptr b, uint32_t insert_where);
 
 	void add_stage(ExecutionStage s);
 
 	template< class ActionT >
 	void for_each_block(const ActionT);
 
-	typedef std::map< std::string, Block * > block_map_t;
+	typedef std::map< std::string, block_ptr > block_map_t;
 
 	ExecutionStage::store_t stages_;
 	block_map_t blocks_;
@@ -84,11 +84,11 @@ ExecutionMatrixImpl::implementation() :
 
 ExecutionMatrixImpl::~implementation()
 {
-	block_map_t::iterator curr_block;
-	for(curr_block = blocks_.begin(); curr_block != blocks_.end(); ++curr_block)
-	{
-		delete curr_block->second;
-	}
+// 	block_map_t::iterator curr_block;
+// 	for(curr_block = blocks_.begin(); curr_block != blocks_.end(); ++curr_block)
+// 	{
+// 		delete curr_block->second;
+// 	}
 }
 
 
@@ -97,7 +97,7 @@ bool is_left_terminated(const SequenceT& v)
 {
 	assert(not v.empty());
 
-	const Sink* sink = dynamic_cast< const Sink* >(v.front());
+	const Sink* sink = dynamic_cast< const Sink* >(v.front().get());
 	if(sink)
 	{
 		if(sink->get_num_input_ports() > 1)
@@ -114,7 +114,7 @@ bool is_right_terminated(const SequenceT& v)
 {
 	assert(not v.empty());
 
-	const Source* source = dynamic_cast< const Source* >(v.back());
+	const Source* source = dynamic_cast< const Source* >(v.back().get());
 	if(source)
 	{
 		if(source->get_num_output_ports() > 1)
@@ -137,7 +137,7 @@ struct FindStartBlock
 		if(dynamic_cast< const Source* >(b.second))
 		std::cout << "Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
 #endif
-		return dynamic_cast< const Source* >(b.second) ?  false : true;
+		return dynamic_cast< const Source* >(b.second.get()) ?  false : true;
 	}
 
 };
@@ -188,10 +188,10 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 }
 
 
-void ExecutionMatrixImpl::add_block(Block *b)
+void ExecutionMatrixImpl::add_block(block_ptr b)
 {
 	assert(b != NULL);
-	if(dynamic_cast< Source* >(b))
+	if(dynamic_cast< Source* >(b.get()))
 	{
 #ifndef NDEBUG
 		std::cout << "  This is a source block!" << std::endl;
@@ -217,12 +217,12 @@ const ExecutionStage::store_t & ExecutionMatrix::get_stages( ) const
 }
 
 
-Block * ExecutionMatrix::operator[](const std::string & name) const
+block_ptr ExecutionMatrix::operator[](const std::string & name) const
 {
 	implementation::block_map_t::const_iterator block = (*this)->blocks_.find(name);
 	if(block == (*this)->blocks_.end())
 	{
-		return NULL;
+		return block_ptr();
 	}
 	else
 	{
@@ -231,7 +231,7 @@ Block * ExecutionMatrix::operator[](const std::string & name) const
 }
 
 
-void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
+void ExecutionMatrixImpl::add_block(block_ptr b, const std::string & insert_after)
 {
 	for
 	(
@@ -255,6 +255,7 @@ void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
 				path_curr->end(),
 				bind(&Block::get_name_sys, _1) == insert_after
 			);
+
 			if(block_curr != path_curr->end())
 			{
 				stages_.insert(++stage_curr, ExecutionStage(b));
@@ -265,7 +266,7 @@ void ExecutionMatrixImpl::add_block(Block * b, const std::string & insert_after)
 }
 
 
-void ExecutionMatrix::store_block(Block * b, const std::string & name)
+void ExecutionMatrix::store_block(block_ptr b, const std::string & name)
 {
 	(*this)->blocks_[name] = b;
 }
@@ -333,12 +334,12 @@ void ExecutionMatrix::combine_stages()
 				continue;
 			}
 
-			const Block* block_curr = (stage_curr)->get_paths().front().back();
-			Block* block_next = (stage_next)->get_paths().front().front();
-			assert(block_next != NULL);
+			const block_ptr block_curr = (stage_curr)->get_paths().front().back();
+			block_ptr block_next = (stage_next)->get_paths().front().front();
+			assert(block_next != block_ptr());
 
 			const std::set< std::string > connections_curr
-				= dynamic_cast< const Source* >(block_curr)->get_connections();
+				= dynamic_cast< const Source* >(block_curr.get())->get_connections();
 #ifndef NDEBUG
 			std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
 			std::cout << block_next->get_name_sys() << "' " << std::endl;
@@ -371,17 +372,17 @@ void ExecutionMatrix::parallelize()
 
 		do
 		{
-			const Block* block_curr = path_it->back();
-			assert(block_curr != NULL);
+			const block_ptr block_curr = path_it->back();
+			assert(block_curr != block_ptr());
 #ifndef NDEBUG
 			std::cout << "'" << block_curr->get_name_sys() << "' connected to ";
 #endif
-			const Block* block_next = (stage_next)->get_paths().front().front();
-			assert(block_next != NULL);
+			const block_ptr block_next = (stage_next)->get_paths().front().front();
+			assert(block_next != block_ptr());
 #ifndef NDEBUG
 			std::cout << "'" << block_next->get_name_sys() << "'? " << std::endl;
 #endif
-			if(not dynamic_cast< const Source* >(block_curr))
+			if(not dynamic_cast< const Source* >(block_curr.get()))
 			{
 #ifndef NDEBUG
 				std::cout << "No. Continue checking..." << std::endl;
@@ -391,7 +392,7 @@ void ExecutionMatrix::parallelize()
 			}
 
 			const std::set< std::string > connections_curr
-				= dynamic_cast< const Source* >(block_curr)->get_connections();
+				= dynamic_cast< const Source* >(block_curr.get())->get_connections();
 
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
@@ -435,12 +436,12 @@ void ExecutionMatrix::parallelize()
 }
 
 
-const std::vector< Block * > ExecutionMatrix::find_start_blocks() const
+const std::vector< block_ptr > ExecutionMatrix::find_start_blocks() const
 {
 	const implementation& impl = **this;
 
-	std::vector< Block * > vv;
-	std::vector< std::pair< std::string, Block * > > v;
+	std::vector< block_ptr > vv;
+	std::vector< std::pair< std::string, block_ptr > > v;
 
 	std::remove_copy_if
 	(
@@ -465,7 +466,7 @@ struct CallInit
 {
 	typedef void result_type;
 
-	result_type operator()(Block * const b) const
+	result_type operator()(block_ptr const b) const
 	{
 		b->call_initialize();
 		b->set_initialized();
@@ -477,7 +478,7 @@ struct CallFinalize
 {
 	typedef void result_type;
 
-	result_type operator()(Block * const b) const
+	result_type operator()(block_ptr const b) const
 	{
 		b->call_finalize();
 	}

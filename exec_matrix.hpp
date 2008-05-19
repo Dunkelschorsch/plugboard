@@ -34,25 +34,28 @@
 
 #include <iosfwd>
 #include <map>
+#include <tr1/memory>
 
 namespace plugboard
 {
+	class Block;
+
 	class ExecutionMatrix : public pimpl< ExecutionMatrix >::pointer_semantics
 	{
 	public:
 		ExecutionMatrix();
 		~ExecutionMatrix();
 
-		void store_block(Block * b, const std::string& name);
+		void store_block(block_ptr b, const std::string& name);
 		bool block_exists(const std::string& name) const;
 		void add_block(const std::string& name);
 		void place_block(const std::string& name, const std::string& insert_after);
 		bool block_is_placed(const std::string& name) const;
 
-		Block* operator[](const std::string& name) const;
+		block_ptr operator[](const std::string& name) const;
 
 		const ExecutionStage::store_t& get_stages() const;
-		const std::vector< Block * > find_start_blocks() const;
+		const std::vector< block_ptr > find_start_blocks() const;
 
 		void combine_stages();
 		void parallelize();

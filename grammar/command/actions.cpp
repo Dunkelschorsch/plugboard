@@ -369,13 +369,11 @@ namespace plugboard
 		std::cout << "  no. of arguments given: " << num_args << std::endl;
 	#endif
 
-		plugboard::Block *b = plugboard::BlockLoader::instance().new_block(block_type);
+		plugboard::block_ptr b(plugboard::BlockLoader::instance().new_block(block_type));
 		b->call_configure_parameters();
 
 		if(b->get_params().size() != num_args)
 		{
-			delete b;
-			// checked ok. does not leak memory
 			throw ParameterCountMismatchException(block_name);
 		}
 
@@ -398,7 +396,6 @@ namespace plugboard
 		}
 		catch(std::exception &e)
 		{
-			delete b;
 			throw;
 		}
 
