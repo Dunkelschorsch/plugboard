@@ -33,34 +33,10 @@
 
 namespace plugboard
 {
-	struct DeleteAction
-	{
-		template< typename PairT >
-		void operator()(PairT& e) const
-		{
-			delete e.second;
-		}
-	};
-
-
-
 	Systems::Systems() : root_sys_name_("__root__")
 	{
-		sys_map_[root_sys_name_] = new System;
+		sys_map_[root_sys_name_].reset(new System);
 	}
-
-
-
-	Systems::~Systems()
-	{
-		for_each
-		(
-			sys_map_.begin(),
-			sys_map_.end(),
-			DeleteAction()
-		);
-	}
-
 
 
 	Systems & Systems::instance( )
@@ -68,7 +44,6 @@ namespace plugboard
 		Systems & s = singleton::instance();
 		return s;
 	}
-
 
 
 	void Systems::add_subsystem(const std::string& subsys_name, Subsystem * const subsys)
@@ -82,7 +57,6 @@ namespace plugboard
 	}
 
 
-
 	Subsystem * Systems::get_subsystem( const std::string & subsys_name ) const
 	{
 		if(sys_map_.find(subsys_name) == sys_map_.end())
@@ -90,20 +64,18 @@ namespace plugboard
 			throw("up");
 			//TODO come up with a proper exception
 		}
-		return dynamic_cast< Subsystem* >(sys_map_.find(subsys_name)->second);
+		return dynamic_cast< Subsystem* >(sys_map_.find(subsys_name)->second.get());
 	}
-
 
 
 	Systems::operator System*()
 	{
-		return sys_map_[root_sys_name_];
+		return sys_map_[root_sys_name_].get();
 	}
-
 
 
 	System * Systems::get_root( ) const
 	{
-		return sys_map_.find(root_sys_name_)->second;
+		return sys_map_.find(root_sys_name_)->second.get();
 	}
 } // namespace plugboard

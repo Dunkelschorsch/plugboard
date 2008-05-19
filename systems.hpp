@@ -29,6 +29,7 @@
 #ifndef SYSTEMS_HPP
 #define SYSTEMS_HPP
 
+#include <tr1/memory>
 #include <boost/pool/detail/singleton.hpp>
 #include <map>
 #include <string>
@@ -44,11 +45,10 @@ namespace plugboard
 	friend class boost::details::pool::singleton_default< Systems >;
 
 		Systems();
-		~Systems();
 
 		std::string root_sys_name_;
 
-		std::map< const std::string, System* > sys_map_;
+		std::map< const std::string, std::tr1::shared_ptr< System > > sys_map_;
 
 	public:
 		static Systems& instance();
