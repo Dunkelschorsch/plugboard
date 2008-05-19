@@ -29,21 +29,26 @@
 #ifndef SIGNAL_HPP
 #define SIGNAL_HPP
 
-#include "types/base.hpp"
-
 #include <vector>
+
+#include "types/base.hpp"
+#include "signal/signal_ptr.hpp"
+
 
 namespace plugboard
 {
 	class Signal
 	{
+	friend int intrusive_ptr_release(Signal*);
+	friend int intrusive_ptr_add_ref(Signal*);
+
 	public:
-		typedef std::vector< Signal* > store_t;
+		typedef std::vector< signal_ptr > store_t;
 
 		virtual ~Signal() {};
 
 	protected:
-		Signal() : signal_type_(empty), dimensions_(), Ts_(0) { }
+		Signal() : signal_type_(empty), dimensions_(), Ts_(0), ref_count(0) { }
 
 		type_t signal_type_;
 
@@ -51,8 +56,11 @@ namespace plugboard
 		std::vector< uint8_t > dimensions_;
 
 		real_t Ts_;
-	};
 
+		int ref_count;
+		int add_ref() { return ++ref_count; }
+		int release() { return --ref_count; }
+	};
 
 
 	template< class ElementT >

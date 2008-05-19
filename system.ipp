@@ -32,7 +32,7 @@
 #include <tr1/functional>
 #include <map>
 
-#include "signal.hpp"
+#include "signal/signal.hpp"
 #include "exec_matrix.hpp"
 #include "symtab.hpp"
 
@@ -50,7 +50,7 @@ namespace plugboard
 		void register_basic_types();
 
 		uint32_t create_signal_buffer(type_t type, uint32_t size);
-		void set_buffer_ptrs(OutPort& out, InPort& in, Signal *s);
+		void set_buffer_ptrs(OutPort& out, InPort& in, Signal* s);
 
 		void linearize(const std::string& block_start);
 

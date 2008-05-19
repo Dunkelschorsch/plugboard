@@ -38,7 +38,7 @@
 
 #include "system.hpp"
 #include "exec_matrix.hpp"
-#include "signal.hpp"
+#include "signal/signal.hpp"
 #include "symtab.hpp"
 #include "variable/variable.hpp"
 #include "types/base.hpp"
@@ -55,7 +55,6 @@ namespace plugboard
 {
 	using boost::bind;
 	using boost::lambda::new_ptr;
-	using boost::lambda::delete_ptr;
 
 
 	SystemImpl::SystemImpl() :
@@ -70,18 +69,8 @@ namespace plugboard
 		register_basic_types();
 	}
 
-
 	SystemImpl::~SystemImpl()
 	{
-#ifndef NDEBUG
-		std::cout << "Bye from System." << std::endl;
-#endif
-		for_each
-		(
-			signal_buffers_.begin(),
-			signal_buffers_.end(),
-			boost::lambda::bind(delete_ptr(), boost::lambda::_1)
-		);
 	}
 
 
@@ -133,7 +122,7 @@ namespace plugboard
 		std::cout << "  creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
 		std::cout << "    type: " << type << ", size: " << size << std::endl;
 #endif
-		signal_buffers_.push_back(signal_factory_[type](size));
+		signal_buffers_.push_back(signal_ptr(signal_factory_[type](size)));
 		return signal_buffer_count_++;
 	}
 
@@ -233,7 +222,7 @@ namespace plugboard
 			source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
 
 			sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-			sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1]);
+			sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1].get());
 		}
 
 		SystemT* sys_;

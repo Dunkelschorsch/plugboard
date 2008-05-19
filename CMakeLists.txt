@@ -41,6 +41,7 @@ add_executable(
 	environment.cpp
 	symtab.cpp
 	variable/variable.cpp
+	signal/signal_ptr.cpp
 	system.cpp
 	systems.cpp
 	subsystem.cpp
