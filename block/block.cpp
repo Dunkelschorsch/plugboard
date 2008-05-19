@@ -63,7 +63,6 @@ struct pimpl< Block >::implementation
 		register_parameter_types();
 	}
 
-	~implementation();
 
 	typedef std::tr1::function< void(const Variable&, Block::param_ptr const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
@@ -86,10 +85,6 @@ struct pimpl< Block >::implementation
 	void register_parameter_types();
 };
 
-
-pimpl< Block >::implementation::~implementation()
-{
-}
 
 
 void pimpl< Block >::implementation::register_parameter_types()
