@@ -38,7 +38,6 @@
 namespace plugboard
 {
 	class Variable;
-	class ConstraintBase;
 
 	class DSOEXPORT Parameter
 	{
@@ -54,19 +53,19 @@ namespace plugboard
 
 		const std::string& get_description() const;
 
-		Parameter* add_constraint(const ConstraintBase* c);
+		Parameter* add_constraint(const constraint_ptr);
 
-		std::vector< const ConstraintBase* >& get_constraints();
+		std::vector< constraint_ptr >& get_constraints();
 
-		bool is_convertible_to(const Variable& v) const;
+		bool is_convertible_to(const Variable&) const;
 
-		bool is_of_same_type_as(const Variable& v) const;
+		bool is_of_same_type_as(const Variable&) const;
 
 	private:
 		void *data_;
 		type_t type_;
 		std::string description_;
-		std::vector< const ConstraintBase* > constraints_;
+		std::vector< constraint_ptr > constraints_;
 	public:
 		void * proxy;
 	};
@@ -81,14 +80,14 @@ namespace plugboard
 		template< template< class > class ConstraintT >
 		ParameterTypedProxy< T >* add_constraint(const T& val, bool reverse=false)
 		{
-			pp_->add_constraint(new ConstraintT< T >(val, reverse));
+			pp_->add_constraint(constraint_ptr(new ConstraintT< T >(val, reverse)));
 			return this;
 		}
 
 		template< class ConstraintT >
 		ParameterTypedProxy< T >* add_constraint(const ConstraintT& vc)
 		{
-			pp_->add_constraint(dynamic_cast< ConstraintBase* >(new ConstraintT(vc)));
+			pp_->add_constraint(constraint_ptr(new ConstraintT(vc)));
 			return this;
 		}
 

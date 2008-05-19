@@ -36,9 +36,13 @@
 #include "visibility.hpp"
 #include "variable/variable.hpp"
 #include "exception/base.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace plugboard
 {
+	class ConstraintBase;
+	typedef boost::shared_ptr< ConstraintBase > constraint_ptr;
+
 	class DSOEXPORT ConstraintTestException : public Exception< std::string >
 	{
 	public:

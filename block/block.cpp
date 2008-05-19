@@ -30,10 +30,6 @@
 #include <map>
 #include <tr1/functional>
 
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/casts.hpp>
-#include <boost/lambda/construct.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -98,9 +94,7 @@ pimpl< Block >::implementation::~implementation()
 
 void pimpl< Block >::implementation::register_parameter_types()
 {
-// using boost::placeholders::_1;
-// using boost::placeholders::_2;
-/* this macro creates mapping between types and parameters */
+// this macro creates mapping between types and parameters
 #define BOOST_PP_DEF(z, I, _) \
 	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
 	boost::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
@@ -112,37 +106,40 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
 
 template< class TargetT >
-class CheckConstraintAction
+class CheckValueConstraintAction
 {
 public:
-	CheckConstraintAction(const TargetT& e) : e_(e) { }
+	CheckValueConstraintAction(const TargetT& e) : e_(e) { }
 
-	void operator()(const ConstraintBase * const cb) const
+	void operator()(const constraint_ptr cb) const
 	{
 #ifndef NDEBUG
 		std::cout << "checking constraint... ";
 #endif
 		const ValueConstraint< TargetT >* c
-			= dynamic_cast< const ValueConstraint< TargetT >* >(cb);
+			= boost::dynamic_pointer_cast< const ValueConstraint< TargetT > >(cb).get();
 
-		bool passed = c->check(e_);
-		if(c->is_negative())
-			passed = not passed;
-
-		if(not passed)
+		if(c)
 		{
+			bool passed = c->check(e_);
+			if(c->is_negative())
+				passed = not passed;
+	
+			if(not passed)
+			{
 #ifndef NDEBUG
-			std::cout << "aww!" << std::endl;
+				std::cout << "aww!" << std::endl;
 #endif
-			// TODO come up with proper exceptions here
-			cb->throw_exception();
-		}
+				// TODO come up with proper exceptions here
+				cb->throw_exception();
+			}
 #ifndef NDEBUG
-		else
-		{
-			std::cout << "yay!" << std::endl;
-		}
+			else
+			{
+				std::cout << "yay!" << std::endl;
+			}
 #endif
+		}
 	}
 private:
 	const TargetT& e_;
@@ -154,10 +151,10 @@ class CheckVariableConstraintAction
 public:
 	CheckVariableConstraintAction(const Variable& var) : var_(var) { }
 
-	void operator()(const ConstraintBase * const cb) const
+	void operator()(const constraint_ptr cb) const
 	{
 		const VariableConstraint* c =
-			dynamic_cast< const VariableConstraint* >(cb);
+			boost::dynamic_pointer_cast< const VariableConstraint >(cb).get();
 		if(c)
 		{
 			bool passed = c->check(var_);
@@ -179,7 +176,7 @@ template< typename TargetT >
 class CopyAction
 {
 public:
-	CopyAction(Block::param_ptr const param) : param_(param) { }
+	CopyAction(Block::param_ptr param) : param_(param) { }
 
 	void operator()(const TargetT& e) const
 	{
@@ -187,18 +184,18 @@ public:
 		(
 			param_->get_constraints().begin(),
 			param_->get_constraints().end(),
-			CheckConstraintAction< TargetT >(e)
+			CheckValueConstraintAction< TargetT >(e)
 		);
 
 		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
 	}
 private:
-	 Block::param_ptr& const param_;
+	 const Block::param_ptr&  param_;
 };
 
 
 template< typename VariableElementT >
-void pimpl< Block >::implementation::copy_parameter(const Variable& var, Block::param_ptr const param)
+void pimpl< Block >::implementation::copy_parameter(const Variable& var, const Block::param_ptr param)
 {
 	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
 
@@ -215,30 +212,6 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, Block::
 		param->get_constraints().begin(),
 		param->get_constraints().end(),
 		CheckVariableConstraintAction(var)
-	);
-
-	using namespace boost::lambda;
-
-	// remove variable constraints
-	std::vector< const ConstraintBase* >::iterator var_constraints_begin =
-		std::remove_if
-		(
-			param->get_constraints().begin(),
-			param->get_constraints().end(),
-			ll_dynamic_cast< const VariableConstraint* >(boost::lambda::_1)
-		);
-
-	std::for_each
-	(
-		var_constraints_begin,
-		param->get_constraints().end(),
-		bind(delete_ptr(), boost::lambda::_1)
-	);
-
-	param->get_constraints().erase
-	(
-		var_constraints_begin,
-		param->get_constraints().end()
 	);
 
 	// check all constraints regarding values of the variable
