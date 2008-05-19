@@ -35,6 +35,7 @@
 #include <boost/lambda/casts.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "block/block.hpp"
 #include "block/source.hpp"
@@ -68,12 +69,12 @@ struct pimpl< Block >::implementation
 
 	~implementation();
 
-	typedef std::tr1::function< void(const Variable&, Parameter * const) > parameter_factory_func_t;
+	typedef std::tr1::function< void(const Variable&, Block::param_ptr const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
 
 	uint16_t param_curr_;
 	parameter_factory_t parameter_factory_;
-	std::vector< Parameter* > params_;
+	std::vector< Block::param_ptr > params_;
 	bool configured_;
 	bool initialized_;
 
@@ -84,7 +85,7 @@ struct pimpl< Block >::implementation
 	int ref_count;
 
 	template< typename T >
-	void copy_parameter(const Variable&, Parameter * const);
+	void copy_parameter(const Variable&, Block::param_ptr const);
 
 	void register_parameter_types();
 };
@@ -92,23 +93,17 @@ struct pimpl< Block >::implementation
 
 pimpl< Block >::implementation::~implementation()
 {
-	std::for_each
-	(
-		params_.begin(),
-		params_.end(),
-		boost::lambda::bind(boost::lambda::delete_ptr(), boost::lambda::_1)
-	);
 }
 
 
 void pimpl< Block >::implementation::register_parameter_types()
 {
-using std::tr1::placeholders::_1;
-using std::tr1::placeholders::_2;
+// using boost::placeholders::_1;
+// using boost::placeholders::_2;
 /* this macro creates mapping between types and parameters */
 #define BOOST_PP_DEF(z, I, _) \
 	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
-	std::tr1::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
+	boost::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
@@ -184,7 +179,7 @@ template< typename TargetT >
 class CopyAction
 {
 public:
-	CopyAction(Parameter * const param) : param_(param) { }
+	CopyAction(Block::param_ptr const param) : param_(param) { }
 
 	void operator()(const TargetT& e) const
 	{
@@ -198,12 +193,12 @@ public:
 		static_cast< std::vector< TargetT >* >(param_->get_data())->push_back(e);
 	}
 private:
-	 Parameter * const param_;
+	 Block::param_ptr& const param_;
 };
 
 
 template< typename VariableElementT >
-void pimpl< Block >::implementation::copy_parameter(const Variable& var, Parameter * const param)
+void pimpl< Block >::implementation::copy_parameter(const Variable& var, Block::param_ptr const param)
 {
 	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
 
@@ -356,19 +351,19 @@ namespace plugboard
 	template< class T >
 	ParameterTypedProxy< T > * Block::add_parameter(std::vector< T > *v, const std::string & description)
 	{
-		Parameter *p = new Parameter(v, plugboard::typeinfo< T >::value, description);
+		param_ptr p(new Parameter(v, plugboard::typeinfo< T >::value, description));
 		(*this)->configured_ = false;
 		(*this)->params_.push_back(p);
 
-		p->proxy = malloc(sizeof(ParameterTypedProxy< T >));
-		p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back());
+		p->proxy = std::malloc(sizeof(ParameterTypedProxy< T >));
+		p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back().get());
 
 		return static_cast< ParameterTypedProxy< T >* >(p->proxy);
 	}
 
 
 	// instantiate for all possible types. we cannot define this function in the .hpp file
-	// beause we need access to the private implementation which is only forward declared there
+	// because we need access to the private implementation which is only forward declared there
 #define BOOST_PP_DEF(z, I, _) \
 		template ParameterTypedProxy<CPP_TYPE(I)>* Block::add_parameter(std::vector< CPP_TYPE(I) >* v, const std::string& description); \
 
@@ -431,7 +426,7 @@ namespace plugboard
 	}
 
 
-	const std::vector< Parameter* >& Block::get_params() const
+	const std::vector< Block::param_ptr >& Block::get_params() const
 	{
 		return (*this)->params_;
 	}

@@ -60,6 +60,7 @@ namespace plugboard
 
 	public:
 		typedef std::deque< block_ptr > store_t;
+		typedef boost::shared_ptr< Parameter > param_ptr;
 
 		Block();
 		virtual ~Block();
@@ -79,7 +80,7 @@ namespace plugboard
 		void set_name(const std::string&);
 
 		bool set_parameter(const Variable& p);
-		const std::vector< Parameter* >& get_params() const;
+		const std::vector< param_ptr >& get_params() const;
 		const std::string& get_parameter_description() const;
 		type_t get_parameter_type() const;
 
