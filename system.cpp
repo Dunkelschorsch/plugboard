@@ -165,14 +165,14 @@ namespace plugboard
 		// give it its unique name
 		b->set_name_sys(name_sys);
 
-		if(dynamic_cast< Sink* >(b.get()))
+		if(boost::dynamic_pointer_cast< Sink >(b))
 		{
-			dynamic_cast< Sink* >(b.get())->call_setup_input_ports();
+			boost::dynamic_pointer_cast< Sink >(b)->call_setup_input_ports();
 		}
 
-		if(dynamic_cast< Source* >(b.get()))
+		if(boost::dynamic_pointer_cast< Source >(b))
 		{
-			dynamic_cast< Source* >(b.get())->call_setup_output_ports();
+			boost::dynamic_pointer_cast< Source >(b)->call_setup_output_ports();
 		}
 
 		d->exec_m_.store_block(b, name_sys);
@@ -257,8 +257,8 @@ namespace plugboard
 		template< typename StageT >
 		void operator()(const StageT& stage_curr) const
 		{
-			Source * const src =
-				dynamic_cast< Source* const >(stage_curr.get_paths().front().front().get());
+			source_ptr const src =
+				boost::dynamic_pointer_cast< Source >(stage_curr.get_paths().front().front());
 
 			if(src)
 			{
@@ -285,7 +285,7 @@ namespace plugboard
 
 	void SystemImpl::linearize(const std::string& block_start)
 	{
-		Source * src = dynamic_cast< Source* >(exec_m_[block_start].get());
+		source_ptr src = boost::dynamic_pointer_cast< Source >(exec_m_[block_start]);
 		if(src)
 		std::for_each
 		(
@@ -378,8 +378,10 @@ namespace plugboard
 		*  all provided block- and port names were valid, now let's connect them
 		*/
 
-		dynamic_cast< Source* >(d->exec_m_[block_source].get())->connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
-		dynamic_cast< Source* >(d->exec_m_[block_source].get())->add_connection(block_sink);
+		boost::dynamic_pointer_cast< Source >(d->exec_m_[block_source])->
+			connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
+
+		boost::dynamic_pointer_cast< Source >(d->exec_m_[block_source])->add_connection(block_sink);
 	}
 
 
@@ -389,23 +391,23 @@ namespace plugboard
 		{
 			uint16_t num_inputs_b1 = 0, num_outputs_b1 = 0;
 			uint16_t num_inputs_b2 = 0, num_outputs_b2 = 0;
-			const Source* src;
-			const Sink* sink;
+			const_source_ptr src;
+			const_sink_ptr sink;
 
-			src = dynamic_cast< const Source* >(b1.get());
+			src = boost::dynamic_pointer_cast< const Source >(b1);
 			num_outputs_b1 = src->get_num_output_ports();
 
-			src = dynamic_cast< const Source* >(b2.get());
+			src = boost::dynamic_pointer_cast<  const Source >(b2);
 			num_outputs_b2 = src->get_num_output_ports();
 
-			// source-only block are always preferred
-			sink = dynamic_cast< const Sink* >(b1.get());
+			// source-only blocks are always preferred
+			sink = boost::dynamic_pointer_cast< const Sink >(b1);
 			if(sink)
 				num_inputs_b1 = sink->get_num_input_ports();
 			else
 				return true;
 
-			sink = dynamic_cast< const Sink* >(b2.get());
+			sink = boost::dynamic_pointer_cast< const Sink >(b2);
 			if(sink)
 				num_inputs_b2 = sink->get_num_input_ports();
 			else

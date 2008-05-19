@@ -52,7 +52,6 @@ template< >
 struct pimpl< ExecutionMatrix >::implementation
 {
 	implementation();
-	~implementation();
 
 	void add_block(block_ptr b) ;
 	void add_block(block_ptr b, const std::string& insert_after);
@@ -82,22 +81,12 @@ ExecutionMatrixImpl::implementation() :
 { }
 
 
-ExecutionMatrixImpl::~implementation()
-{
-// 	block_map_t::iterator curr_block;
-// 	for(curr_block = blocks_.begin(); curr_block != blocks_.end(); ++curr_block)
-// 	{
-// 		delete curr_block->second;
-// 	}
-}
-
-
 template< typename SequenceT >
 bool is_left_terminated(const SequenceT& v)
 {
 	assert(not v.empty());
 
-	const Sink* sink = dynamic_cast< const Sink* >(v.front().get());
+	const_sink_ptr sink = boost::dynamic_pointer_cast< const Sink >(v.front());
 	if(sink)
 	{
 		if(sink->get_num_input_ports() > 1)
@@ -114,7 +103,7 @@ bool is_right_terminated(const SequenceT& v)
 {
 	assert(not v.empty());
 
-	const Source* source = dynamic_cast< const Source* >(v.back().get());
+	const_source_ptr source = boost::dynamic_pointer_cast< const Source >(v.back());
 	if(source)
 	{
 		if(source->get_num_output_ports() > 1)
@@ -134,10 +123,10 @@ struct FindStartBlock
 	result_type operator()(const PairT& b) const
 	{
 #ifndef NDEBUG
-		if(dynamic_cast< const Source* >(b.second))
+		if(boost::dynamic_pointer_cast< const Source >(b.second))
 		std::cout << "Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
 #endif
-		return dynamic_cast< const Source* >(b.second.get()) ?  false : true;
+		return boost::dynamic_pointer_cast< const Source >(b.second) ?  false : true;
 	}
 
 };
@@ -191,7 +180,7 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 void ExecutionMatrixImpl::add_block(block_ptr b)
 {
 	assert(b != NULL);
-	if(dynamic_cast< Source* >(b.get()))
+	if(boost::dynamic_pointer_cast< const Source >(b))
 	{
 #ifndef NDEBUG
 		std::cout << "  This is a source block!" << std::endl;
@@ -339,7 +328,7 @@ void ExecutionMatrix::combine_stages()
 			assert(block_next != block_ptr());
 
 			const std::set< std::string > connections_curr
-				= dynamic_cast< const Source* >(block_curr.get())->get_connections();
+				= boost::dynamic_pointer_cast< const Source >(block_curr)->get_connections();
 #ifndef NDEBUG
 			std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
 			std::cout << block_next->get_name_sys() << "' " << std::endl;
@@ -382,7 +371,7 @@ void ExecutionMatrix::parallelize()
 #ifndef NDEBUG
 			std::cout << "'" << block_next->get_name_sys() << "'? " << std::endl;
 #endif
-			if(not dynamic_cast< const Source* >(block_curr.get()))
+			if(not boost::dynamic_pointer_cast< const Source >(block_curr))
 			{
 #ifndef NDEBUG
 				std::cout << "No. Continue checking..." << std::endl;
@@ -392,7 +381,7 @@ void ExecutionMatrix::parallelize()
 			}
 
 			const std::set< std::string > connections_curr
-				= dynamic_cast< const Source* >(block_curr.get())->get_connections();
+				= boost::dynamic_pointer_cast< const Source >(block_curr)->get_connections();
 
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
