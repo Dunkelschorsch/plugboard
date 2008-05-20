@@ -127,3 +127,6 @@ block/block_ptr.hpp
 block/block_ptr.cpp
 signal_ptr.hpp
 signal_ptr.cpp
+signal/signal.hpp
+signal/signal_ptr.cpp
+signal/signal_ptr.hpp
