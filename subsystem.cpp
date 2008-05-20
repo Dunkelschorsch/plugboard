@@ -67,9 +67,9 @@ namespace plugboard
 
 	void Subsystem::process()
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "Hello From Subsystem!" << std::endl;
-	#endif
+#endif
 		wakeup_sys(1);
 	}
 
@@ -84,9 +84,9 @@ namespace plugboard
 
 	Subsystem::~Subsystem( )
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "Bye from Subystem." << std::endl;
-	#endif
+#endif
 	}
 
 
@@ -187,9 +187,9 @@ namespace plugboard
 		{
 			PortT* port_tmp = new PortT(c.first, int32, 1, 2);
 			v_.push_back(b_->add_port(port_tmp));
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "type of subsystem's " << c.first << ": " << int32 << std::endl;
-	#endif
+#endif
 		}
 
 		std::vector< PortT* >& v_;

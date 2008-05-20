@@ -257,34 +257,34 @@ namespace plugboard
 
 		if(old_type == int32)
 		{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "converting integer->";
-	#endif
+#endif
 			if(new_type == real)
 			{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << "real" << std::endl;
-	#endif
+#endif
 				cast< int32_t, real_t >();
 			}
 			else if(new_type == complex)
 			{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << "complex" << std::endl;
-	#endif
+#endif
 				cast< int32_t, complex_t >();
 			}
 		}
 		else if(old_type == real)
 		{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "converting real->";
-	#endif
+#endif
 			if(new_type == complex)
 			{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				std::cout << "complex" << std::endl;
-	#endif
+#endif
 				cast< real_t, complex_t >();
 			}
 		}
@@ -335,10 +335,10 @@ namespace plugboard
 		size_ = numel_ * typeinfo< newT >::size;
 
 		type_ = typeinfo< newT >::value;
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "number of variable elements: " << numel_ << std::endl;
 		std::cout << "new variable size (bytes): " << size_ << std::endl;
-	#endif
+#endif
 	}
 
 

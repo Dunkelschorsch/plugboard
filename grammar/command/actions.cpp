@@ -89,9 +89,9 @@ namespace plugboard
 
 	type_t get_var_type(const std::string& var_name)
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "looking up type of " << var_name << std::endl;
-	#endif
+#endif
 		return Systems::instance().get_root()->get_variable(var_name).get_type();
 	}
 
@@ -150,10 +150,10 @@ namespace plugboard
 		)
 		{
 			type_t num_type = subtree_type(i);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "scalar arithmetic" << std::endl;
 			std::cout << "  type: " << num_type << std::endl;
-	#endif
+#endif
 			switch(num_type)
 			{
 				case int32:
@@ -173,22 +173,22 @@ namespace plugboard
 		if(i->value.id() == parserID::array)
 		{
 			assert(i->children.size() > 1);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "array" << std::endl;
 			std::cout << "  rows: " << i->children.size() << std::endl;
 			std::cout << "  columns: " << i->children.begin()->children.size() << std::endl;
 			std::cout << "  numeric type: " << subtree_type(i) << std::endl;
-	#endif
+#endif
 		}
 		else
 		if(i->value.id() == parserID::rowvec)
 		{
 			assert(i->children.size() > 1);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "  row_vec" << std::endl;
 			std::cout << "    elements: " << i->children.size() << std::endl;
 			std::cout << "    numeric type: " << subtree_type(i) << std::endl;
-	#endif
+#endif
 			type_t num_type = subtree_type(i);
 
 			switch(num_type)
@@ -217,10 +217,10 @@ namespace plugboard
 		if(i->value.id() == parserID::range)
 		{
 			assert(i->children.size() == 3);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "range" << std::endl;
 			std::cout << "  numeric type: " << subtree_type(i) << std::endl;
-	#endif
+#endif
 			if(subtree_type(i) == real)
 			{
 				make_range< real_t >
@@ -309,9 +309,9 @@ namespace plugboard
 
 		size_t elements = static_cast< size_t >(floor((end-start) / inc +1));
 		v.prealloc(sizeof(T) * (elements + v.size()));
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "elements: " << elements << std::endl;
-	#endif
+#endif
 		T f = start;
 
 		for(size_t i=0; i<elements; ++i)
@@ -342,11 +342,11 @@ namespace plugboard
 		assert(i->children.size() == 2);
 
 		std::string var_name(make_scalar< std::string >(i->children.begin()));
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "assignment" << std::endl;
 		std::cout << "  variable name: " << var_name << std::endl;
 		std::cout << "  data type: " << subtree_type(i->children.begin()+1) << std::endl;
-	#endif
+#endif
 		Variable var;
 		eval_expression(i->children.begin()+1, var);
 		Systems::instance().get_root()->add_variable(var_name, var);
@@ -362,12 +362,12 @@ namespace plugboard
 		uint32_t num_args = i->children.size()-2;
 		block_type = make_scalar< std::string >(i->children.begin());
 		block_name = make_scalar< std::string >(i->children.begin()+1);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "adding block" << std::endl;
 		std::cout << "  type: " << block_type << std::endl;
 		std::cout << "  name: " << block_name << std::endl;
 		std::cout << "  no. of arguments given: " << num_args << std::endl;
-	#endif
+#endif
 
 		plugboard::block_ptr b(plugboard::BlockLoader::instance().new_block(block_type));
 		b->call_configure_parameters();
@@ -381,9 +381,9 @@ namespace plugboard
 		for(uint32_t param_num=0; param_num<num_args; ++param_num)
 		{
 			Variable param_curr;
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
-	#endif
+#endif
 			eval_expression(i->children.begin() + param_num + 2, param_curr);
 
 			assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
@@ -403,17 +403,17 @@ namespace plugboard
 		assert(i->children.size() == 4);
 
 		std::string source_block_name, sink_block_name, source_port_name, sink_port_name;
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "connecting blocks ";
-	#endif
+#endif
 		source_block_name = make_scalar< std::string >(i->children.begin());
 		source_port_name = make_scalar< std::string >(i->children.begin()+1);
 		sink_block_name = make_scalar< std::string >(i->children.begin()+2);
 		sink_port_name = make_scalar< std::string >(i->children.begin()+3);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << source_block_name << ":" << source_port_name << "->"
 			<< sink_block_name << ":" << sink_port_name << std::endl;
-	#endif
+#endif
 		Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
 	}
 
@@ -433,18 +433,18 @@ namespace plugboard
 				times = *vi;
 			}
 		}
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "running system " << times << " times" << std::endl;
 		std::cout << "initializing..." << std::endl;
-	#endif
+#endif
 		Systems::instance().get_root()->initialize();
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "starting system..." << std::endl;
-	#endif
+#endif
 		Systems::instance().get_root()->wakeup_sys(times);
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "finalizing system..." << std::endl;
-	#endif
+#endif
 		Systems::instance().get_root()->finalize();
 	}
 

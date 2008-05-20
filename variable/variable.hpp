@@ -104,9 +104,9 @@ namespace plugboard
 
 		if(allocated_ == numel_)
 		{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 			std::cout << "reallocating..." << std::endl;
-	#endif
+#endif
 			data_ = realloc(data_, typeinfo< ElementT >::size * (numel_+1));
 			allocated_ = numel_+1;
 		}

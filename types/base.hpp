@@ -73,23 +73,23 @@ namespace plugboard
 	// pack all names in the "name in type_t" column into an enumeration
 	typedef enum
 	{
-	#define BOOST_PP_DEF(z, I, _) \
-		TYPE_VALUE(I) BOOST_PP_IF(BOOST_PP_EQUAL(I, 0), = I, BOOST_PP_EMPTY()) \
-		BOOST_PP_COMMA_IF(BOOST_PP_LESS(I, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1)))
+#define BOOST_PP_DEF(z, I, _) \
+	TYPE_VALUE(I) BOOST_PP_IF(BOOST_PP_EQUAL(I, 0), = I, BOOST_PP_EMPTY()) \
+	BOOST_PP_COMMA_IF(BOOST_PP_LESS(I, BOOST_PP_SUB(SIGNAL_TYPE_CNT, 1)))
 
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-	#undef BOOST_PP_DEF
+#undef BOOST_PP_DEF
 	} type_t;
 }
 
 	// creates all necessary typedefs from the "name of C++ type" and "typedef'ed from" columns
-	#define BOOST_PP_DEF(z, I, _) \
+#define BOOST_PP_DEF(z, I, _) \
 	typedef ORIG_TYPE(I) CPP_TYPE(I);
 
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
-	#undef BOOST_PP_DEF
+#undef BOOST_PP_DEF
 
 namespace plugboard
 {

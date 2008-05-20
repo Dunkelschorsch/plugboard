@@ -94,10 +94,10 @@ namespace plugboard
 	(IteratorT it, OutPort * const p, const PointerT * const)
 #endif
 	{
-	#ifndef NDEBUG
+#ifndef NDEBUG
 		std::cout << "    " << self->get_name_sys() <<
 			".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
-	#endif
+#endif
 		type_t t = p->get_type();
 		real_t Ts = p->get_Ts();
 		int32_t framesize = p->get_frame_size();
