@@ -86,7 +86,6 @@ namespace plugboard
 
 	System::~System()
 	{
-		delete d_ptr;
 	}
 
 
@@ -506,6 +505,7 @@ namespace plugboard
 
 	const Variable& System::get_variable(const std::string& name) const
 	{
-		return d_func()->symtab_.get_var(name);
+		PB_D(System)
+		return d->symtab_.get_var(name);
 	}
 } // namespace plugboard

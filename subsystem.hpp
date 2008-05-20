@@ -54,7 +54,7 @@ namespace plugboard
 		bool setup_input_ports();
 
 	protected:
-		Subsystem(SubsystemImpl &dd);
+		PB_DECLARE_PROTECTED(Subsystem);
 
 	private:
 		PB_DECLARE_PRIVATE(Subsystem);
