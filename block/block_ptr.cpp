@@ -18,9 +18,6 @@ int plugboard::intrusive_ptr_add_ref(plugboard::Sink const*)
 
 int plugboard::intrusive_ptr_add_ref(plugboard::Block* b)
 {
-#ifndef NDEBUG
-	std::cout << "intrusive_ptr_add_ref(plugboard::Block*)" << std::endl;
-#endif
 	return b->add_ref();
 }
 
@@ -37,9 +34,6 @@ int plugboard::intrusive_ptr_release(plugboard::Sink const*)
 
 int plugboard::intrusive_ptr_release(plugboard::Block* b)
 {
-#ifndef NDEBUG
-	std::cout << "intrusive_ptr_release(plugboard::Block*)" << std::endl;
-#endif
 	int num_refs = b->release();
 	if(num_refs == 0)
 	{
