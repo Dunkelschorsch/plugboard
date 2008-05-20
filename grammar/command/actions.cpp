@@ -378,25 +378,18 @@ namespace plugboard
 		}
 
 		// fill block with provided parameters
-		try
+		for(uint32_t param_num=0; param_num<num_args; ++param_num)
 		{
-			for(uint32_t param_num=0; param_num<num_args; ++param_num)
-			{
-				Variable param_curr;
+			Variable param_curr;
 	#ifndef NDEBUG
-				std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
+			std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
 	#endif
-				eval_expression(i->children.begin() + param_num + 2, param_curr);
+			eval_expression(i->children.begin() + param_num + 2, param_curr);
 
-				assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
-				assert(param_curr);
+			assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
+			assert(param_curr);
 
-				b->set_parameter(param_curr);
-			}
-		}
-		catch(std::exception &e)
-		{
-			throw;
+			b->set_parameter(param_curr);
 		}
 
 		assert(b->is_configured());
