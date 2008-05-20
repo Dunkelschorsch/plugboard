@@ -49,12 +49,8 @@ namespace plugboard
 	};
 
 
-	FileInput::FileInput() : d(new FileInputImpl()) { }
-
-
-	FileInput::~FileInput()
+	FileInput::FileInput() : d(new FileInputImpl())
 	{
-		delete d;
 	}
 
 

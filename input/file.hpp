@@ -30,24 +30,21 @@
 #define FILE_HPP
 
 #include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace plugboard
 {
-	class BlockLoader;
-	class System;
-
 	class FileInput
 	{
 	struct FileInputImpl;
 
 	public:
 		FileInput();
-		~FileInput();
 
 		bool execute_command(const std::string& file_name);
 
 	private:
-		FileInputImpl * d;
+		boost::shared_ptr< FileInputImpl > d;
 	};
 
 } // namespace plugboard
