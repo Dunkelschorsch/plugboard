@@ -130,3 +130,5 @@ signal_ptr.cpp
 signal/signal.hpp
 signal/signal_ptr.cpp
 signal/signal_ptr.hpp
+plugboard_py.cpp
+plugboard.py
