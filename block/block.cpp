@@ -109,14 +109,14 @@ public:
 
 	void operator()(const constraint_ptr cb) const
 	{
-#ifndef NDEBUG
-		std::cout << "checking constraint... ";
-#endif
 		const ValueConstraint< TargetT >* c
 			= boost::dynamic_pointer_cast< const ValueConstraint< TargetT > >(cb).get();
 
 		if(c)
 		{
+#ifndef NDEBUG
+		std::cout << "checking constraint... ";
+#endif
 			bool passed = c->check(e_);
 			if(c->is_negative())
 				passed = not passed;
@@ -153,6 +153,9 @@ public:
 			boost::dynamic_pointer_cast< const VariableConstraint >(cb).get();
 		if(c)
 		{
+#ifndef NDEBUG
+		std::cout << "checking constraint... ";
+#endif
 			bool passed = c->check(var_);
 			if(c->is_negative())
 				passed = not passed;
