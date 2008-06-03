@@ -75,8 +75,8 @@ namespace plugboard
 				}
 				value_ = static_cast< T** >(var_.data())[pos_++];
 #ifndef NDEBUG
-				std::cout << "size: " << std::endl << var_.size();
-				std::cout << "fetching value..." << *value_ << std::endl;
+				std::cout << "size: " << var_.size() << std::endl;
+				std::cout << "fetching value...'" << *value_ << "'" << std::endl;
 #endif
 			}
 			else
