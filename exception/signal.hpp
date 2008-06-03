@@ -33,7 +33,7 @@
 
 namespace plugboard
 {
-	class SampleTimesMismatchException : public Exception< std::string >
+	class DSOEXPORT SampleTimesMismatchException : public Exception< std::string >
 	{
 	public:
 		SampleTimesMismatchException(const std::string& unknownId);
@@ -42,7 +42,7 @@ namespace plugboard
 	};
 
 
-	class SignalTypesMismatchException : public Exception< std::string >
+	class DSOEXPORT SignalTypesMismatchException : public Exception< std::string >
 	{
 	public:
 		SignalTypesMismatchException(const std::string& unknownId);
@@ -51,7 +51,7 @@ namespace plugboard
 	};
 
 
-	class FrameSizesMismatchException : public Exception< std::string >
+	class DSOEXPORT FrameSizesMismatchException : public Exception< std::string >
 	{
 	public:
 		FrameSizesMismatchException(const std::string& unknownId);
