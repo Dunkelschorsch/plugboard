@@ -45,35 +45,35 @@ int main(int argc, char **argv)
 	bool t_threading = false;
 	bool t_show_blocks = false;
 
+	po::options_description desc("Allowed options");
+
+	desc.add_options()
+		("help,h", "display this help message")
+		("enable-threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
+#ifdef NDEBUG
+		("verbose-module-load", po::bool_switch(&t_show_blocks), "display which block plugins are being loaded")
+#else
+		("verbose-module-load", po::bool_switch(&t_show_blocks),
+		"display which block plugins are being loaded. CAUTION: This is a debug build. Plugin loading progess is always shown.")
+#endif
+	;
+
+        po::options_description hidden("hidden options");
+	hidden.add_options()
+		("input-file", po::value< std::vector < std::string > >(), "input file")
+	;
+
+	po::options_description all_options;
+	all_options.add(desc).add(hidden);
+
+	po::positional_options_description p;
+	p.add("input-file", 1);
+	po::variables_map vm;
+	po::store(po::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
+	po::notify(vm);
+
 	try
 	{
-		po::options_description desc("Allowed options");
-
-		desc.add_options()
-			("help,h", "display this help message")
-			("enable-threading", po::bool_switch(&t_threading), "enable multi-threaded execution")
-#ifdef NDEBUG
-			("verbose-module-load", po::bool_switch(&t_show_blocks), "display which block plugins are being loaded")
-#else
-			("verbose-module-load", po::bool_switch(&t_show_blocks),
-			"display which block plugins are being loaded. CAUTION: This is a debug build. Plugin loading progess is always shown.")
-#endif
-		;
-
-	        po::options_description hidden("hidden options");
-		hidden.add_options()
-			("input-file", po::value< std::vector < std::string > >(), "input file")
-		;
-
-		po::options_description all_options;
-		all_options.add(desc).add(hidden);
-
-		po::positional_options_description p;
-		p.add("input-file", 1);
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
-		po::notify(vm);
-
 		if (vm.count("help"))
 		{
 			std::cout << desc << std::endl;
@@ -89,8 +89,6 @@ int main(int argc, char **argv)
 				vm["input-file"].as< std::vector < std::string > >()[0];
 
 			pb::Environment::instance().set("threading", t_threading);
-
-
 			pb::Environment::instance().set("verbose_plugin_load",
 #ifdef NDEBUG
 										t_show_blocks
