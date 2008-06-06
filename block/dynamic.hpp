@@ -4,7 +4,6 @@
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/set.hpp>
 #include <boost/mpl/pair.hpp>
-#include <boost/mpl/inserter.hpp>
 #include <boost/mpl/insert.hpp>
 #include <boost/mpl/copy.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -97,7 +96,7 @@ namespace plugboard
 				}
 			}
 
-			type_t type_;
+			const type_t type_;
 			Dynamic< ParentT >* const self_;
 		};
 	};
@@ -133,22 +132,22 @@ namespace plugboard
 		using namespace boost::mpl;
 
 		typedef typename copy<
-			iterator_range< begin<types_m>::type, end<types_m>::type >,
+			iterator_range< begin< types_m >::type, end< types_m >::type >,
 			inserter<
-				map<>,
+				map< >,
 				if_<
-					has_key< typename allowedT::type, first< deref<boost::mpl::_2> > >,
-					insert< boost::mpl::_1, deref<boost::mpl::_2> >,
-					boost::mpl::_1
+					has_key< typename allowedT::type, first< deref< _2 > > >,
+					insert< _1, deref< _2 > >,
+					_1
 				>
 			>
 		>::type mm;
 
 		boost::mpl::for_each<
 			iterator_range<
-				typename begin<mm>::type, typename end<mm>::type
+				typename begin< mm >::type, typename end< mm >::type
 			>
-		>( dyn_init_dispatch(p->get_type(), this) );
+		>(dyn_init_dispatch(p->get_type(), this));
 	}
 
 
