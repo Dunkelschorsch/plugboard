@@ -46,12 +46,11 @@ namespace plugboard
 	{
 	public:
 		Variable();
-		Variable(int32_t value);
-		Variable(real_t value);
-		Variable(const string_t& value);
-		Variable(const complex_t& value);
-		explicit Variable(std::vector< uint16_t > dimensions);
 		Variable(const Variable& other);
+		explicit Variable(std::vector< uint16_t > dimensions);
+
+		template< class T >
+		Variable(T value);
 
 		Variable& operator=(const Variable& other);
 		operator bool() const;

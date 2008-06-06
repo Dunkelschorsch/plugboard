@@ -30,6 +30,7 @@
 #include <cstring>
 #include <cassert>
 #include <algorithm>
+#include <tr1/type_traits>
 
 #include "variable/variable.hpp"
 
@@ -53,12 +54,17 @@ struct pimpl< Variable >::implementation
 	
 	}
 
-	implementation(int32_t value);
-	implementation(real_t value);
-	implementation(const string_t& value);
-	implementation(const complex_t& value);
-	implementation(std::vector< uint16_t > dimensions);
 	implementation(const pimpl< Variable >::implementation & other);
+
+	// constructor for composite types
+	template< class T, bool b >
+	implementation(const T& value, const std::tr1::integral_constant< bool, b >&);
+
+	// constructor for integral types
+	template< class T >
+	implementation(T value, const std::tr1::true_type&);
+
+	explicit implementation(std::vector< uint16_t > dimensions);
 
 	~implementation();
 
@@ -66,6 +72,9 @@ struct pimpl< Variable >::implementation
 	void cast();
 
 	void swap(implementation& other);
+
+	template< class T >
+	void copy_data_from_other(const implementation& other);
 
 	std::vector< uint16_t > dims_;
 
@@ -77,19 +86,14 @@ struct pimpl< Variable >::implementation
 };
 
 
-pimpl< Variable >::implementation::~implementation()
+template< class T >
+void pimpl< Variable >::implementation::copy_data_from_other(const implementation& other)
 {
-	if(type_ == string)
+	for(size_t i=0; i<numel_; ++i)
 	{
-		for(size_t i=0; i<numel_; ++i)
-			delete static_cast< string_t** >(data_)[i];
+		static_cast< T** >(data_)[i] =
+			new T(*static_cast< T** >(other.data_)[i]);
 	}
-	if(type_ == complex)
-	{
-		for(size_t i=0; i<numel_; ++i)
-			delete static_cast< complex_t** >(data_)[i];
-	}
-	free(data_);
 }
 
 
@@ -105,20 +109,12 @@ pimpl< Variable >::implementation::implementation(const pimpl< Variable >::imple
 
 	if(type_ == plugboard::string)
 	{
-		for(size_t i=0; i<numel_; ++i)
-		{
-			static_cast< string_t** >(data_)[i] =
-				new string_t(*static_cast< string_t** >(other.data_)[i]);
-		}
+		copy_data_from_other< string_t >(other);
 	}
 	else
 	if(type_ == plugboard::complex)
 	{
-		for(size_t i=0; i<numel_; ++i)
-		{
-			static_cast< complex_t** >(data_)[i] =
-				new complex_t(*static_cast< complex_t** >(other.data_)[i]);
-		}
+		copy_data_from_other< complex_t >(other);
 	}
 	else
 	{
@@ -127,71 +123,55 @@ pimpl< Variable >::implementation::implementation(const pimpl< Variable >::imple
 }
 
 
-pimpl< Variable >::implementation::implementation(int32_t value) :
+template< class T >
+pimpl< Variable >::implementation::implementation(const T value, const std::tr1::true_type&) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
 	allocated_(1),
-	size_(sizeof(int32_t)),
+	size_(sizeof(T)),
 	data_(NULL),
-	type_(int32)
+	type_(plugboard::typeinfo< T >::value)
 {
-	data_ = malloc(sizeof(int32_t));
-	static_cast< int32_t* >(data_)[0] = value;
+	data_ = malloc(sizeof(T));
+	static_cast< T* >(data_)[0] = value;
 
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
 
 
-pimpl< Variable >::implementation::implementation(real_t value) :
+template< class T, bool b >
+pimpl< Variable >::implementation::implementation(const T& value, const std::tr1::integral_constant< bool, b >&) :
 	dims_(std::vector< uint16_t >()),
 	numel_(1),
 	allocated_(1),
-	size_(sizeof(real_t)),
+	size_(sizeof(T)),
 	data_(NULL),
-	type_(real)
-{
-	data_ = malloc(sizeof(real_t));
-	static_cast< real_t* >(data_)[0] = value;
-
-	dims_.push_back(1);
-	dims_.push_back(1);
-}
-
-
-pimpl< Variable >::implementation::implementation(const string_t& value) :
-	dims_(std::vector< uint16_t >()),
-	numel_(1),
-	allocated_(1),
-	size_(sizeof(string_t)),
-	data_(NULL),
-	type_(plugboard::string)
+	type_(plugboard::typeinfo< T >::value)
 {
 	assert(sizeof(value) == sizeof(void*));
 	data_ = malloc(sizeof(value));
 
-	static_cast< string_t** >(data_)[0] = new string_t(value);
+	static_cast< T** >(data_)[0] = new T(value);
 
 	dims_.push_back(1);
 	dims_.push_back(1);
 }
 
 
-pimpl< Variable >::implementation::implementation(const complex_t& value) :
-	dims_(std::vector< uint16_t >()),
-	numel_(1),
-	allocated_(1),
-	size_(sizeof(complex_t)),
-	data_(NULL),
-	type_(complex)
+pimpl< Variable >::implementation::~implementation()
 {
-	assert(sizeof(value) == sizeof(void*));
-	data_ = malloc(sizeof(value));
-
-	static_cast< complex_t** >(data_)[0] = new complex_t(value);
-
-	dims_.push_back(1);
-	dims_.push_back(1);
+	if(type_ == string)
+	{
+		for(size_t i=0; i<numel_; ++i)
+			delete static_cast< string_t** >(data_)[i];
+	}
+	if(type_ == complex)
+	{
+		for(size_t i=0; i<numel_; ++i)
+			delete static_cast< complex_t** >(data_)[i];
+	}
+	free(data_);
 }
 
 
@@ -245,7 +225,8 @@ namespace plugboard
 	{
 	}
 
-	Variable::Variable(int32_t value) : base(value)
+	template< class T >
+	Variable::Variable(T value) : base(value, std::tr1::is_integral< T >())
 	{
 	}
 
@@ -254,22 +235,22 @@ namespace plugboard
 	* \param value a constant real_t reference to initialize the variable
 	*
 	*/
-	Variable::Variable(real_t value) : base(value)
-	{
-	}
+// 	Variable::Variable(real_t value) : base(value, std::tr1::is_integral< real_t >())
+// 	{
+// 	}
 
 	/** \brief Constructs a new string Variable object
 
 	* \param value a constant string_t reference to initialize the variable
 	*
 	*/
-	Variable::Variable(const string_t& value) : base(value)
-	{
-	}
+// 	Variable::Variable(const string_t& value) : base(value, std::tr1::is_integral< string_t >())
+// 	{
+// 	}
 
-	Variable::Variable(const complex_t& value) : base(value)
-	{
-	}
+// 	Variable::Variable(const complex_t& value) : base(value, std::tr1::is_integral< complex_t >())
+// 	{
+// 	}
 
 
 	template< class ElementT >
@@ -449,7 +430,7 @@ namespace plugboard
 } // namespace plugboard
 
 #define BOOST_PP_DEF(z, I, _) \
-	template void plugboard::Variable::push_back(const CPP_TYPE(I));
+	template void plugboard::Variable::push_back(const CPP_TYPE(I)); \
 
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 
