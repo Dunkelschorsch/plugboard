@@ -258,7 +258,7 @@ namespace plugboard
 		if(old_type == int32)
 		{
 #ifndef NDEBUG
-			std::cout << "converting integer->";
+			std::cout << "[Variable] converting integer->";
 #endif
 			if(new_type == real)
 			{
@@ -278,7 +278,7 @@ namespace plugboard
 		else if(old_type == real)
 		{
 #ifndef NDEBUG
-			std::cout << "converting real->";
+			std::cout << "[Variable] converting real->";
 #endif
 			if(new_type == complex)
 			{
@@ -336,8 +336,8 @@ namespace plugboard
 
 		type_ = typeinfo< newT >::value;
 #ifndef NDEBUG
-		std::cout << "number of variable elements: " << numel_ << std::endl;
-		std::cout << "new variable size (bytes): " << size_ << std::endl;
+		std::cout << "[Variable] number of variable elements: " << numel_ << std::endl;
+		std::cout << "[Variable] new variable size (bytes): " << size_ << std::endl;
 #endif
 	}
 

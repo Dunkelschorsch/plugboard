@@ -276,7 +276,7 @@ plugboard::ExecutionStage::~ExecutionStage()
 #ifndef NDEBUG
 		{
 			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "shutting down threads" << std::endl;
+			std::cout << "[ExecutionStage] shutting down threads" << std::endl;
 		}
 #endif
 		impl.boss.shutdown_now();

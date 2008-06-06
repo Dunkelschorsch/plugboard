@@ -63,19 +63,19 @@ namespace plugboard
 	const Variable& Symtab::get_var(const std::string& name) const
 	{
 #ifndef NDEBUG
-		std::cout << "Symtab::get_var(). currently holding " << ht_.size() << " variables." << std::endl;
+		std::cout << "[Symtab] Symtab::get_var(). currently holding " << ht_.size() << " variables." << std::endl;
 #endif
 		ht_t::const_iterator it = ht_.find(name);
 
 		if (it == ht_.end())
 		{
 #ifndef NDEBUG
-		std::cout << "cannot find variable '" << name << "'" << std::endl;
-		std::cout << "available variables are:" << std::endl;
-		for(ht_t::const_iterator vars=ht_.begin(); vars != ht_.end(); vars++)
-		{
-			std::cout << vars->first << std::endl;
-		}
+			std::cout << "[Symtab] cannot find variable '" << name << "'" << std::endl;
+			std::cout << "[Symtab] available variables are:" << std::endl;
+			for(ht_t::const_iterator vars=ht_.begin(); vars != ht_.end(); vars++)
+			{
+				std::cout << "[Symtab] " << vars->first << std::endl;
+			}
 #endif
 			if(parent_ != NULL)
 			{

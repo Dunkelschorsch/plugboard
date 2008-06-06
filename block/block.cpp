@@ -115,7 +115,7 @@ public:
 		if(c)
 		{
 #ifndef NDEBUG
-		std::cout << "checking constraint... ";
+		std::cout << "[Block] checking constraint... ";
 #endif
 			bool passed = c->check(e_);
 			if(c->is_negative())
@@ -154,7 +154,7 @@ public:
 		if(c)
 		{
 #ifndef NDEBUG
-		std::cout << "checking constraint... ";
+		std::cout << "[Block] checking constraint... ";
 #endif
 			bool passed = c->check(var_);
 			if(c->is_negative())
@@ -199,8 +199,8 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, const B
 	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
 
 #ifndef NDEBUG
-	std::cout << "Parameter name: " << param->get_description() << std::endl;
-	std::cout << "no. of constraints: " << param->get_constraints().size() << std::endl;
+	std::cout << "[Block] Parameter name: " << param->get_description() << std::endl;
+	std::cout << "[Block] no. of constraints: " << param->get_constraints().size() << std::endl;
 #endif
 	variable_const_iterator begin(var);
 	variable_const_iterator end = begin.make_end();
@@ -363,7 +363,7 @@ namespace plugboard
 			if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
 			{
 #ifndef NDEBUG
-				std::cout << "changing type of variable." << std::endl;
+				std::cout << "[Block] changing type of variable." << std::endl;
 #endif
 				var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
 			}

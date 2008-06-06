@@ -29,10 +29,6 @@
 #ifndef CONSTRAINT_HPP
 #define CONSTRAINT_HPP
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include "visibility.hpp"
 #include "variable/variable.hpp"
 #include "exception/base.hpp"

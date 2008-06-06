@@ -77,9 +77,9 @@ namespace plugboard
 		other.set_frame_size(get_frame_size());
 
 #ifndef NDEBUG
-		std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << get_type() << std::endl;
-		std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating sample time: " << get_Ts() << std::endl;
-		std::cout << "  " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << get_frame_size() << std::endl;
+		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << get_type() << std::endl;
+		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating sample time: " << get_Ts() << std::endl;
+		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << get_frame_size() << std::endl;
 #endif
 
 		signal_buffer_id_ = signal_buffer_id;

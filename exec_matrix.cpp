@@ -124,7 +124,7 @@ struct FindStartBlock
 	{
 #ifndef NDEBUG
 		if(boost::dynamic_pointer_cast< const Source >(b.second))
-		std::cout << "Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
+		std::cout << "[ExecMatrix] Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
 #endif
 		return boost::dynamic_pointer_cast< const Source >(b.second) ?  false : true;
 	}
@@ -183,7 +183,7 @@ void ExecutionMatrixImpl::add_block(block_ptr b)
 	if(boost::dynamic_pointer_cast< const Source >(b))
 	{
 #ifndef NDEBUG
-		std::cout << "  This is a source block!" << std::endl;
+		std::cout << "[ExecMatrix] This is a source block!" << std::endl;
 #endif
 		stages_.insert(stages_.begin(), ExecutionStage(b));
 	}
@@ -300,16 +300,16 @@ void ExecutionMatrix::combine_stages()
 		while(++stage_next != impl.stages_.end())
 		{
 #ifndef NDEBUG
-			std::cout << *this << std::endl;
-			std::cout << "current stage: " << std::endl << *stage_curr << std::endl;
-			std::cout << "next stage: " << std::endl << *stage_next << std::endl;
+			std::cout << "[ExecMatrix] " << *this << std::endl;
+			std::cout << "[ExecMatrix] current stage: " << std::endl << *stage_curr << std::endl;
+			std::cout << "[ExecMatrix] next stage: " << std::endl << *stage_next << std::endl;
 #endif
 			if(is_right_terminated(stage_curr->get_paths().back()))
 			{
 				// nothing more to do here
 				++stage_curr;
 #ifndef NDEBUG
-				std::cout << "stage finished" << std::endl;
+				std::cout << "[ExecMatrix] stage finished" << std::endl;
 #endif
 				continue;
 			}
@@ -318,7 +318,7 @@ void ExecutionMatrix::combine_stages()
 			{
 				// more luck with the next stage?
 #ifndef NDEBUG
-				std::cout << "stage finished" << std::endl;
+				std::cout << "[ExecMatrix] stage finished" << std::endl;
 #endif
 				continue;
 			}
@@ -330,7 +330,7 @@ void ExecutionMatrix::combine_stages()
 			const std::set< std::string > connections_curr
 				= boost::dynamic_pointer_cast< const Source >(block_curr)->get_connections();
 #ifndef NDEBUG
-			std::cout << "checking if block '" << block_curr->get_name_sys() << "' is connected to '";
+			std::cout << "[ExecMatrix] checking if block '" << block_curr->get_name_sys() << "' is connected to '";
 			std::cout << block_next->get_name_sys() << "' " << std::endl;
 #endif
 			// if there is a connection move the block on the next stage to the current one
@@ -364,7 +364,7 @@ void ExecutionMatrix::parallelize()
 			const block_ptr block_curr = path_it->back();
 			assert(block_curr != block_ptr());
 #ifndef NDEBUG
-			std::cout << "'" << block_curr->get_name_sys() << "' connected to ";
+			std::cout << "[ExecMatrix] '" << block_curr->get_name_sys() << "' connected to ";
 #endif
 			const block_ptr block_next = (stage_next)->get_paths().front().front();
 			assert(block_next != block_ptr());
@@ -374,7 +374,7 @@ void ExecutionMatrix::parallelize()
 			if(not boost::dynamic_pointer_cast< const Source >(block_curr))
 			{
 #ifndef NDEBUG
-				std::cout << "No. Continue checking..." << std::endl;
+				std::cout << "[ExecMatrix] No. Continue checking..." << std::endl;
 #endif
 				++path_it;
 				continue;
@@ -387,7 +387,7 @@ void ExecutionMatrix::parallelize()
 			{
 				// no parallelization possible
 #ifndef NDEBUG
-				std::cout << "Yes. Proceed to next stage." << std::endl;
+				std::cout << "[ExecMatrix] Yes. Proceed to next stage." << std::endl;
 #endif
 				++stage_curr;
 				break;
@@ -395,7 +395,7 @@ void ExecutionMatrix::parallelize()
 			else
 			{
 #ifndef NDEBUG
-				std::cout << "No. Continue checking..." << std::endl;
+				std::cout << "[ExecMatrix] No. Continue checking..." << std::endl;
 #endif
 				++path_it;
 			}
@@ -405,12 +405,12 @@ void ExecutionMatrix::parallelize()
 		if(path_it == stage_curr->get_paths().end())
 		{
 #ifndef NDEBUG
-			std::cout << "Moving path..." << std::endl;
+			std::cout << "[ExecMatrix] Moving path..." << std::endl;
 #endif
 			stage_curr->add_path(stage_next->get_paths().front());
 			impl.stages_.erase(stage_next);
 #ifndef NDEBUG
-			std::cout << *this << std::endl;
+			std::cout << "[ExecMatrix] " << *this << std::endl;
 #endif
 			stage_next = stage_curr;
 		}

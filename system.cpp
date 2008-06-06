@@ -118,8 +118,8 @@ namespace plugboard
 	uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 	{
 #ifndef NDEBUG
-		std::cout << "  creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
-		std::cout << "    type: " << type << ", size: " << size << std::endl;
+		std::cout << "[System] creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
+		std::cout << "[System] type: " << type << ", size: " << size << std::endl;
 #endif
 		signal_buffers_.push_back(signal_ptr(signal_factory_[type](size)));
 		return signal_buffer_count_++;
@@ -129,7 +129,7 @@ namespace plugboard
 	void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 	{
 #ifndef NDEBUG
-		std::cout << "    setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
+		std::cout << "[System] setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
 #endif
 		void* (*f)(Signal*) = get_buffer_factory_[out.get_type()];
 
@@ -177,7 +177,7 @@ namespace plugboard
 			if(not sys_->exec_m_.block_is_placed(block_next))
 			{
 #ifndef NDEBUG
-				std::cout << std::endl << "  placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
+				std::cout << std::endl << "[System] placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
 #endif
 				sys_->exec_m_.place_block(block_next, block_curr_);
 #ifndef NDEBUG
@@ -188,7 +188,7 @@ namespace plugboard
 #ifndef NDEBUG
 			else
 			{
-				std::cout << "block '" << block_next << "' has already been placed. skipping..." << std::endl;
+				std::cout << "[System] block '" << block_next << "' has already been placed. skipping..." << std::endl;
 			}
 #endif
 		}
@@ -431,16 +431,16 @@ namespace plugboard
 			if(d->exec_m_.block_is_placed(start_block_name))
 			{
 #ifndef NDEBUG
-				std::cout << "block named '" << start_block_name << "' has already been placed." << std::endl;
+				std::cout << "[System] block named '" << start_block_name << "' has already been placed." << std::endl;
 #endif
 				continue;
 			}
 #ifndef NDEBUG
-			std::cout << "starting linearization with block '" << start_block_name << "'." << std::endl;
+			std::cout << "[System] starting linearization with block '" << start_block_name << "'." << std::endl;
 #endif
 			d->exec_m_.add_block(start_block_name);
 #ifndef NDEBUG
-			std::cout << std::endl << "linearizing system..." << std::endl;
+			std::cout << std::endl << "[System] linearizing system..." << std::endl;
 #endif
 			d->linearize(start_block_name);
 		}
@@ -448,20 +448,20 @@ namespace plugboard
 		if(start_blocks.empty())
 		{
 #ifndef NDEBUG
-			std::cout << "no start blocks!" << std::endl;
+			std::cout << "[System] no start blocks!" << std::endl;
 #endif
 		}
 #ifndef NDEBUG
 		std::cout << d->exec_m_ << std::endl;
-		std::cout << "propagating signal attributes and creating signal buffers" << std::endl;
+		std::cout << "[System] propagating signal attributes and creating signal buffers" << std::endl;
 #endif
 		d->propagate_signal_attributes();
 #ifndef NDEBUG
-		std::cout << std::endl << "combining execution stages..." << std::endl;
+		std::cout << std::endl << "[System] combining execution stages..." << std::endl;
 #endif
 		d->exec_m_.combine_stages();
 #ifndef NDEBUG
-		std::cout << "parallelizing..." << std::endl;
+		std::cout << "[System] parallelizing..." << std::endl;
 #endif
 		d->exec_m_.parallelize();
 		d->exec_m_.init();
@@ -498,7 +498,7 @@ namespace plugboard
 		d->symtab_.add_var(name, var);
 		assert(var_name_is_available == true);
 #ifndef NDEBUG
-		std::cout << "added variable '" << name << "'." << std::endl;
+		std::cout << "[System] added variable '" << name << "'." << std::endl;
 #endif
 	}
 

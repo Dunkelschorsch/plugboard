@@ -45,10 +45,10 @@ void add_block(const std::string& block_type, const std::string& block_name, py:
 	uint32_t num_args = py::len(block_args);
 
 #ifndef NDEBUG
-	std::cout << "adding block" << std::endl;
-	std::cout << "  type: " << block_type << std::endl;
-	std::cout << "  name: " << block_name << std::endl;
-	std::cout << "  no. of arguments given: " << num_args << std::endl;
+	std::cout << "[configuration] adding block" << std::endl;
+	std::cout << "[configuration] type: " << block_type << std::endl;
+	std::cout << "[configuration] name: " << block_name << std::endl;
+	std::cout << "[configuration] no. of arguments given: " << num_args << std::endl;
 #endif
 
 	pb::block_ptr b(pb::BlockLoader::instance().new_block(block_type));
@@ -67,7 +67,7 @@ void add_block(const std::string& block_type, const std::string& block_name, py:
 		py::numeric::array a(block_args[param_num]);
 		char typecode = dtypecode(a);
 #ifndef NDEBUG
-		std::cout << "  parameter type: " << typecode << std::endl;
+		std::cout << "[configuration] found parameter type: " << typecode << std::endl;
 #endif
 		switch(typecode)
 		{
@@ -110,7 +110,7 @@ void connect_ports(const std::string& source_block_name,
 		const std::string & sink_port_name)
 {
 #ifndef NDEBUG
-	std::cout << "connecting blocks " << source_block_name << ":" << source_port_name << "->" 
+	std::cout << "[configuration] connecting blocks " << source_block_name << ":" << source_port_name << "->" 
 		<< sink_block_name << ":" << sink_port_name << std::endl;
 #endif
 	pb::Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
@@ -120,16 +120,16 @@ void connect_ports(const std::string& source_block_name,
 void run(uint64_t times)
 {
 #ifndef NDEBUG
-	std::cout << "running system " << times << " times" << std::endl;
-	std::cout << "initializing..." << std::endl;
+	std::cout << "[configuration] running system " << times << " times" << std::endl;
+	std::cout << "[configuration] initializing..." << std::endl;
 #endif
 	pb::Systems::instance().get_root()->initialize();
 #ifndef NDEBUG
-	std::cout << "starting system..." << std::endl;
+	std::cout << "[configuration] starting system..." << std::endl;
 #endif
 	pb::Systems::instance().get_root()->wakeup_sys(times);
 #ifndef NDEBUG
-	std::cout << "finalizing system..." << std::endl;
+	std::cout << "[configuration] finalizing system..." << std::endl;
 #endif
 	pb::Systems::instance().get_root()->finalize();
 }

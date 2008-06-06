@@ -89,13 +89,13 @@ namespace plugboard
 	template< class IteratorT, typename PointerT >
 	OutPort* PortTraits< OutPort >::name_exists_action
 #ifndef NDEBUG
-	(IteratorT it, OutPort * const p, const PointerT * const self)
+		(IteratorT it, OutPort * const p, const PointerT * const self)
 #else
-	(IteratorT it, OutPort * const p, const PointerT * const)
+		(IteratorT it, OutPort * const p, const PointerT * const)
 #endif
 	{
 #ifndef NDEBUG
-		std::cout << "    " << self->get_name_sys() <<
+		std::cout << "[OutPort] " << self->get_name_sys() <<
 			".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
 #endif
 		type_t t = p->get_type();

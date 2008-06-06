@@ -90,7 +90,7 @@ namespace plugboard
 	type_t get_var_type(const std::string& var_name)
 	{
 #ifndef NDEBUG
-		std::cout << "looking up type of " << var_name << std::endl;
+		std::cout << "[Parser] looking up type of " << var_name << std::endl;
 #endif
 		return Systems::instance().get_root()->get_variable(var_name).get_type();
 	}
@@ -151,8 +151,8 @@ namespace plugboard
 		{
 			type_t num_type = subtree_type(i);
 #ifndef NDEBUG
-			std::cout << "scalar arithmetic" << std::endl;
-			std::cout << "  type: " << num_type << std::endl;
+			std::cout << "[Parser] scalar arithmetic" << std::endl;
+			std::cout << "[Parser] type: " << num_type << std::endl;
 #endif
 			switch(num_type)
 			{
@@ -174,10 +174,10 @@ namespace plugboard
 		{
 			assert(i->children.size() > 1);
 #ifndef NDEBUG
-			std::cout << "array" << std::endl;
-			std::cout << "  rows: " << i->children.size() << std::endl;
-			std::cout << "  columns: " << i->children.begin()->children.size() << std::endl;
-			std::cout << "  numeric type: " << subtree_type(i) << std::endl;
+			std::cout << "[Parser] array" << std::endl;
+			std::cout << "[Parser]   rows: " << i->children.size() << std::endl;
+			std::cout << "[Parser]   columns: " << i->children.begin()->children.size() << std::endl;
+			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
 #endif
 		}
 		else
@@ -185,9 +185,9 @@ namespace plugboard
 		{
 			assert(i->children.size() > 1);
 #ifndef NDEBUG
-			std::cout << "  row_vec" << std::endl;
-			std::cout << "    elements: " << i->children.size() << std::endl;
-			std::cout << "    numeric type: " << subtree_type(i) << std::endl;
+			std::cout << "[Parser] row_vec" << std::endl;
+			std::cout << "[Parser]   elements: " << i->children.size() << std::endl;
+			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
 #endif
 			type_t num_type = subtree_type(i);
 
@@ -218,8 +218,8 @@ namespace plugboard
 		{
 			assert(i->children.size() == 3);
 #ifndef NDEBUG
-			std::cout << "range" << std::endl;
-			std::cout << "  numeric type: " << subtree_type(i) << std::endl;
+			std::cout << "[Parser] range" << std::endl;
+			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
 #endif
 			if(subtree_type(i) == real)
 			{
@@ -310,7 +310,7 @@ namespace plugboard
 		size_t elements = static_cast< size_t >(floor((end-start) / inc +1));
 		v.prealloc(sizeof(T) * (elements + v.size()));
 #ifndef NDEBUG
-		std::cout << "elements: " << elements << std::endl;
+		std::cout << "[Parser] elements: " << elements << std::endl;
 #endif
 		T f = start;
 
@@ -343,9 +343,9 @@ namespace plugboard
 
 		std::string var_name(make_scalar< std::string >(i->children.begin()));
 #ifndef NDEBUG
-		std::cout << "assignment" << std::endl;
-		std::cout << "  variable name: " << var_name << std::endl;
-		std::cout << "  data type: " << subtree_type(i->children.begin()+1) << std::endl;
+		std::cout << "[Parser] assignment" << std::endl;
+		std::cout << "[Parser]   variable name: " << var_name << std::endl;
+		std::cout << "[Parser]   data type: " << subtree_type(i->children.begin()+1) << std::endl;
 #endif
 		Variable var;
 		eval_expression(i->children.begin()+1, var);
@@ -363,10 +363,10 @@ namespace plugboard
 		block_type = make_scalar< std::string >(i->children.begin());
 		block_name = make_scalar< std::string >(i->children.begin()+1);
 #ifndef NDEBUG
-		std::cout << "adding block" << std::endl;
-		std::cout << "  type: " << block_type << std::endl;
-		std::cout << "  name: " << block_name << std::endl;
-		std::cout << "  no. of arguments given: " << num_args << std::endl;
+		std::cout << "[Parser] adding block" << std::endl;
+		std::cout << "[Parser]   type: " << block_type << std::endl;
+		std::cout << "[Parser]   name: " << block_name << std::endl;
+		std::cout << "[Parser]   no. of arguments given: " << num_args << std::endl;
 #endif
 
 		plugboard::block_ptr b(plugboard::BlockLoader::instance().new_block(block_type));
@@ -382,7 +382,7 @@ namespace plugboard
 		{
 			Variable param_curr;
 #ifndef NDEBUG
-			std::cout << "  parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
+			std::cout << "[Parser]   parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
 #endif
 			eval_expression(i->children.begin() + param_num + 2, param_curr);
 
@@ -404,7 +404,7 @@ namespace plugboard
 
 		std::string source_block_name, sink_block_name, source_port_name, sink_port_name;
 #ifndef NDEBUG
-		std::cout << "connecting blocks ";
+		std::cout << "[Parser] connecting blocks ";
 #endif
 		source_block_name = make_scalar< std::string >(i->children.begin());
 		source_port_name = make_scalar< std::string >(i->children.begin()+1);
@@ -434,16 +434,16 @@ namespace plugboard
 			}
 		}
 #ifndef NDEBUG
-		std::cout << "running system " << times << " times" << std::endl;
-		std::cout << "initializing..." << std::endl;
+		std::cout << "[Parser] running system " << times << " times" << std::endl;
+		std::cout << "[Parser] initializing..." << std::endl;
 #endif
 		Systems::instance().get_root()->initialize();
 #ifndef NDEBUG
-		std::cout << "starting system..." << std::endl;
+		std::cout << "[Parser] starting system..." << std::endl;
 #endif
 		Systems::instance().get_root()->wakeup_sys(times);
 #ifndef NDEBUG
-		std::cout << "finalizing system..." << std::endl;
+		std::cout << "[Parser] finalizing system..." << std::endl;
 #endif
 		Systems::instance().get_root()->finalize();
 	}
