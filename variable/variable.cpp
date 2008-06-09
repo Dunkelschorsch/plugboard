@@ -66,6 +66,14 @@ struct pimpl< Variable >::implementation
 
 	explicit implementation(std::vector< uint16_t > dimensions);
 
+	// push_back for composite types
+	template< class T, bool b >
+	inline void push_back(const T& value, const std::tr1::integral_constant< bool, b >&);
+
+	// push_back for integral types
+	template< class T >
+	void push_back(T value, const std::tr1::true_type&);
+
 	~implementation();
 
 	template< typename oldT, typename newT >
@@ -197,6 +205,40 @@ void pimpl< Variable >::implementation::cast()
 }
 
 
+template< class T, bool b >
+void pimpl< Variable >::implementation::push_back(const T& value, const std::tr1::integral_constant< bool, b >&)
+{
+	if(type == empty)
+		type = typeinfo< T >::value;
+
+	data = realloc(data, typeinfo< T >::size * (numel+1));
+	static_cast< T** >(data)[numel++] = new T(value);
+
+	size += typeinfo< T >::size;
+}
+
+
+template< class T >
+void pimpl< Variable >::implementation::push_back(T value, const std::tr1::true_type&)
+{
+	if(type == empty)
+		type = typeinfo< T >::value;
+
+	if(allocated == numel)
+	{
+#ifndef NDEBUG
+		std::cout << "[Variable] reallocating..." << std::endl;
+#endif
+		data = realloc(data, typeinfo< T >::size * (numel+1));
+		allocated = numel+1;
+	}
+
+	static_cast< T* >(data)[numel++] = static_cast< const T >(value);
+
+	size += typeinfo< T >::size;
+}
+
+
 void pimpl< Variable >::implementation::swap(pimpl< Variable >::implementation& other)
 {
 	using std::swap;
@@ -236,51 +278,7 @@ namespace plugboard
 	{
 		implementation& impl = **this;
 
-		if(impl.type == empty)
-			impl.type = typeinfo< ElementT >::value;
-
-		if(impl.allocated == impl.numel)
-		{
-#ifndef NDEBUG
-			std::cout << "[Variable] reallocating..." << std::endl;
-#endif
-			impl.data = realloc(impl.data, typeinfo< ElementT >::size * (impl.numel+1));
-			impl.allocated = impl.numel+1;
-		}
-
-		static_cast< ElementT* >(impl.data)[impl.numel++] = static_cast< const ElementT >(e);
-
-		impl.size += typeinfo< ElementT >::size;
-	}
-
-
-	template< >
-	void Variable::push_back(const string_t e)
-	{
-		implementation& impl = **this;
-
-		if(impl.type == empty)
-			impl.type = typeinfo< string_t >::value;
-
-		impl.data = realloc(impl.data, typeinfo< string_t >::size * (impl.numel+1));
-		static_cast< string_t** >(impl.data)[impl.numel++] = new string_t(e);
-
-		impl.size += typeinfo< string_t >::size;
-	}
-
-
-	template< >
-	void Variable::push_back(const complex_t e)
-	{
-		implementation& impl = **this;
-
-		if(impl.type == empty)
-			impl.type = typeinfo< complex_t >::value;
-
-		impl.data = realloc(impl.data, typeinfo< complex_t >::size * (impl.numel+1));
-		static_cast< complex_t** >(impl.data)[impl.numel++] = new complex_t(e);
-
-		impl.size += typeinfo< complex_t >::size;
+		impl.push_back(e, std::tr1::is_integral< ElementT >());
 	}
 
 
