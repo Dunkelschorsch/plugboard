@@ -44,12 +44,12 @@ template< >
 struct pimpl< Variable >::implementation
 {
 	implementation() :
-		dims_(std::vector< uint16_t >()),
-		numel_(0),
-		allocated_(0),
-		size_(0),
-		data_(NULL),
-		type_(empty)
+		dims(std::vector< uint16_t >()),
+		numel(0),
+		allocated(0),
+		size(0),
+		data(NULL),
+		type(empty)
 	{
 	
 	}
@@ -76,123 +76,123 @@ struct pimpl< Variable >::implementation
 	template< class T >
 	void copy_data_from_other(const implementation& other);
 
-	std::vector< uint16_t > dims_;
+	std::vector< uint16_t > dims;
 
-	uint64_t numel_;
-	uint64_t allocated_;
-	uint64_t size_;
-	void *data_;
-	type_t type_;
+	uint64_t numel;
+	uint64_t allocated;
+	uint64_t size;
+	void *data;
+	type_t type;
 };
 
 
 template< class T >
 void pimpl< Variable >::implementation::copy_data_from_other(const implementation& other)
 {
-	for(size_t i=0; i<numel_; ++i)
+	for(size_t i=0; i<numel; i++)
 	{
-		static_cast< T** >(data_)[i] =
-			new T(*static_cast< T** >(other.data_)[i]);
+		static_cast< T** >(data)[i] =
+			new T(*static_cast< T** >(other.data)[i]);
 	}
 }
 
 
 pimpl< Variable >::implementation::implementation(const pimpl< Variable >::implementation& other) :
-	dims_(other.dims_),
-	numel_(other.numel_),
-	allocated_(other.allocated_),
-	size_(other.size_),
-	data_(NULL),
-	type_(other.type_)
+	dims(other.dims),
+	numel(other.numel),
+	allocated(other.allocated),
+	size(other.size),
+	data(NULL),
+	type(other.type)
 {
-	data_ = malloc(size_);
+	data = malloc(size);
 
-	if(type_ == plugboard::string)
+	if(type == plugboard::string)
 	{
 		copy_data_from_other< string_t >(other);
 	}
 	else
-	if(type_ == plugboard::complex)
+	if(type == plugboard::complex)
 	{
 		copy_data_from_other< complex_t >(other);
 	}
 	else
 	{
-		data_ = memcpy(data_, other.data_, size_);
+		data = memcpy(data, other.data, size);
 	}
 }
 
 
 template< class T >
 pimpl< Variable >::implementation::implementation(const T value, const std::tr1::true_type&) :
-	dims_(std::vector< uint16_t >()),
-	numel_(1),
-	allocated_(1),
-	size_(sizeof(T)),
-	data_(NULL),
-	type_(plugboard::typeinfo< T >::value)
+	dims(std::vector< uint16_t >()),
+	numel(1),
+	allocated(1),
+	size(sizeof(T)),
+	data(NULL),
+	type(plugboard::typeinfo< T >::value)
 {
-	data_ = malloc(sizeof(T));
-	static_cast< T* >(data_)[0] = value;
+	data = malloc(sizeof(T));
+	static_cast< T* >(data)[0] = value;
 
-	dims_.push_back(1);
-	dims_.push_back(1);
+	dims.push_back(1);
+	dims.push_back(1);
 }
 
 
 template< class T, bool b >
 pimpl< Variable >::implementation::implementation(const T& value, const std::tr1::integral_constant< bool, b >&) :
-	dims_(std::vector< uint16_t >()),
-	numel_(1),
-	allocated_(1),
-	size_(sizeof(T)),
-	data_(NULL),
-	type_(plugboard::typeinfo< T >::value)
+	dims(std::vector< uint16_t >()),
+	numel(1),
+	allocated(1),
+	size(sizeof(T)),
+	data(NULL),
+	type(plugboard::typeinfo< T >::value)
 {
 	assert(sizeof(value) == sizeof(void*));
-	data_ = malloc(sizeof(value));
+	data = malloc(sizeof(value));
 
-	static_cast< T** >(data_)[0] = new T(value);
+	static_cast< T** >(data)[0] = new T(value);
 
-	dims_.push_back(1);
-	dims_.push_back(1);
+	dims.push_back(1);
+	dims.push_back(1);
 }
 
 
 pimpl< Variable >::implementation::~implementation()
 {
-	if(type_ == string)
+	if(type == string)
 	{
-		for(size_t i=0; i<numel_; ++i)
-			delete static_cast< string_t** >(data_)[i];
+		for(size_t i=0; i<numel; ++i)
+			delete static_cast< string_t** >(data)[i];
 	}
-	if(type_ == complex)
+	if(type == complex)
 	{
-		for(size_t i=0; i<numel_; ++i)
-			delete static_cast< complex_t** >(data_)[i];
+		for(size_t i=0; i<numel; ++i)
+			delete static_cast< complex_t** >(data)[i];
 	}
-	free(data_);
+	free(data);
 }
 
 
 template< typename oldT, typename newT >
 void pimpl< Variable >::implementation::cast()
 {
-	void* new_data = malloc(typeinfo< newT >::size * numel_);
-	for(size_t i=0; i<numel_; ++i)
+	void* new_data = malloc(typeinfo< newT >::size * numel);
+	for(size_t i=0; i<numel; ++i)
 	{
 		static_cast< newT* >(new_data)[i] =
-			static_cast< newT >(static_cast< oldT* >(data_)[i]);
+			static_cast< newT >(static_cast< oldT* >(data)[i]);
 	}
-	free(data_);
+	free(data);
 
-	data_ = new_data;
-	size_ = numel_ * typeinfo< newT >::size;
+	data = new_data;
+	size = numel * typeinfo< newT >::size;
 
-	type_ = typeinfo< newT >::value;
+	type = typeinfo< newT >::value;
 #ifndef NDEBUG
-	std::cout << "[Variable] number of variable elements: " << numel_ << std::endl;
-	std::cout << "[Variable] new variable size (bytes): " << size_ << std::endl;
+	std::cout << "[Variable] number of variable elements: " << numel << std::endl;
+	std::cout << "[Variable] new variable size (bytes): " << size << std::endl;
 #endif
 }
 
@@ -200,12 +200,12 @@ void pimpl< Variable >::implementation::cast()
 void pimpl< Variable >::implementation::swap(pimpl< Variable >::implementation& other)
 {
 	using std::swap;
-	swap(this->type_, other.type_);
-	swap(this->dims_, other.dims_);
-	swap(this->numel_, other.numel_);
-	swap(this->allocated_, other.allocated_);
-	swap(this->size_, other.size_);
-	swap(this->data_, other.data_);
+	swap(this->type, other.type);
+	swap(this->dims, other.dims);
+	swap(this->numel, other.numel);
+	swap(this->allocated, other.allocated);
+	swap(this->size, other.size);
+	swap(this->data, other.data);
 }
 
 
@@ -230,49 +230,27 @@ namespace plugboard
 	{
 	}
 
-	/** \brief Constructs a new scalar, floating point Variable object
-
-	* \param value a constant real_t reference to initialize the variable
-	*
-	*/
-// 	Variable::Variable(real_t value) : base(value, std::tr1::is_integral< real_t >())
-// 	{
-// 	}
-
-	/** \brief Constructs a new string Variable object
-
-	* \param value a constant string_t reference to initialize the variable
-	*
-	*/
-// 	Variable::Variable(const string_t& value) : base(value, std::tr1::is_integral< string_t >())
-// 	{
-// 	}
-
-// 	Variable::Variable(const complex_t& value) : base(value, std::tr1::is_integral< complex_t >())
-// 	{
-// 	}
-
 
 	template< class ElementT >
 	void Variable::push_back(const ElementT e)
 	{
 		implementation& impl = **this;
 
-		if(impl.type_ == empty)
-			impl.type_ = typeinfo< ElementT >::value;
+		if(impl.type == empty)
+			impl.type = typeinfo< ElementT >::value;
 
-		if(impl.allocated_ == impl.numel_)
+		if(impl.allocated == impl.numel)
 		{
 #ifndef NDEBUG
 			std::cout << "[Variable] reallocating..." << std::endl;
 #endif
-			impl.data_ = realloc(impl.data_, typeinfo< ElementT >::size * (impl.numel_+1));
-			impl.allocated_ = impl.numel_+1;
+			impl.data = realloc(impl.data, typeinfo< ElementT >::size * (impl.numel+1));
+			impl.allocated = impl.numel+1;
 		}
 
-		static_cast< ElementT* >(impl.data_)[impl.numel_++] = static_cast< const ElementT >(e);
+		static_cast< ElementT* >(impl.data)[impl.numel++] = static_cast< const ElementT >(e);
 
-		impl.size_ += typeinfo< ElementT >::size;
+		impl.size += typeinfo< ElementT >::size;
 	}
 
 
@@ -281,13 +259,13 @@ namespace plugboard
 	{
 		implementation& impl = **this;
 
-		if(impl.type_ == empty)
-			impl.type_ = typeinfo< string_t >::value;
+		if(impl.type == empty)
+			impl.type = typeinfo< string_t >::value;
 
-		impl.data_ = realloc(impl.data_, typeinfo< string_t >::size * (impl.numel_+1));
-		static_cast< string_t** >(impl.data_)[impl.numel_++] = new string_t(e);
+		impl.data = realloc(impl.data, typeinfo< string_t >::size * (impl.numel+1));
+		static_cast< string_t** >(impl.data)[impl.numel++] = new string_t(e);
 
-		impl.size_ += typeinfo< string_t >::size;
+		impl.size += typeinfo< string_t >::size;
 	}
 
 
@@ -296,13 +274,13 @@ namespace plugboard
 	{
 		implementation& impl = **this;
 
-		if(impl.type_ == empty)
-			impl.type_ = typeinfo< complex_t >::value;
+		if(impl.type == empty)
+			impl.type = typeinfo< complex_t >::value;
 
-		impl.data_ = realloc(impl.data_, typeinfo< complex_t >::size * (impl.numel_+1));
-		static_cast< complex_t** >(impl.data_)[impl.numel_++] = new complex_t(e);
+		impl.data = realloc(impl.data, typeinfo< complex_t >::size * (impl.numel+1));
+		static_cast< complex_t** >(impl.data)[impl.numel++] = new complex_t(e);
 
-		impl.size_ += typeinfo< complex_t >::size;
+		impl.size += typeinfo< complex_t >::size;
 	}
 
 
@@ -319,13 +297,13 @@ namespace plugboard
 
 	void Variable::set_dimensions(const std::vector< uint16_t >& d)
 	{
-		(*this)->dims_ = d;
+		(*this)->dims = d;
 	}
 
 
 	type_t Variable::get_type() const
 	{
-		return (*this)->type_;
+		return (*this)->type;
 	}
 
 
@@ -340,19 +318,19 @@ namespace plugboard
 
 	size_t Variable::size() const
 	{
-		return (*this)->numel_;
+		return (*this)->numel;
 	}
 
 
 	void Variable::add_dimension(uint16_t size)
 	{
-		(*this)->dims_.push_back(size);
+		(*this)->dims.push_back(size);
 	}
 
 
 	void Variable::set_type(type_t t)
 	{
-		(*this)->type_ = t;
+		(*this)->type = t;
 	}
 
 
@@ -407,13 +385,13 @@ namespace plugboard
 
 	const std::vector< uint16_t >& Variable::get_dimensions( ) const
 	{
-		return (*this)->dims_;
+		return (*this)->dims;
 	}
 
 
 	void* Variable::data() const
 	{
-		return (*this)->data_;
+		return (*this)->data;
 	}
 
 
@@ -421,10 +399,10 @@ namespace plugboard
 	{
 		implementation& impl = **this;
 
-		if(new_size > impl.allocated_)
+		if(new_size > impl.allocated)
 		{
-			impl.data_ = realloc(impl.data_, new_size);
-			impl.allocated_ = new_size;
+			impl.data = realloc(impl.data, new_size);
+			impl.allocated = new_size;
 		}
 	}
 } // namespace plugboard
