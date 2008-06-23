@@ -86,7 +86,7 @@ private:
 PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("Arithmetic");
-	set_description("Add an rbitrary, user-defined number of inputs.");
+	set_description("Perform basic arithmetic operations on an arbitrary, user-defined number of inputs.");
 }
 
 
