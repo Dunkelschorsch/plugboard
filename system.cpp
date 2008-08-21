@@ -401,7 +401,7 @@ namespace plugboard
 			else
 				return false;
 
-			return num_outputs_b1-num_inputs_b1 > num_outputs_b2-num_inputs_b2 ? true : false;
+			return num_outputs_b1-num_inputs_b1 > num_outputs_b2-num_inputs_b2;
 		}
 	};
 
