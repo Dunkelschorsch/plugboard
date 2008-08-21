@@ -103,11 +103,11 @@ ENDIF(NOT LTDL)
 
 # find and link against the itpp library
 FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
-IF(NOT LTDL)
+IF(NOT ITPP)
 	MESSAGE(FATAL_ERROR "Could not find ITPP library!")
-ELSE(NOT LTDL)
+ELSE(NOT ITPP)
 	MESSAGE(STATUS "itpp library: ${ITPP}")
-ENDIF(NOT LTDL)
+ENDIF(NOT ITPP)
 
 
 FIND_PACKAGE(PythonLibs)
