@@ -30,6 +30,7 @@
 #define SYMTAB_HPP
 
 #include <map>
+#include <string>
 
 namespace plugboard
 {
