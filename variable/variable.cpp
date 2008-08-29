@@ -134,11 +134,11 @@ pimpl< Variable >::implementation::implementation(const T value, const std::tr1:
 	dims(std::vector< uint16_t >()),
 	numel(1),
 	allocated(1),
-	size(sizeof(T)),
+	size(plugboard::typeinfo< T >::size),
 	data(NULL),
 	type(plugboard::typeinfo< T >::value)
 {
-	data = malloc(sizeof(T));
+	data = malloc(size);
 	static_cast< T* >(data)[0] = value;
 
 	dims.push_back(1);
@@ -151,7 +151,7 @@ pimpl< Variable >::implementation::implementation(const T& value, const std::tr1
 	dims(std::vector< uint16_t >()),
 	numel(1),
 	allocated(1),
-	size(sizeof(T)),
+	size(plugboard::typeinfo< T >::size),
 	data(NULL),
 	type(plugboard::typeinfo< T >::value)
 {
