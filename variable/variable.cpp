@@ -115,17 +115,15 @@ pimpl< Variable >::implementation::implementation(const pimpl< Variable >::imple
 {
 	data = malloc(size);
 
-	if(type == plugboard::string)
+	switch(type)
 	{
+	case plugboard::string:
 		copy_data_from_other< string_t >(other);
-	}
-	else
-	if(type == plugboard::complex)
-	{
+		break;
+	case plugboard::complex:
 		copy_data_from_other< complex_t >(other);
-	}
-	else
-	{
+		break;
+	default:
 		data = memcpy(data, other.data, size);
 	}
 }
