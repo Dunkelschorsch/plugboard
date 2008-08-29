@@ -56,23 +56,23 @@ struct pimpl< Variable >::implementation
 
 	implementation(const pimpl< Variable >::implementation & other);
 
+	explicit implementation(std::vector< uint16_t > dimensions);
+
 	// constructor for composite types
 	template< class T, bool b >
 	implementation(const T& value, const std::tr1::integral_constant< bool, b >&);
 
-	// constructor for integral types
+	// constructor for fundamental types
 	template< class T >
-	implementation(T value, const std::tr1::true_type&);
-
-	explicit implementation(std::vector< uint16_t > dimensions);
+	implementation(const T value, const std::tr1::true_type&);
 
 	// push_back for composite types
 	template< class T, bool b >
-	inline void push_back(const T& value, const std::tr1::integral_constant< bool, b >&);
+	void push_back(const T& value, const std::tr1::integral_constant< bool, b >&);
 
-	// push_back for integral types
+	// push_back for fundamental types
 	template< class T >
-	void push_back(T value, const std::tr1::true_type&);
+	void push_back(const T value, const std::tr1::true_type&);
 
 	~implementation();
 
@@ -212,14 +212,14 @@ void pimpl< Variable >::implementation::push_back(const T& value, const std::tr1
 		type = typeinfo< T >::value;
 
 	data = realloc(data, typeinfo< T >::size * (numel+1));
-	static_cast< T** >(data)[numel++] = new T(value);
+	static_cast< T const ** const >(data)[numel++] = new T(value);
 
 	size += typeinfo< T >::size;
 }
 
 
 template< class T >
-void pimpl< Variable >::implementation::push_back(T value, const std::tr1::true_type&)
+void pimpl< Variable >::implementation::push_back(const T value, const std::tr1::true_type&)
 {
 	if(type == empty)
 		type = typeinfo< T >::value;
@@ -233,7 +233,7 @@ void pimpl< Variable >::implementation::push_back(T value, const std::tr1::true_
 		allocated = numel+1;
 	}
 
-	static_cast< T* >(data)[numel++] = static_cast< const T >(value);
+	static_cast< T* const >(data)[numel++] = static_cast< const T >(value);
 
 	size += typeinfo< T >::size;
 }
@@ -268,7 +268,7 @@ namespace plugboard
 	}
 
 	template< class T >
-	Variable::Variable(T value) : base(value, std::tr1::is_integral< T >())
+	Variable::Variable(const T value) : base(value, std::tr1::is_fundamental< T >())
 	{
 	}
 
@@ -277,8 +277,7 @@ namespace plugboard
 	void Variable::push_back(const ElementT e)
 	{
 		implementation& impl = **this;
-
-		impl.push_back(e, std::tr1::is_integral< ElementT >());
+		impl.push_back(e, std::tr1::is_fundamental< ElementT >());
 	}
 
 

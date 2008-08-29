@@ -50,12 +50,12 @@ namespace plugboard
 		explicit Variable(std::vector< uint16_t > dimensions);
 
 		template< class T >
-		Variable(T value);
+		Variable(const T value);
 
 		Variable& operator=(const Variable& other);
 		operator bool() const;
 
-		template< typename ElementT >
+		template< class ElementT >
 		void push_back(const ElementT);
 
 		void add_dimension(uint16_t size);
