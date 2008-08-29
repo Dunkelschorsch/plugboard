@@ -36,6 +36,7 @@
 
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <itpp/itbase.h>
 
@@ -52,7 +53,6 @@ private:
 
 	void initialize();
 	void process();
-	void finalize();
 
 	// signals
 	OutPort *bits_out_;
@@ -67,7 +67,7 @@ private:
 	// random number generation
 	boost::mt19937 generator;
 	boost::uniform_int< > uni_dist;
-	boost::variate_generator< boost::mt19937&, boost::uniform_int< > > *make_bit;
+	boost::shared_ptr< boost::variate_generator< boost::mt19937&, boost::uniform_int< > > > make_bit;
 };
 
 
@@ -108,7 +108,7 @@ void PlugBoardBlock::initialize()
 {
 	uni_dist = boost::uniform_int< >(lo_[0], hi_[0]);
 
-	make_bit = new boost::variate_generator< boost::mt19937&, boost::uniform_int< > >(generator, uni_dist);
+	make_bit.reset(new boost::variate_generator< boost::mt19937&, boost::uniform_int< > >(generator, uni_dist));
 
 	i_array_ = get_data< int32_t >(bits_out_);
 	i_vector_ = get_signal< int32_t >(bits_out_);
@@ -129,12 +129,6 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << " generated: " << *i_vector_ << std::endl;
 #endif
-}
-
-
-void PlugBoardBlock::finalize()
-{
-	delete make_bit;
 }
 
 #include "block/create.hpp"
