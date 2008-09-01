@@ -160,13 +160,13 @@ const plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths()
 
 void plugboard::ExecutionStage::add_path(const path_t& p)
 {
+	(*this)->paths.push_back(p);
+
 	if((get_paths().size() > 1) &&
 		boost::any_cast< bool >(Environment::instance().get("threading")))
 	{
 		(*this)->threading_enabled = true;
 	}
-
-	(*this)->paths.push_back(p);
 }
 
 
