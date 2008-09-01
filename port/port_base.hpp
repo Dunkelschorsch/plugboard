@@ -59,6 +59,7 @@ namespace plugboard
 		void set_frame_size(uint32_t);
 
 		uint32_t get_signal_buffer_id() const;
+		void set_signal_buffer_id(uint32_t id);
 
 		bool operator==(const BasePort< DerivedPortT >&) const;
 
@@ -67,16 +68,17 @@ namespace plugboard
 			return buffer_access_();
 		}
 
-		void set_signal_ptr(const std::tr1::function< void*() >& f)
+		inline void set_signal_ptr(const std::tr1::function< void*() >& f)
 		{
 			buffer_access_ = f;
 		}
 
 	protected:
 		BasePort(const std::string&, const type_t, const real_t, const uint32_t);
-		uint32_t signal_buffer_id_;
 
 	private:
+		uint32_t signal_buffer_id_;
+
 		std::tr1::function< void*() > buffer_access_;
 		std::string name_;
 		std::string owner_block_name_;
@@ -169,6 +171,13 @@ namespace plugboard
 	uint32_t BasePort< DerivedPortT >::get_signal_buffer_id() const
 	{
 		return signal_buffer_id_;
+	}
+
+
+	template< class DerivedPortT >
+	void BasePort< DerivedPortT >::set_signal_buffer_id(uint32_t id)
+	{
+		signal_buffer_id_ = id;
 	}
 
 

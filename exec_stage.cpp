@@ -56,8 +56,8 @@ struct pimpl< ExecutionStage >::implementation
 
 	void add_block_impl(block_ptr const b);
 
-	plugboard::ExecutionStage::stage_t paths_;
-	bool threading_enabled_;
+	plugboard::ExecutionStage::stage_t paths;
+	bool threading_enabled;
 
 	boost::thread_group threads;
 
@@ -78,13 +78,13 @@ plugboard::ExecutionStage::ExecutionStage(block_ptr const b, bool threading_enab
 
 
 ExecutionStageImpl::implementation() :
-	paths_(),
-	threading_enabled_(false)
+	paths(),
+	threading_enabled(false)
 { }
 
 
 ExecutionStageImpl::implementation(block_ptr const b, bool threading_enabled) :
-	threading_enabled_(threading_enabled)
+	threading_enabled(threading_enabled)
 {
 	add_block_impl(b);
 }
@@ -94,7 +94,7 @@ void ExecutionStageImpl::add_block_impl(block_ptr const b)
 {
 	plugboard::ExecutionStage::path_t path_temp;
 	path_temp.push_back(b);
-	paths_.push_back(path_temp);
+	paths.push_back(path_temp);
 }
 
 
@@ -154,7 +154,7 @@ bool plugboard::ExecutionStage::block_is_placed(const std::string& name) const
 
 const plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths() const
 {
-	return (*this)->paths_;
+	return (*this)->paths;
 }
 
 
@@ -163,16 +163,16 @@ void plugboard::ExecutionStage::add_path(const path_t& p)
 	if((get_paths().size() > 1) &&
 		boost::any_cast< bool >(Environment::instance().get("threading")))
 	{
-		(*this)->threading_enabled_ = true;
+		(*this)->threading_enabled = true;
 	}
 
-	(*this)->paths_.push_back(p);
+	(*this)->paths.push_back(p);
 }
 
 
 plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths()
 {
-	return (*this)->paths_;
+	return (*this)->paths;
 }
 
 
@@ -180,7 +180,7 @@ void plugboard::ExecutionStage::exec()
 {
 	implementation& impl = **this;
 
-	if(impl.threading_enabled_)
+	if(impl.threading_enabled)
 	{
 		impl.boss.continue_all();
 		impl.boss.sync_post_process();
@@ -251,7 +251,7 @@ void plugboard::ExecutionStage::setup_threading()
 
 	const boost::mutex::scoped_lock lock(worker_creation_mutex);
 
-	if(not impl.threading_enabled_)
+	if(not impl.threading_enabled)
 	{
 		return;
 	}
@@ -271,7 +271,7 @@ plugboard::ExecutionStage::~ExecutionStage()
 {
 	implementation& impl = **this;
 
-	if(impl.threading_enabled_)
+	if(impl.threading_enabled)
 	{
 #ifndef NDEBUG
 		{

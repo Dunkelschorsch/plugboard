@@ -58,20 +58,20 @@ namespace plugboard
 
 		void execute_row(uint32_t stage_num, uint32_t row_num);
 
-		Signal::store_t signal_buffers_;
-		uint32_t signal_buffer_count_;
+		Signal::store_t signal_buffers;
+		uint32_t signal_buffer_count;
 
 		typedef std::map< type_t, function< Signal*(size_t) > > signal_assoc_t;
 		typedef std::map< type_t, void* (*)(Signal*) > get_buffer_assoc_t;
 
-		signal_assoc_t signal_factory_;
-		get_buffer_assoc_t get_buffer_factory_;
+		signal_assoc_t signal_factory;
+		get_buffer_assoc_t get_buffer_factory;
 
-		double simulation_time_;
+		double simulation_time;
 
-		Symtab symtab_;
+		Symtab symtab;
 
-		ExecutionMatrix exec_m_;
+		ExecutionMatrix exec_m;
 	};
 } // namespace plugboard
 

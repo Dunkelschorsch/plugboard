@@ -58,13 +58,13 @@ namespace plugboard
 
 
 	SystemImpl::SystemImpl() :
-		signal_buffers_(),
-		signal_buffer_count_(0),
-		signal_factory_(),
-		get_buffer_factory_(),
-		simulation_time_(0.0),
-		symtab_(),
-		exec_m_()
+		signal_buffers(),
+		signal_buffer_count(0),
+		signal_factory(),
+		get_buffer_factory(),
+		simulation_time(0.0),
+		symtab(),
+		exec_m()
 	{
 		register_basic_types();
 	}
@@ -100,14 +100,14 @@ namespace plugboard
 	{
 	//	this macro inserts entries for all Singal types.
 	//	for integer valued signals, the expansion would look like this:
-	//	signal_factory_.insert(std::make_pair(int32,
+	//	signal_factory.insert(std::make_pair(int32,
 	//		bind< IntegerSignal* >(new_ptr< IntegerSignal >(), ::_1)));
-	//	get_buffer_factory_.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
+	//	get_buffer_factory.insert(std::make_pair(int32, &get_sig< IntegerSignal >));
 
 #define BOOST_PP_DEF(z, I, _) \
-	signal_factory_.insert(std::make_pair(TYPE_VALUE(I), \
+	signal_factory.insert(std::make_pair(TYPE_VALUE(I), \
 		bind< SIG_TYPE(I)* >(new_ptr< SIG_TYPE(I) >(), ::_1))); \
-	get_buffer_factory_.insert(std::make_pair(TYPE_VALUE(I), &get_sig< SIG_TYPE(I) >));
+	get_buffer_factory.insert(std::make_pair(TYPE_VALUE(I), &get_sig< SIG_TYPE(I) >));
 
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _);
 
@@ -118,11 +118,11 @@ namespace plugboard
 	uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 	{
 #ifndef NDEBUG
-		std::cout << "[System] creating signal buffer no. " << signal_buffer_count_ << ":" << std::endl;
+		std::cout << "[System] creating signal buffer no. " << signal_buffer_count << ":" << std::endl;
 		std::cout << "[System] type: " << type << ", size: " << size << std::endl;
 #endif
-		signal_buffers_.push_back(signal_ptr(signal_factory_[type](size)));
-		return signal_buffer_count_++;
+		signal_buffers.push_back(signal_ptr(signal_factory[type](size)));
+		return signal_buffer_count++;
 	}
 
 
@@ -131,10 +131,10 @@ namespace plugboard
 #ifndef NDEBUG
 		std::cout << "[System] setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
 #endif
-		void* (*f)(Signal*) = get_buffer_factory_[out.get_type()];
+		void* (*f)(Signal*) = get_buffer_factory[out.get_type()];
 
-		out.buffer_access_ = bind(f, s);
-		in.buffer_access_ = bind(f, s);
+		out.set_signal_ptr( bind(f, s) );
+		in.set_signal_ptr( bind(f, s) );
 	}
 
 
@@ -142,7 +142,7 @@ namespace plugboard
 	{
 		PB_D(System)
 
-		if(d->exec_m_.block_exists(name_sys))
+		if(d->exec_m.block_exists(name_sys))
 		{
 			throw DuplicateBlockNameException(name_sys);
 		}
@@ -163,7 +163,7 @@ namespace plugboard
 			boost::dynamic_pointer_cast< Source >(b)->call_setup_output_ports();
 		}
 
-		d->exec_m_.store_block(b, name_sys);
+		d->exec_m.store_block(b, name_sys);
 	}
 
 
@@ -174,14 +174,14 @@ namespace plugboard
 
 		void operator()(const std::string& block_next) const
 		{
-			if(not sys_->exec_m_.block_is_placed(block_next))
+			if(not sys_->exec_m.block_is_placed(block_next))
 			{
 #ifndef NDEBUG
 				std::cout << std::endl << "[System] placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
 #endif
-				sys_->exec_m_.place_block(block_next, block_curr_);
+				sys_->exec_m.place_block(block_next, block_curr_);
 #ifndef NDEBUG
-				std::cout << sys_->exec_m_;
+				std::cout << sys_->exec_m;
 #endif
 				sys_->linearize(block_next);
 			}
@@ -218,10 +218,10 @@ namespace plugboard
 			OutPort::store_t::iterator source_port_it = ports.first;
 			InPort::store_t::iterator sink_port_it = ports.second;
 
-			source_port_it->connect(*sink_port_it, sys_->signal_buffer_count_);
+			source_port_it->connect(*sink_port_it, sys_->signal_buffer_count);
 
 			sys_->create_signal_buffer(source_port_it->get_type(), source_port_it->get_frame_size());
-			sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers_[sys_->signal_buffer_count_-1].get());
+			sys_->set_buffer_ptrs(*source_port_it, *sink_port_it, sys_->signal_buffers[sys_->signal_buffer_count-1].get());
 		}
 
 		SystemT* sys_;
@@ -273,7 +273,7 @@ namespace plugboard
 
 	void SystemImpl::linearize(const std::string& block_start)
 	{
-		source_ptr src = boost::dynamic_pointer_cast< Source >(exec_m_[block_start]);
+		source_ptr src = boost::dynamic_pointer_cast< Source >(exec_m[block_start]);
 		if(src)
 		std::for_each
 		(
@@ -288,8 +288,8 @@ namespace plugboard
 	{
 		std::for_each
 		(
-			exec_m_.get_stages().begin(),
-			exec_m_.get_stages().end(),
+			exec_m.get_stages().begin(),
+			exec_m.get_stages().end(),
 			create_buffers_and_stuff_a(this)
 		);
 	}
@@ -310,7 +310,7 @@ namespace plugboard
 
 		// search for both source and sink block:
 		// 1) source block
-		if(not d->exec_m_.block_exists(block_source))
+		if(not d->exec_m.block_exists(block_source))
 		{
 			// checked ok. does not leak memory
 			throw InvalidBlockNameException(block_source);
@@ -320,13 +320,13 @@ namespace plugboard
 		source_port_it =
 			std::find_if
 			(
-				d->exec_m_[block_source]->get_port_list< OutPort >()->begin(),
-				d->exec_m_[block_source]->get_port_list< OutPort >()->end(),
+				d->exec_m[block_source]->get_port_list< OutPort >()->begin(),
+				d->exec_m[block_source]->get_port_list< OutPort >()->end(),
 				bind(&OutPort::get_name, ::_1) == port_source
 			);
 
 		// unfortunately the given port name was invalid
-		if (source_port_it == d->exec_m_[block_source]->get_port_list< OutPort >()->end())
+		if (source_port_it == d->exec_m[block_source]->get_port_list< OutPort >()->end())
 		{
 			// checked ok. does not leak memory
 			throw InvalidPortNameException(port_source);
@@ -340,7 +340,7 @@ namespace plugboard
 		}
 
 		// 2) sink block
-		if(not d->exec_m_.block_exists(block_sink))
+		if(not d->exec_m.block_exists(block_sink))
 		{
 			// checked ok. does not leak memory
 			throw InvalidBlockNameException(block_sink);
@@ -350,13 +350,13 @@ namespace plugboard
 		sink_port_it =
 			std::find_if
 			(
-				d->exec_m_[block_sink]->get_port_list< InPort >()->begin(),
-				d->exec_m_[block_sink]->get_port_list< InPort >()->end(),
+				d->exec_m[block_sink]->get_port_list< InPort >()->begin(),
+				d->exec_m[block_sink]->get_port_list< InPort >()->end(),
 				bind(&InPort::get_name, ::_1) == port_sink
 			);
 
 		// unfortunately the given port name was invalid
-		if (sink_port_it == d->exec_m_[block_sink]->get_port_list< InPort >()->end())
+		if (sink_port_it == d->exec_m[block_sink]->get_port_list< InPort >()->end())
 		{
 			// checked ok. does not leak memory
 			throw InvalidPortNameException(port_sink);
@@ -366,10 +366,10 @@ namespace plugboard
 		*  all provided block- and port names were valid, now let's connect them
 		*/
 
-		boost::dynamic_pointer_cast< Source >(d->exec_m_[block_source])->
+		boost::dynamic_pointer_cast< Source >(d->exec_m[block_source])->
 			connect_calls.push_back(std::make_pair(source_port_it, sink_port_it));
 
-		boost::dynamic_pointer_cast< Source >(d->exec_m_[block_source])->add_connection(block_sink);
+		boost::dynamic_pointer_cast< Source >(d->exec_m[block_source])->add_connection(block_sink);
 	}
 
 
@@ -410,7 +410,7 @@ namespace plugboard
 	{
 		PB_D(System);
 
-		std::vector< block_ptr > start_blocks = d->exec_m_.find_start_blocks();
+		std::vector< block_ptr > start_blocks = d->exec_m.find_start_blocks();
 
 		std::sort
 		(
@@ -428,7 +428,7 @@ namespace plugboard
 		{
 			std::string start_block_name = (*source_block)->get_name_sys();
 
-			if(d->exec_m_.block_is_placed(start_block_name))
+			if(d->exec_m.block_is_placed(start_block_name))
 			{
 #ifndef NDEBUG
 				std::cout << "[System] block named '" << start_block_name << "' has already been placed." << std::endl;
@@ -438,7 +438,7 @@ namespace plugboard
 #ifndef NDEBUG
 			std::cout << "[System] starting linearization with block '" << start_block_name << "'." << std::endl;
 #endif
-			d->exec_m_.add_block(start_block_name);
+			d->exec_m.add_block(start_block_name);
 #ifndef NDEBUG
 			std::cout << std::endl << "[System] linearizing system..." << std::endl;
 #endif
@@ -452,21 +452,21 @@ namespace plugboard
 #endif
 		}
 #ifndef NDEBUG
-		std::cout << d->exec_m_ << std::endl;
+		std::cout << d->exec_m << std::endl;
 		std::cout << "[System] propagating signal attributes and creating signal buffers" << std::endl;
 #endif
 		d->propagate_signal_attributes();
 #ifndef NDEBUG
 		std::cout << std::endl << "[System] combining execution stages..." << std::endl;
 #endif
-		d->exec_m_.combine_stages();
+		d->exec_m.combine_stages();
 #ifndef NDEBUG
 		std::cout << "[System] parallelizing..." << std::endl;
 #endif
-		d->exec_m_.parallelize();
-		d->exec_m_.init();
+		d->exec_m.parallelize();
+		d->exec_m.init();
 #ifndef NDEBUG
-		std::cout << d->exec_m_ << std::endl;
+		std::cout << d->exec_m << std::endl;
 #endif
 	}
 
@@ -477,7 +477,7 @@ namespace plugboard
 
 		for(uint32_t t=0; t<times; ++t)
 		{
-			d->exec_m_.exec();
+			d->exec_m.exec();
 		}
 	}
 
@@ -485,7 +485,7 @@ namespace plugboard
 	void System::finalize()
 	{
 		PB_D(System)
-		d->exec_m_.finalize();
+		d->exec_m.finalize();
 	}
 
 
@@ -495,7 +495,7 @@ namespace plugboard
 #ifndef NDEBUG
 		bool var_name_is_available =
 #endif
-		d->symtab_.add_var(name, var);
+		d->symtab.add_var(name, var);
 		assert(var_name_is_available == true);
 #ifndef NDEBUG
 		std::cout << "[System] added variable '" << name << "'." << std::endl;
@@ -506,6 +506,6 @@ namespace plugboard
 	const Variable& System::get_variable(const std::string& name) const
 	{
 		PB_D(System)
-		return d->symtab_.get_var(name);
+		return d->symtab.get_var(name);
 	}
 } // namespace plugboard

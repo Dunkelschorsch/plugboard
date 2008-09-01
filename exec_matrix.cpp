@@ -64,8 +64,8 @@ struct pimpl< ExecutionMatrix >::implementation
 
 	typedef std::map< std::string, block_ptr > block_map_t;
 
-	ExecutionStage::store_t stages_;
-	block_map_t blocks_;
+	ExecutionStage::store_t stages;
+	block_map_t blocks;
 };
 
 
@@ -77,7 +77,7 @@ ExecutionMatrix::~ExecutionMatrix() { }
 
 
 ExecutionMatrixImpl::implementation() :
-	stages_(), blocks_()
+	stages(), blocks()
 { }
 
 
@@ -163,10 +163,10 @@ bool ExecutionMatrix::block_is_placed(const std::string& name) const
 	(
 		std::find_if
 		(
-			impl.stages_.begin(),
-			impl.stages_.end(),
+			impl.stages.begin(),
+			impl.stages.end(),
 			bind(&ExecutionStage::block_is_placed, _1, name)
-		) == impl.stages_.end()
+		) == impl.stages.end()
 	)
 	{
 		return false;
@@ -185,31 +185,31 @@ void ExecutionMatrixImpl::add_block(block_ptr b)
 #ifndef NDEBUG
 		std::cout << "[ExecMatrix] This is a source block!" << std::endl;
 #endif
-		stages_.insert(stages_.begin(), ExecutionStage(b));
+		stages.insert(stages.begin(), ExecutionStage(b));
 	}
 	else
 	{
-		stages_.insert(stages_.end(), ExecutionStage(b));
+		stages.insert(stages.end(), ExecutionStage(b));
 	}
 }
 
 
 void ExecutionMatrixImpl::add_stage(ExecutionStage s)
 {
-	stages_.push_back(s);
+	stages.push_back(s);
 }
 
 
 const ExecutionStage::store_t & ExecutionMatrix::get_stages( ) const
 {
-	return (*this)->stages_;
+	return (*this)->stages;
 }
 
 
 block_ptr ExecutionMatrix::operator[](const std::string & name) const
 {
-	implementation::block_map_t::const_iterator block = (*this)->blocks_.find(name);
-	if(block == (*this)->blocks_.end())
+	implementation::block_map_t::const_iterator block = (*this)->blocks.find(name);
+	if(block == (*this)->blocks.end())
 	{
 		return block_ptr();
 	}
@@ -224,8 +224,8 @@ void ExecutionMatrixImpl::add_block(block_ptr b, const std::string & insert_afte
 {
 	for
 	(
-		ExecutionStage::store_t::iterator stage_curr = stages_.begin();
-		stage_curr != stages_.end();
+		ExecutionStage::store_t::iterator stage_curr = stages.begin();
+		stage_curr != stages.end();
 		++stage_curr
 	)
 	{
@@ -247,7 +247,7 @@ void ExecutionMatrixImpl::add_block(block_ptr b, const std::string & insert_afte
 
 			if(block_curr != path_curr->end())
 			{
-				stages_.insert(++stage_curr, ExecutionStage(b));
+				stages.insert(++stage_curr, ExecutionStage(b));
 				return;
 			}
 		}
@@ -257,27 +257,27 @@ void ExecutionMatrixImpl::add_block(block_ptr b, const std::string & insert_afte
 
 void ExecutionMatrix::store_block(block_ptr b, const std::string & name)
 {
-	(*this)->blocks_[name] = b;
+	(*this)->blocks[name] = b;
 }
 
 
 void ExecutionMatrix::add_block(const std::string & name)
 {
-	(*this)->add_block((*this)->blocks_[name]);
+	(*this)->add_block((*this)->blocks[name]);
 }
 
 
 void ExecutionMatrix::place_block(const std::string & name, const std::string & insert_after)
 {
-	(*this)->add_block((*this)->blocks_[name], insert_after);
+	(*this)->add_block((*this)->blocks[name], insert_after);
 }
 
 
 bool ExecutionMatrix::block_exists(const std::string & name) const
 {
-	implementation::block_map_t::const_iterator it = (*this)->blocks_.find(name);
+	implementation::block_map_t::const_iterator it = (*this)->blocks.find(name);
 
-	if(it != (*this)->blocks_.end())
+	if(it != (*this)->blocks.end())
 	{
 		return true;
 	}
@@ -292,12 +292,12 @@ void ExecutionMatrix::combine_stages()
 {
 	implementation& impl = **this;
 
-	ExecutionStage::store_t::iterator stage_curr = impl.stages_.begin();
+	ExecutionStage::store_t::iterator stage_curr = impl.stages.begin();
 	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
 	do
 	{
-		while(++stage_next != impl.stages_.end())
+		while(++stage_next != impl.stages.end())
 		{
 #ifndef NDEBUG
 			std::cout << "[ExecMatrix] " << *this << std::endl;
@@ -337,12 +337,12 @@ void ExecutionMatrix::combine_stages()
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
 				stage_curr->get_paths().front().push_back(block_next);
-				impl.stages_.erase(stage_next);
+				impl.stages.erase(stage_next);
 				stage_next = stage_curr;
 			}
 		}
 		stage_next = ++stage_curr;
-	} while(stage_curr != impl.stages_.end());
+	} while(stage_curr != impl.stages.end());
 }
 
 
@@ -350,10 +350,10 @@ void ExecutionMatrix::parallelize()
 {
 	implementation& impl = **this;
 
-	ExecutionStage::store_t::iterator stage_curr = impl.stages_.begin();
+	ExecutionStage::store_t::iterator stage_curr = impl.stages.begin();
 	ExecutionStage::store_t::iterator stage_next = stage_curr;
 
-	while(++stage_next != impl.stages_.end())
+	while(++stage_next != impl.stages.end())
 	{
 		// iterator through all paths of stage_curr to
 		// find a path that inhibits parallelization
@@ -408,7 +408,7 @@ void ExecutionMatrix::parallelize()
 			std::cout << "[ExecMatrix] Moving path..." << std::endl;
 #endif
 			stage_curr->add_path(stage_next->get_paths().front());
-			impl.stages_.erase(stage_next);
+			impl.stages.erase(stage_next);
 #ifndef NDEBUG
 			std::cout << "[ExecMatrix] " << *this << std::endl;
 #endif
@@ -418,8 +418,8 @@ void ExecutionMatrix::parallelize()
 
 	std::for_each
 	(
-		impl.stages_.begin(),
-		impl.stages_.end(),
+		impl.stages.begin(),
+		impl.stages.end(),
 		boost::bind(&ExecutionStage::setup_threading, ::_1)
 	);
 }
@@ -434,8 +434,8 @@ const std::vector< block_ptr > ExecutionMatrix::find_start_blocks() const
 
 	std::remove_copy_if
 	(
-		impl.blocks_.begin(),
-		impl.blocks_.end(),
+		impl.blocks.begin(),
+		impl.blocks.end(),
 		std::back_inserter(v),
 		FindStartBlock()
 	);
@@ -480,8 +480,8 @@ void ExecutionMatrixImpl::for_each_block(const ActionT f)
 	// iterate over all stages
 	for
 	(
-		ExecutionStage::store_t::iterator stage_it = stages_.begin();
-		stage_it != stages_.end();
+		ExecutionStage::store_t::iterator stage_it = stages.begin();
+		stage_it != stages.end();
 		++stage_it
 	)
 	// iterate over all paths in current stage
@@ -512,8 +512,8 @@ void ExecutionMatrix::exec()
 {
 	std::for_each
 	(
-		(*this)->stages_.begin(),
-		(*this)->stages_.end(),
+		(*this)->stages.begin(),
+		(*this)->stages.end(),
 		bind(&ExecutionStage::exec, _1)
 	);
 }

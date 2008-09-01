@@ -48,13 +48,13 @@ namespace plugboard
 
 	struct SubsystemImpl : public SystemImpl
 	{
-		std::vector< OutPort* > sig_out_;
-		std::vector< InPort* > sig_in_;
+		std::vector< OutPort* > sig_out;
+		std::vector< InPort* > sig_in;
 
 		typedef std::pair< std::string, std::string > port_description_t;
 
-		std::map< std::string, port_description_t > exits_;
-		std::map< std::string, port_description_t > entries_;
+		std::map< std::string, port_description_t > exits;
+		std::map< std::string, port_description_t > entries;
 
 		template< class PortT >
 		struct PortAddAction;
@@ -106,7 +106,7 @@ namespace plugboard
 	template< class PortT >
 	struct SubsystemImpl::ReplacePortAction
 	{
-		ReplacePortAction(std::vector< PortT* >& sig, const ExecutionMatrix& exec_m) : sig_(sig), exec_m_(exec_m) { }
+		ReplacePortAction(std::vector< PortT* >& sig, const ExecutionMatrix& exec_m) : sig(sig), exec_m(exec_m) { }
 
 		template< typename PortDescT >
 		void operator()(const PortDescT& p) const
@@ -118,12 +118,12 @@ namespace plugboard
 			std::string block_inside = p.second.first;
 			std::string port_source = p.second.second;
 
-			if(not exec_m_.block_exists(block_inside))
+			if(not exec_m.block_exists(block_inside))
 			{
 				throw InvalidBlockNameException(block_inside);
 			}
 
-			port_list = exec_m_[block_inside]->get_port_list< PortT >();
+			port_list = exec_m[block_inside]->get_port_list< PortT >();
 			// so we found our source block. now let's see if the given port name was valid
 			source_port_it =
 				std::find_if
@@ -142,14 +142,14 @@ namespace plugboard
 			*source_port_it =
 				**std::find_if
 				(
-					sig_.begin(),
-					sig_.end(),
+					sig.begin(),
+					sig.end(),
 					bind(&PortT::get_name, _1) == gateway_port
 				);
 		}
 
-		std::vector< PortT* >& sig_;
-		const ExecutionMatrix& exec_m_;
+		std::vector< PortT* >& sig;
+		const ExecutionMatrix& exec_m;
 	};
 
 
@@ -162,16 +162,16 @@ namespace plugboard
 
 		std::for_each
 		(
-			d->exits_.begin(),
-			d->exits_.end(),
-			SubsystemImpl::ReplacePortAction< OutPort >(d->sig_out_, d->exec_m_)
+			d->exits.begin(),
+			d->exits.end(),
+			SubsystemImpl::ReplacePortAction< OutPort >(d->sig_out, d->exec_m)
 		);
 
 		std::for_each
 		(
-			d->entries_.begin(),
-			d->entries_.end(),
-			SubsystemImpl::ReplacePortAction< InPort >(d->sig_in_, d->exec_m_)
+			d->entries.begin(),
+			d->entries.end(),
+			SubsystemImpl::ReplacePortAction< InPort >(d->sig_in, d->exec_m)
 		);
 	}
 
@@ -180,20 +180,20 @@ namespace plugboard
 	template< class PortT >
 	struct SubsystemImpl::PortAddAction
 	{
-		PortAddAction(std::vector< PortT* >& v, Block* const b) : v_(v), b_(b) { };
+		PortAddAction(std::vector< PortT* >& v, Block* const b) : v(v), b(b) { };
 
 		template< typename TupleT >
 		void operator()(const TupleT& c) const
 		{
 			PortT* port_tmp = new PortT(c.first, int32, 1, 2);
-			v_.push_back(b_->add_port(port_tmp));
+			v.push_back(b->add_port(port_tmp));
 #ifndef NDEBUG
 			std::cout << "type of subsystem's " << c.first << ": " << int32 << std::endl;
 #endif
 		}
 
-		std::vector< PortT* >& v_;
-		Block * const b_;
+		std::vector< PortT* >& v;
+		Block * const b;
 	};
 
 
@@ -202,16 +202,16 @@ namespace plugboard
 	{
 		PB_D(Subsystem);
 
-		if(d->exits_.size() == 0)
+		if(d->exits.size() == 0)
 		{
 			return false;
 		}
 
 		std::for_each
 		(
-			d->exits_.begin(),
-			d->exits_.end(),
-			SubsystemImpl::PortAddAction< OutPort >(d->sig_out_, this)
+			d->exits.begin(),
+			d->exits.end(),
+			SubsystemImpl::PortAddAction< OutPort >(d->sig_out, this)
 		);
 
 		return true;
@@ -223,16 +223,16 @@ namespace plugboard
 	{
 		PB_D(Subsystem);
 
-		if(d->entries_.size() == 0)
+		if(d->entries.size() == 0)
 		{
 			return false;
 		}
 
 		std::for_each
 		(
-			d->entries_.begin(),
-			d->entries_.end(),
-			SubsystemImpl::PortAddAction< InPort >(d->sig_in_, this)
+			d->entries.begin(),
+			d->entries.end(),
+			SubsystemImpl::PortAddAction< InPort >(d->sig_in, this)
 		);
 
 		return true;
@@ -243,7 +243,7 @@ namespace plugboard
 	void Subsystem::create_input(const std::string & port_in, const std::string & block_sink, const std::string & port_sink)
 	{
 		PB_D(Subsystem)
-		d->entries_[port_in] = std::make_pair(block_sink, port_sink);
+		d->entries[port_in] = std::make_pair(block_sink, port_sink);
 	}
 
 
@@ -251,6 +251,6 @@ namespace plugboard
 	void Subsystem::create_output(const std::string & block_source, const std::string & port_source, const std::string & port_out)
 	{
 		PB_D(Subsystem)
-		d->exits_[port_out] = std::make_pair(block_source, port_source);
+		d->exits[port_out] = std::make_pair(block_source, port_source);
 	}
 } // namespace plugboard

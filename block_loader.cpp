@@ -75,8 +75,8 @@ struct pimpl< BlockLoader >::implementation
 			BlockFactoryError
 		> block_factory_t;
 
-	block_factory_t f_;
-	std::vector< std::string > available_blocks_;
+	block_factory_t f;
+	std::vector< std::string > available_blocks;
 
 	std::string plugin_prefix, plugin_ext;
 };
@@ -84,7 +84,7 @@ struct pimpl< BlockLoader >::implementation
 
 
 BlockLoaderImpl::implementation()
-	: f_(),
+	: f(),
 	plugin_prefix("libblock_"),
 	plugin_ext(".so")
 {
@@ -159,7 +159,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 			if (create)
 			{
-				if (!(*this)->f_.Register(block_id, create))
+				if (!(*this)->f.Register(block_id, create))
 				{
 					if(verbose_plugin_load)
 					{
@@ -174,7 +174,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 				}
 
 				++block_count;
-				(*this)->available_blocks_.push_back(block_id);
+				(*this)->available_blocks.push_back(block_id);
 			}
 		} else
 		{
@@ -191,7 +191,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 Block* BlockLoader::new_block(const std::string& name)
 {
-	return (*this)->f_.CreateObject(name);
+	return (*this)->f.CreateObject(name);
 }
 
 
@@ -199,5 +199,5 @@ Block* BlockLoader::new_block(const std::string& name)
 const std::vector< std::string > & BlockLoader::available_blocks() const
 {
 	implementation const& impl = **this;
-	return impl.available_blocks_;
+	return impl.available_blocks;
 }

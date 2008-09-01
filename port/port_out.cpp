@@ -82,9 +82,9 @@ namespace plugboard
 		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << get_frame_size() << std::endl;
 #endif
 
-		signal_buffer_id_ = signal_buffer_id;
+		set_signal_buffer_id(signal_buffer_id);
 
-		send = std::tr1::bind(&InPort::receive, std::tr1::ref(other), signal_buffer_id);
+		send = std::tr1::bind(&InPort::receive, std::tr1::ref(other), get_signal_buffer_id());
 	}
 
 
