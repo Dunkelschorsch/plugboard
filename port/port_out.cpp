@@ -92,6 +92,6 @@ namespace plugboard
 	void OutPort::disconnect(const InPort &)
 	{
 		send = 0;
-		buffer_access_ = 0;
+		set_signal_ptr(0);
 	}
 } // namespace plugboard

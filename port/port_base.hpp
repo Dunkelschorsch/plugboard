@@ -67,20 +67,25 @@ namespace plugboard
 			return buffer_access_();
 		}
 
+		void set_signal_ptr(const std::tr1::function< void*() >& f)
+		{
+			buffer_access_ = f;
+		}
+
 	protected:
 		BasePort(const std::string&, const type_t, const real_t, const uint32_t);
 		uint32_t signal_buffer_id_;
-		std::tr1::function< void*() > buffer_access_;
 
 	private:
-		void swap(BasePort&);
+		std::tr1::function< void*() > buffer_access_;
 		std::string name_;
 		std::string owner_block_name_;
 		type_t type_;
 		real_t Ts_;
 		uint32_t frame_size_;
-	};
 
+		void swap(BasePort&);
+	};
 
 
 	template< class DerivedPortT >
