@@ -31,10 +31,23 @@
 #include "thread_mgm.hpp"
 
 #include <iostream>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
+#ifndef NDEBUG
+#define PB_DEBUG_MESSAGE(X) std::cout << "\033[01;33m" << "[ExecutionStage] " << X << "\033[01;37m" << std::endl;
+#define PB_DEBUG_MESSAGE_LOCKED(X)\
+{\
+	const boost::mutex::scoped_lock lock(pb_io_mutex);\
+	std::cout << "\033[01;33m" << "[ExecutionStage] " << X << "\033[01;37m" << std::endl;\
+}
+#else
+#define PB_DEBUG_MESSAGE(X)
+#define PB_DEBUG_MESSAGE_LOCKED(X)
+#endif
 
 using boost::bind;
 using namespace plugboard;
@@ -57,7 +70,11 @@ struct pimpl< ExecutionStage >::implementation
 	void add_block_impl(block_ptr const b);
 
 	plugboard::ExecutionStage::stage_t paths;
-	bool threading_enabled;
+	bool threading_enabled, calibrating, test_multi;
+
+	boost::posix_time::time_duration time_single_threaded, time_multi_threaded;
+
+	uint64_t execution_count;
 
 	boost::thread_group threads;
 
@@ -79,12 +96,22 @@ plugboard::ExecutionStage::ExecutionStage(block_ptr const b, bool threading_enab
 
 ExecutionStageImpl::implementation() :
 	paths(),
-	threading_enabled(false)
+	threading_enabled(false),
+	calibrating(true),
+	test_multi(false),
+	time_single_threaded(0,0,0,0),
+	time_multi_threaded(0,0,0,0),
+	execution_count(0)
 { }
 
 
 ExecutionStageImpl::implementation(block_ptr const b, bool threading_enabled) :
-	threading_enabled(threading_enabled)
+	threading_enabled(threading_enabled),
+	calibrating(true),
+	test_multi(false),
+	time_single_threaded(0,0,0,0),
+	time_multi_threaded(0,0,0,0),
+	execution_count(0)
 {
 	add_block_impl(b);
 }
@@ -178,7 +205,58 @@ plugboard::ExecutionStage::stage_t& plugboard::ExecutionStage::get_paths()
 
 void plugboard::ExecutionStage::exec()
 {
+	using namespace boost::posix_time;
 	implementation& impl = **this;
+
+	if(impl.calibrating)
+	{
+		if(impl.threading_enabled)
+		{
+			if(impl.test_multi)
+			{
+				ptime start(microsec_clock::universal_time());
+
+				impl.boss.continue_all();
+				impl.boss.sync_post_process();
+
+				ptime end(microsec_clock::universal_time());
+				impl.time_multi_threaded += (end - start);
+			} else
+			{
+				ptime start(microsec_clock::universal_time());
+
+				std::for_each
+				(
+					get_paths().begin(),
+					get_paths().end(),
+					bind(&plugboard::ExecutionStage::exec_path, this, _1)
+				);
+
+				ptime end(microsec_clock::universal_time());
+				impl.time_single_threaded += (end - start);
+
+			}
+
+			if(impl.test_multi)
+			{
+				PB_DEBUG_MESSAGE("Accumulated multi-threaded execution time:  " << impl.time_multi_threaded)
+				PB_DEBUG_MESSAGE("Accumulated single-threaded execution time: " << impl.time_single_threaded)
+			}
+
+			impl.test_multi ^= true;
+			if(impl.execution_count == 15)
+			{
+				impl.calibrating = false;
+				impl.threading_enabled = impl.time_multi_threaded < impl.time_single_threaded;
+
+				PB_DEBUG_MESSAGE("multithreading is " << (impl.threading_enabled ? "en" : "dis") << "abled")
+				PB_DEBUG_MESSAGE("estimated speedup: "  <<
+					static_cast<double>(impl.time_single_threaded.fractional_seconds())/
+					static_cast<double>(impl.time_multi_threaded.fractional_seconds())
+				)
+			}
+		}
+	}
 
 	if(impl.threading_enabled)
 	{
@@ -195,6 +273,8 @@ void plugboard::ExecutionStage::exec()
 			bind(&plugboard::ExecutionStage::exec_path, this, _1)
 		);
 	}
+
+	impl.execution_count++;
 }
 
 
@@ -273,12 +353,7 @@ plugboard::ExecutionStage::~ExecutionStage()
 
 	if(impl.threading_enabled)
 	{
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "[ExecutionStage] shutting down threads" << std::endl;
-		}
-#endif
+		PB_DEBUG_MESSAGE_LOCKED("shutting down threads")
 		impl.boss.shutdown_now();
 	}
 }
@@ -292,3 +367,7 @@ namespace plugboard
 		return out;
 	}
 }
+
+#undef PB_DEBUG_MESSAGE
+#undef PB_DEBUG_MESSAGE_LOCKED
+
