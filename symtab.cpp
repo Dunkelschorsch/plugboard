@@ -28,13 +28,14 @@
 
 #include <cassert>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include "symtab.hpp"
 #include "variable/variable.hpp"
 #include "exception/input.hpp"
+
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;35m
+#define PB_DEBUG_MESSAGE_SOURCE Symtab
+
+#include "colour_debug.hpp"
 
 namespace plugboard
 {
@@ -62,21 +63,19 @@ namespace plugboard
 
 	const Variable& Symtab::get_var(const std::string& name) const
 	{
-#ifndef NDEBUG
-		std::cout << "[Symtab] Symtab::get_var(). currently holding " << ht_.size() << " variables." << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("looking up variable '" << name << "'")
+
 		ht_t::const_iterator it = ht_.find(name);
 
 		if (it == ht_.end())
 		{
-#ifndef NDEBUG
-			std::cout << "[Symtab] cannot find variable '" << name << "'" << std::endl;
-			std::cout << "[Symtab] available variables are:" << std::endl;
+			PB_DEBUG_MESSAGE("cannot find variable '" << name << "'")
+			PB_DEBUG_MESSAGE("available variables are:")
 			for(ht_t::const_iterator vars=ht_.begin(); vars != ht_.end(); vars++)
 			{
-				std::cout << "[Symtab] " << vars->first << std::endl;
+				PB_DEBUG_MESSAGE(vars->first)
 			}
-#endif
+
 			if(parent_ != NULL)
 			{
 				return parent_->get_var(name);

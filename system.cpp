@@ -51,6 +51,11 @@
 
 #include "system.ipp"
 
+#define PB_DEBUG_MESSAGE_COLOUR \033[22;32m
+#define PB_DEBUG_MESSAGE_SOURCE System
+
+#include "colour_debug.hpp"
+
 namespace plugboard
 {
 	using boost::bind;
@@ -117,10 +122,9 @@ namespace plugboard
 
 	uint32_t SystemImpl::create_signal_buffer(type_t type, uint32_t size)
 	{
-#ifndef NDEBUG
-		std::cout << "[System] creating signal buffer no. " << signal_buffer_count << ":" << std::endl;
-		std::cout << "[System] type: " << type << ", size: " << size << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("      creating signal buffer no. " << signal_buffer_count << ":")
+		PB_DEBUG_MESSAGE("        type: " << type << ", size: " << size)
+
 		signal_buffers.push_back(signal_ptr(signal_factory[type](size)));
 		return signal_buffer_count++;
 	}
@@ -128,9 +132,8 @@ namespace plugboard
 
 	void SystemImpl::set_buffer_ptrs(OutPort& out, InPort& in, Signal* s)
 	{
-#ifndef NDEBUG
-		std::cout << "[System] setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'" << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("        setting buffer aquiration functions for ports '" << out.get_name() << "' and '" << in.get_name() << "'")
+
 		void* (*f)(Signal*) = get_buffer_factory[out.get_type()];
 
 		out.set_signal_ptr( bind(f, s) );
@@ -176,21 +179,18 @@ namespace plugboard
 		{
 			if(not sys_->exec_m.block_is_placed(block_next))
 			{
-#ifndef NDEBUG
-				std::cout << std::endl << "[System] placing block '" << block_next << "' after '" << block_curr_ << "'" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("placing block '" << block_next << "' after '" << block_curr_ << "'")
+
 				sys_->exec_m.place_block(block_next, block_curr_);
-#ifndef NDEBUG
-				std::cout << sys_->exec_m;
-#endif
+
+				PB_DEBUG_MESSAGE("setup looks like this:" << std::endl << sys_->exec_m)
+
 				sys_->linearize(block_next);
 			}
-#ifndef NDEBUG
 			else
 			{
-				std::cout << "[System] block '" << block_next << "' has already been placed. skipping..." << std::endl;
+				PB_DEBUG_MESSAGE("block '" << block_next << "' has already been placed. skipping...")
 			}
-#endif
 		}
 
 		const std::string& block_curr_;
@@ -430,44 +430,38 @@ namespace plugboard
 
 			if(d->exec_m.block_is_placed(start_block_name))
 			{
-#ifndef NDEBUG
-				std::cout << "[System] block named '" << start_block_name << "' has already been placed." << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("block '" << start_block_name << "' has already been placed.")
 				continue;
 			}
-#ifndef NDEBUG
-			std::cout << "[System] starting linearization with block '" << start_block_name << "'." << std::endl;
-#endif
+			PB_DEBUG_MESSAGE("starting linearization with block '" << start_block_name << "'.")
+
 			d->exec_m.add_block(start_block_name);
-#ifndef NDEBUG
-			std::cout << std::endl << "[System] linearizing system..." << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("linearizing system...")
+
 			d->linearize(start_block_name);
 		}
 
 		if(start_blocks.empty())
 		{
-#ifndef NDEBUG
-			std::cout << "[System] no start blocks!" << std::endl;
-#endif
+			PB_DEBUG_MESSAGE("no start blocks!")
 		}
-#ifndef NDEBUG
-		std::cout << d->exec_m << std::endl;
-		std::cout << "[System] propagating signal attributes and creating signal buffers" << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("setup looks like this:" << std::endl << d->exec_m)
+		PB_DEBUG_MESSAGE("propagating signal attributes and creating signal buffers")
+
 		d->propagate_signal_attributes();
-#ifndef NDEBUG
-		std::cout << std::endl << "[System] combining execution stages..." << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("combining execution stages...")
+
 		d->exec_m.combine_stages();
-#ifndef NDEBUG
-		std::cout << "[System] parallelizing..." << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("parallelizing...")
+
 		d->exec_m.parallelize();
 		d->exec_m.init();
-#ifndef NDEBUG
-		std::cout << d->exec_m << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("setup looks like this:" << std::endl << d->exec_m)
 	}
 
 
@@ -497,9 +491,7 @@ namespace plugboard
 #endif
 		d->symtab.add_var(name, var);
 		assert(var_name_is_available == true);
-#ifndef NDEBUG
-		std::cout << "[System] added variable '" << name << "'." << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("added variable '" << name << "'.")
 	}
 
 

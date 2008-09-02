@@ -26,10 +26,6 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include <set>
 
 #include "grammar/command/actions.hpp"
@@ -42,6 +38,10 @@
 #include "block_loader.hpp"
 #include "systems.hpp"
 
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;32m
+#define PB_DEBUG_MESSAGE_SOURCE Parser
+
+#include "colour_debug.hpp"
 
 namespace plugboard
 {
@@ -89,9 +89,8 @@ namespace plugboard
 
 	type_t get_var_type(const std::string& var_name)
 	{
-#ifndef NDEBUG
-		std::cout << "[Parser] looking up type of " << var_name << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("looking up type of " << var_name)
+
 		return Systems::instance().get_root()->get_variable(var_name).get_type();
 	}
 
@@ -150,10 +149,10 @@ namespace plugboard
 		)
 		{
 			type_t num_type = subtree_type(i);
-#ifndef NDEBUG
-			std::cout << "[Parser] scalar arithmetic" << std::endl;
-			std::cout << "[Parser] type: " << num_type << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("scalar arithmetic")
+			PB_DEBUG_MESSAGE("type: " << num_type)
+
 			switch(num_type)
 			{
 				case int32:
@@ -173,22 +172,22 @@ namespace plugboard
 		if(i->value.id() == parserID::array)
 		{
 			assert(i->children.size() > 1);
-#ifndef NDEBUG
-			std::cout << "[Parser] array" << std::endl;
-			std::cout << "[Parser]   rows: " << i->children.size() << std::endl;
-			std::cout << "[Parser]   columns: " << i->children.begin()->children.size() << std::endl;
-			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("array")
+			PB_DEBUG_MESSAGE("  rows: " << i->children.size())
+			PB_DEBUG_MESSAGE("  columns: " << i->children.begin()->children.size())
+			PB_DEBUG_MESSAGE("  numeric type: " << subtree_type(i))
+
 		}
 		else
 		if(i->value.id() == parserID::rowvec)
 		{
 			assert(i->children.size() > 1);
-#ifndef NDEBUG
-			std::cout << "[Parser] row_vec" << std::endl;
-			std::cout << "[Parser]   elements: " << i->children.size() << std::endl;
-			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("row_vec")
+			PB_DEBUG_MESSAGE("  elements: " << i->children.size())
+			PB_DEBUG_MESSAGE("  numeric type: " << subtree_type(i))
+
 			type_t num_type = subtree_type(i);
 
 			switch(num_type)
@@ -217,10 +216,10 @@ namespace plugboard
 		if(i->value.id() == parserID::range)
 		{
 			assert(i->children.size() == 3);
-#ifndef NDEBUG
-			std::cout << "[Parser] range" << std::endl;
-			std::cout << "[Parser]   numeric type: " << subtree_type(i) << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("range")
+			PB_DEBUG_MESSAGE("  numeric type: " << subtree_type(i))
+
 			if(subtree_type(i) == real)
 			{
 				make_range< real_t >
@@ -309,9 +308,9 @@ namespace plugboard
 
 		size_t elements = static_cast< size_t >(floor((end-start) / inc +1));
 		v.prealloc(sizeof(T) * (elements + v.size()));
-#ifndef NDEBUG
-		std::cout << "[Parser] elements: " << elements << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("elements: " << elements)
+
 		T f = start;
 
 		for(size_t i=0; i<elements; ++i)
@@ -342,11 +341,11 @@ namespace plugboard
 		assert(i->children.size() == 2);
 
 		std::string var_name(make_scalar< std::string >(i->children.begin()));
-#ifndef NDEBUG
-		std::cout << "[Parser] assignment" << std::endl;
-		std::cout << "[Parser]   variable name: " << var_name << std::endl;
-		std::cout << "[Parser]   data type: " << subtree_type(i->children.begin()+1) << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("assignment")
+		PB_DEBUG_MESSAGE("  variable name: " << var_name)
+		PB_DEBUG_MESSAGE("  data type: " << subtree_type(i->children.begin()+1))
+
 		Variable var;
 		eval_expression(i->children.begin()+1, var);
 		Systems::instance().get_root()->add_variable(var_name, var);
@@ -362,12 +361,12 @@ namespace plugboard
 		uint32_t num_args = i->children.size()-2;
 		block_type = make_scalar< std::string >(i->children.begin());
 		block_name = make_scalar< std::string >(i->children.begin()+1);
-#ifndef NDEBUG
-		std::cout << "[Parser] adding block" << std::endl;
-		std::cout << "[Parser]   type: " << block_type << std::endl;
-		std::cout << "[Parser]   name: " << block_name << std::endl;
-		std::cout << "[Parser]   no. of arguments given: " << num_args << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("adding block")
+		PB_DEBUG_MESSAGE("  type: " << block_type)
+		PB_DEBUG_MESSAGE("  name: " << block_name)
+		PB_DEBUG_MESSAGE("  no. of arguments given: " << num_args)
+
 
 		plugboard::block_ptr b(plugboard::BlockLoader::instance().new_block(block_type));
 		b->call_configure_parameters();
@@ -381,9 +380,9 @@ namespace plugboard
 		for(uint32_t param_num=0; param_num<num_args; ++param_num)
 		{
 			Variable param_curr;
-#ifndef NDEBUG
-			std::cout << "[Parser]   parameter type: " << subtree_type(i->children.begin()+2+param_num) << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("  parameter type: " << subtree_type(i->children.begin()+2+param_num))
+
 			eval_expression(i->children.begin() + param_num + 2, param_curr);
 
 			assert(subtree_type(i->children.begin()+2+param_num) == param_curr.get_type());
@@ -403,17 +402,17 @@ namespace plugboard
 		assert(i->children.size() == 4);
 
 		std::string source_block_name, sink_block_name, source_port_name, sink_port_name;
-#ifndef NDEBUG
-		std::cout << "[Parser] connecting blocks ";
-#endif
+
+		PB_DEBUG_MESSAGE("connecting blocks ...")
+
 		source_block_name = make_scalar< std::string >(i->children.begin());
 		source_port_name = make_scalar< std::string >(i->children.begin()+1);
 		sink_block_name = make_scalar< std::string >(i->children.begin()+2);
 		sink_port_name = make_scalar< std::string >(i->children.begin()+3);
-#ifndef NDEBUG
-		std::cout << source_block_name << ":" << source_port_name << "->"
-			<< sink_block_name << ":" << sink_port_name << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("... " << source_block_name << ":" << source_port_name << "->"
+			<< sink_block_name << ":" << sink_port_name)
+
 		Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
 	}
 
@@ -433,18 +432,18 @@ namespace plugboard
 				times = *vi;
 			}
 		}
-#ifndef NDEBUG
-		std::cout << "[Parser] running system " << times << " times" << std::endl;
-		std::cout << "[Parser] initializing..." << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("running system " << times << " times")
+		PB_DEBUG_MESSAGE("initializing...")
+
 		Systems::instance().get_root()->initialize();
-#ifndef NDEBUG
-		std::cout << "[Parser] starting system..." << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("starting system...")
+
 		Systems::instance().get_root()->wakeup_sys(times);
-#ifndef NDEBUG
-		std::cout << "[Parser] finalizing system..." << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("finalizing system...")
+
 		Systems::instance().get_root()->finalize();
 	}
 

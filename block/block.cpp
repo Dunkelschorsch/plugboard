@@ -46,6 +46,10 @@
 
 using namespace plugboard;
 
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;34m
+#define PB_DEBUG_MESSAGE_SOURCE Block
+
+#include "colour_debug.hpp"
 
 template< >
 struct pimpl< Block >::implementation
@@ -114,27 +118,23 @@ public:
 
 		if(c)
 		{
-#ifndef NDEBUG
-		std::cout << "[Block] checking constraint... ";
-#endif
+			PB_DEBUG_MESSAGE("checking constraint...");
+
 			bool passed = c->check(e_);
 			if(c->is_negative())
 				passed = not passed;
 	
 			if(not passed)
 			{
-#ifndef NDEBUG
-				std::cout << "aww!" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("... aww!")
+
 				// TODO come up with proper exceptions here
 				cb->throw_exception();
 			}
-#ifndef NDEBUG
 			else
 			{
-				std::cout << "yay!" << std::endl;
+				PB_DEBUG_MESSAGE("... yay!")
 			}
-#endif
 		}
 	}
 private:
@@ -153,9 +153,8 @@ public:
 			boost::dynamic_pointer_cast< const VariableConstraint >(cb).get();
 		if(c)
 		{
-#ifndef NDEBUG
-		std::cout << "[Block] checking constraint... ";
-#endif
+			PB_DEBUG_MESSAGE("checking constraint...");
+
 			bool passed = c->check(var_);
 			if(c->is_negative())
 				passed = not passed;
@@ -198,10 +197,9 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, const B
 {
 	typedef variable_iterator< VariableElementT const, Variable const > variable_const_iterator;
 
-#ifndef NDEBUG
-	std::cout << "[Block] Parameter name: " << param->get_description() << std::endl;
-	std::cout << "[Block] no. of constraints: " << param->get_constraints().size() << std::endl;
-#endif
+	PB_DEBUG_MESSAGE("Parameter name: " << param->get_description())
+	PB_DEBUG_MESSAGE("no. of constraints: " << param->get_constraints().size())
+
 	variable_const_iterator begin(var);
 	variable_const_iterator end = begin.make_end();
 
@@ -362,9 +360,8 @@ namespace plugboard
 
 			if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
 			{
-#ifndef NDEBUG
-				std::cout << "[Block] changing type of variable." << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("changing type of variable.")
+
 				var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
 			}
 
@@ -462,4 +459,3 @@ template plugboard::OutPort::store_t* plugboard::Block::get_port_list< plugboard
 template plugboard::InPort::store_t*  plugboard::Block::get_port_list< plugboard::InPort >();
 template plugboard::InPort* plugboard::Block::add_port< plugboard::InPort >(plugboard::InPort*);
 template plugboard::OutPort* plugboard::Block::add_port< plugboard::OutPort >(plugboard::OutPort*);
-

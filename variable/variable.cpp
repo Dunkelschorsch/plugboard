@@ -34,9 +34,12 @@
 
 #include "variable/variable.hpp"
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
+
+#define PB_DEBUG_MESSAGE_COLOUR \033[22;35m
+#define PB_DEBUG_MESSAGE_SOURCE Variable
+
+#include "colour_debug.hpp"
+
 
 using namespace plugboard;
 
@@ -196,10 +199,8 @@ void pimpl< Variable >::implementation::cast()
 	size = numel * typeinfo< newT >::size;
 
 	type = typeinfo< newT >::value;
-#ifndef NDEBUG
-	std::cout << "[Variable] number of variable elements: " << numel << std::endl;
-	std::cout << "[Variable] new variable size (bytes): " << size << std::endl;
-#endif
+	PB_DEBUG_MESSAGE("number of variable elements: " << numel)
+	PB_DEBUG_MESSAGE("new variable size (bytes): " << size)
 }
 
 
@@ -224,9 +225,8 @@ void pimpl< Variable >::implementation::push_back(const T value, const std::tr1:
 
 	if(allocated == numel)
 	{
-#ifndef NDEBUG
-		std::cout << "[Variable] reallocating..." << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("reallocating...")
+
 		data = realloc(data, typeinfo< T >::size * (numel+1));
 		allocated = numel+1;
 	}
@@ -343,34 +343,26 @@ namespace plugboard
 
 		if(old_type == int32)
 		{
-#ifndef NDEBUG
-			std::cout << "[Variable] converting integer->";
-#endif
+			PB_DEBUG_MESSAGE("converting from integer ...")
+
 			if(new_type == real)
 			{
-#ifndef NDEBUG
-				std::cout << "real" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("... to real")
 				impl.cast< int32_t, real_t >();
 			}
 			else if(new_type == complex)
 			{
-#ifndef NDEBUG
-				std::cout << "complex" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("... to complex")
 				impl.cast< int32_t, complex_t >();
 			}
 		}
 		else if(old_type == real)
 		{
-#ifndef NDEBUG
-			std::cout << "[Variable] converting real->";
-#endif
+			PB_DEBUG_MESSAGE("converting from real->")
+
 			if(new_type == complex)
 			{
-#ifndef NDEBUG
-				std::cout << "complex" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("... to complex")
 				impl.cast< real_t, complex_t >();
 			}
 		}

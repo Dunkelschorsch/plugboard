@@ -10,7 +10,12 @@
 #include <boost/python/numeric.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include <iostream>
+
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;32m
+#define PB_DEBUG_MESSAGE_SOURCE configuration
+
+#include "colour_debug.hpp"
+
 
 namespace py = boost::python;
 namespace pb = plugboard;
@@ -44,12 +49,10 @@ void add_block(const std::string& block_type, const std::string& block_name, py:
 {
 	uint32_t num_args = py::len(block_args);
 
-#ifndef NDEBUG
-	std::cout << "[configuration] adding block" << std::endl;
-	std::cout << "[configuration] type: " << block_type << std::endl;
-	std::cout << "[configuration] name: " << block_name << std::endl;
-	std::cout << "[configuration] no. of arguments given: " << num_args << std::endl;
-#endif
+	PB_DEBUG_MESSAGE("adding block")
+	PB_DEBUG_MESSAGE("type: " << block_type)
+	PB_DEBUG_MESSAGE("name: " << block_name)
+	PB_DEBUG_MESSAGE("no. of arguments given: " << num_args)
 
 	pb::block_ptr b(pb::BlockLoader::instance().new_block(block_type));
 	b->call_configure_parameters();
@@ -66,9 +69,9 @@ void add_block(const std::string& block_type, const std::string& block_name, py:
 
 		py::numeric::array a(block_args[param_num]);
 		char typecode = dtypecode(a);
-#ifndef NDEBUG
-		std::cout << "[configuration] found parameter type: " << typecode << std::endl;
-#endif
+
+		PB_DEBUG_MESSAGE("found parameter type: " << typecode)
+
 		switch(typecode)
 		{
 			case 'l':
@@ -109,28 +112,26 @@ void connect_ports(const std::string& source_block_name,
 		const std::string& sink_block_name,
 		const std::string & sink_port_name)
 {
-#ifndef NDEBUG
-	std::cout << "[configuration] connecting blocks " << source_block_name << ":" << source_port_name << "->" 
-		<< sink_block_name << ":" << sink_port_name << std::endl;
-#endif
+	PB_DEBUG_MESSAGE("connecting blocks " << source_block_name << ":" << source_port_name << "->" 
+		<< sink_block_name << ":" << sink_port_name)
+
 	pb::Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
 }
 
 
 void run(uint64_t times)
 {
-#ifndef NDEBUG
-	std::cout << "[configuration] running system " << times << " times" << std::endl;
-	std::cout << "[configuration] initializing..." << std::endl;
-#endif
+	PB_DEBUG_MESSAGE("running system " << times << " times")
+	PB_DEBUG_MESSAGE("initializing...")
+
 	pb::Systems::instance().get_root()->initialize();
-#ifndef NDEBUG
-	std::cout << "[configuration] starting system..." << std::endl;
-#endif
+
+	PB_DEBUG_MESSAGE("starting system...")
+
 	pb::Systems::instance().get_root()->wakeup_sys(times);
-#ifndef NDEBUG
-	std::cout << "[configuration] finalizing system..." << std::endl;
-#endif
+
+	PB_DEBUG_MESSAGE("finalizing system...")
+
 	pb::Systems::instance().get_root()->finalize();
 }
 
@@ -159,3 +160,6 @@ BOOST_PYTHON_MODULE(libplugboard)
 	py::def("connect", &connect_ports);
 	py::def("run", &run);
 }
+
+#undef PB_DEBUG_MESSAGE
+#undef PB_DEBUG_MESSAGE_LOCKED

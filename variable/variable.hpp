@@ -29,10 +29,6 @@
 #ifndef VARIABLE_HPP
 #define VARIABLE_HPP
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include <vector>
 #include "visibility.hpp"
 #include "types/base.hpp"

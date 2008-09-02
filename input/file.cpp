@@ -32,7 +32,7 @@
 #include "grammar/command/policies.hpp"
 #include "grammar/command/actions.hpp"
 
-#ifndef NDEBUG
+#ifdef DUMP_PARSE_TREE
 #include <boost/spirit/tree/tree_to_xml.hpp>
 #include <map>
 #endif
@@ -83,7 +83,7 @@ namespace plugboard
 				parse_tree_match_t hit = d->parser_.parse(scan);
 				if (hit)
 				{
-#ifndef NDEBUG
+#ifdef DUMP_PARSE_TREE
 					// dump ast as XML
 					std::map< parser_id, std::string > rule_names;
 					rule_names[parserID::integer] = "integer";

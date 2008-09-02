@@ -38,8 +38,10 @@
 #include <tr1/memory>
 #include <itpp/signal/filter.h>
 #include <itpp/comm/pulse_shape.h>
+
 #ifndef NDEBUG
 #include <itpp/stat/misc_stat.h>
+#include <iostream>
 #endif
 
 using namespace plugboard;
@@ -49,68 +51,68 @@ template< typename T1, typename T2 >
 class Matched_Filter : public itpp::Filter< T1, T2, T1 >
 {
 public:
-    Matched_Filter(itpp::Vec<T2> coeffs_in, int downsample_factor_in) :
-        coeffs(coeffs_in),
-        downsample_factor(downsample_factor_in),
-	inptr(0)
-    {
-        mem.set_size(coeffs.size(), false) ;
-        mem.clear();
-    }
+	Matched_Filter(itpp::Vec<T2> coeffs_in, int downsample_factor_in) :
+		coeffs(coeffs_in),
+		downsample_factor(downsample_factor_in),
+		inptr(0)
+	{
+		mem.set_size(coeffs.size(), false) ;
+		mem.clear();
+	}
 
-    T1 filter(T1 const sample)
-    {
-        T1 output = 0;
-        mem(inptr) = sample;
+	T1 filter(T1 const sample)
+	{
+		T1 output = 0;
+		mem(inptr) = sample;
 
-        int L = mem.length() - inptr;
+		int L = mem.length() - inptr;
 
-        for (int i = 0; i < L; i++)
-        {
-            output += coeffs(i) * mem(inptr + i);
-        }
+		for (int i = 0; i < L; i++)
+		{
+			output += coeffs(i) * mem(inptr + i);
+		}
 
-        for (int i = 0; i < inptr; i++) {
-            output += coeffs(L + i) * mem(i);
-        }
+		for (int i = 0; i < inptr; i++) {
+			output += coeffs(L + i) * mem(i);
+		}
 
-        inptr--;
-        if (inptr < 0)
-            inptr += mem.length();
+		inptr--;
+		if (inptr < 0)
+			inptr += mem.length();
 
-        return output;
-    }
+		return output;
+	}
 
-    itpp::Vec<T1> operator()(itpp::Vec<T1> const& v)
-    {
-        itpp::Vec<T1> output(v.size()/downsample_factor);
-        for(int i=0; i<output.size(); i++)
-        {
-               output(i) = filter(v(i*downsample_factor));
+	itpp::Vec<T1> operator()(itpp::Vec<T1> const& v)
+	{
+		itpp::Vec<T1> output(v.size()/downsample_factor);
+		for(int i=0; i<output.size(); i++)
+		{
+			   output(i) = filter(v(i*downsample_factor));
 
-               for(unsigned int j=1; j<downsample_factor; j++)
-               {
-                    put_sample(v(i*downsample_factor + j));
-               }
-        }
-        return output;
-    }
+			   for(unsigned int j=1; j<downsample_factor; j++)
+			   {
+					put_sample(v(i*downsample_factor + j));
+			   }
+		}
+		return output;
+	}
 
 private:
-    const itpp::Vec<T2> coeffs;
-    itpp::Vec<T1> mem;
+	const itpp::Vec<T2> coeffs;
+	itpp::Vec<T1> mem;
 
-    const unsigned int downsample_factor;
-    int inptr;
+	const unsigned int downsample_factor;
+	int inptr;
 
-    void put_sample(T1 const sample)
-    {
-        mem(inptr) = sample;
+	void put_sample(T1 const sample)
+	{
+		mem(inptr) = sample;
 
-        inptr--;
-        if (inptr < 0)
-            inptr += mem.length();
-    }
+		inptr--;
+		if (inptr < 0)
+			inptr += mem.length();
+	}
 };
 
 
@@ -215,7 +217,7 @@ void PlugBoardBlock::process()
 	std::cout << *in_vector_ << std::endl;
 #endif
 
-        *out_vector_ = (*mf)(*in_vector_);
+	*out_vector_ = (*mf)(*in_vector_);
 
 #ifndef NDEBUG
 	std::cout << " samples out(" << out_vector_->size() << "): " ;

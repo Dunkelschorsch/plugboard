@@ -1,10 +1,6 @@
 #include "block/block_ptr.hpp"
 #include "block/block.hpp"
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 
 int plugboard::intrusive_ptr_add_ref(plugboard::Source const*)
 {

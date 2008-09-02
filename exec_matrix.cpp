@@ -30,10 +30,6 @@
 #include <boost/thread/mutex.hpp>
 #include <algorithm>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include "exec_matrix.hpp"
 #include "exec_stage.hpp"
 #include "block/sink.hpp"
@@ -41,6 +37,10 @@
 
 // this one is declared in main.cpp
 extern boost::mutex pb_io_mutex;
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;33m
+#define PB_DEBUG_MESSAGE_SOURCE ExecutionMatrix
+
+#include "colour_debug.hpp"
 
 using boost::bind;
 using namespace plugboard;
@@ -124,7 +124,7 @@ struct FindStartBlock
 	{
 #ifndef NDEBUG
 		if(boost::dynamic_pointer_cast< const Source >(b.second))
-		std::cout << "[ExecMatrix] Adding " << b.second->get_name_sys() << " to start blocks." << std::endl;
+		PB_DEBUG_MESSAGE("Adding " << b.second->get_name_sys() << " to start blocks.")
 #endif
 		return boost::dynamic_pointer_cast< const Source >(b.second) ?  false : true;
 	}
@@ -182,9 +182,8 @@ void ExecutionMatrixImpl::add_block(block_ptr b)
 	assert(b != NULL);
 	if(boost::dynamic_pointer_cast< const Source >(b))
 	{
-#ifndef NDEBUG
-		std::cout << "[ExecMatrix] This is a source block!" << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("This is a source block!")
+
 		stages.insert(stages.begin(), ExecutionStage(b));
 	}
 	else
@@ -299,27 +298,25 @@ void ExecutionMatrix::combine_stages()
 	{
 		while(++stage_next != impl.stages.end())
 		{
-#ifndef NDEBUG
-			std::cout << "[ExecMatrix] " << *this << std::endl;
-			std::cout << "[ExecMatrix] current stage: " << std::endl << *stage_curr << std::endl;
-			std::cout << "[ExecMatrix] next stage: " << std::endl << *stage_next << std::endl;
-#endif
+			PB_DEBUG_MESSAGE("setup looks like this:" << std::endl << *this)
+			PB_DEBUG_MESSAGE("current stage: " << std::endl << *stage_curr)
+			PB_DEBUG_MESSAGE("next stage: " << std::endl << *stage_next)
+
 			if(is_right_terminated(stage_curr->get_paths().back()))
 			{
 				// nothing more to do here
 				++stage_curr;
-#ifndef NDEBUG
-				std::cout << "[ExecMatrix] stage finished" << std::endl;
-#endif
+
+				PB_DEBUG_MESSAGE("stage finished")
+
 				continue;
 			}
 
 			if(is_left_terminated((stage_next)->get_paths().front()))
 			{
 				// more luck with the next stage?
-#ifndef NDEBUG
-				std::cout << "[ExecMatrix] stage finished" << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("stage finished")
+
 				continue;
 			}
 
@@ -329,10 +326,10 @@ void ExecutionMatrix::combine_stages()
 
 			const std::set< std::string > connections_curr
 				= boost::dynamic_pointer_cast< const Source >(block_curr)->get_connections();
-#ifndef NDEBUG
-			std::cout << "[ExecMatrix] checking if block '" << block_curr->get_name_sys() << "' is connected to '";
-			std::cout << block_next->get_name_sys() << "' " << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("checking if block '" << block_curr->get_name_sys() << "' is connected to '" <<
+				block_next->get_name_sys() << "' ")
+
 			// if there is a connection move the block on the next stage to the current one
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
@@ -363,19 +360,17 @@ void ExecutionMatrix::parallelize()
 		{
 			const block_ptr block_curr = path_it->back();
 			assert(block_curr != block_ptr());
-#ifndef NDEBUG
-			std::cout << "[ExecMatrix] '" << block_curr->get_name_sys() << "' connected to ";
-#endif
+
+			PB_DEBUG_MESSAGE("'" << block_curr->get_name_sys() << "' connected to ...")
+
 			const block_ptr block_next = (stage_next)->get_paths().front().front();
 			assert(block_next != block_ptr());
-#ifndef NDEBUG
-			std::cout << "'" << block_next->get_name_sys() << "'? " << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("... '" << block_next->get_name_sys() << "'? ")
+
 			if(not boost::dynamic_pointer_cast< const Source >(block_curr))
 			{
-#ifndef NDEBUG
-				std::cout << "[ExecMatrix] No. Continue checking..." << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("No. Continue checking...")
 				++path_it;
 				continue;
 			}
@@ -386,17 +381,13 @@ void ExecutionMatrix::parallelize()
 			if(connections_curr.find(block_next->get_name_sys()) != connections_curr.end())
 			{
 				// no parallelization possible
-#ifndef NDEBUG
-				std::cout << "[ExecMatrix] Yes. Proceed to next stage." << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("Yes. Proceed to next stage.")
 				++stage_curr;
 				break;
 			}
 			else
 			{
-#ifndef NDEBUG
-				std::cout << "[ExecMatrix] No. Continue checking..." << std::endl;
-#endif
+				PB_DEBUG_MESSAGE("No. Continue checking...")
 				++path_it;
 			}
 
@@ -404,14 +395,13 @@ void ExecutionMatrix::parallelize()
 
 		if(path_it == stage_curr->get_paths().end())
 		{
-#ifndef NDEBUG
-			std::cout << "[ExecMatrix] Moving path..." << std::endl;
-#endif
+			PB_DEBUG_MESSAGE("Moving path...")
+
 			stage_curr->add_path(stage_next->get_paths().front());
 			impl.stages.erase(stage_next);
-#ifndef NDEBUG
-			std::cout << "[ExecMatrix] " << *this << std::endl;
-#endif
+
+			PB_DEBUG_MESSAGE("setup looks like this:" << std::endl << *this)
+
 			stage_next = stage_curr;
 		}
 	}

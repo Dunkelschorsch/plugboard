@@ -132,3 +132,4 @@ signal/signal_ptr.cpp
 signal/signal_ptr.hpp
 plugboard_py.cpp
 plugboard.py
+colour_debug.hpp

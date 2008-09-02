@@ -37,6 +37,10 @@
 
 #include <itpp/comm/channel.h>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
 using namespace plugboard;
 
 class PlugBoardBlock : public Block, public Sink, public Source

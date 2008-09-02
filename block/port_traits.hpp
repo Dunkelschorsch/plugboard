@@ -29,14 +29,14 @@
 #ifndef PORT_TRAITS_HPP
 #define PORT_TRAITS_HPP
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 #include "exception/port.hpp"
 #include "block/source.hpp"
 #include "block/sink.hpp"
 
+#define PB_DEBUG_MESSAGE_COLOUR \033[22;36m
+#define PB_DEBUG_MESSAGE_SOURCE PortTraits
+
+#include "colour_debug.hpp"
 
 namespace plugboard
 {
@@ -73,7 +73,6 @@ namespace plugboard
 	}
 
 
-
 	// specialization for output ports
 	template< >
 	struct PortTraits< OutPort >
@@ -88,16 +87,14 @@ namespace plugboard
 
 	template< class IteratorT, typename PointerT >
 	OutPort* PortTraits< OutPort >::name_exists_action
-#ifndef NDEBUG
+#ifdef DEBUG_CORE
 		(IteratorT it, OutPort * const p, const PointerT * const self)
 #else
 		(IteratorT it, OutPort * const p, const PointerT * const)
 #endif
 	{
-#ifndef NDEBUG
-		std::cout << "[OutPort] " << self->get_name_sys() <<
-			".add_port(OutPort*): setting output port type to: " << p->get_type() << std::endl;
-#endif
+		PB_DEBUG_MESSAGE(self->get_name_sys() << ".add_port(OutPort*): setting output port type to: " << p->get_type())
+
 		type_t t = p->get_type();
 		real_t Ts = p->get_Ts();
 		int32_t framesize = p->get_frame_size();
@@ -122,5 +119,11 @@ namespace plugboard
 		dynamic_cast< Source* >(self)->num_output_ports_++;
 	}
 } // namespace plugboard
+
+
+#undef PB_DEBUG_MESSAGE_COLOUR
+#undef PB_DEBUG_MESSAGE_SOURCE
+#undef PB_DEBUG_MESSAGE
+#undef PB_DEBUG_MESSAGE_LOCKED
 
 #endif // PORT_TRAITS_HPP

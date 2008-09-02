@@ -33,9 +33,10 @@
 
 #include <cassert>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
+#define PB_DEBUG_MESSAGE_COLOUR \033[22;36m
+#define PB_DEBUG_MESSAGE_SOURCE OutPort
+
+#include "colour_debug.hpp"
 
 
 namespace plugboard
@@ -76,11 +77,12 @@ namespace plugboard
 		other.set_type(get_type());
 		other.set_frame_size(get_frame_size());
 
-#ifndef NDEBUG
-		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating signal type: " << get_type() << std::endl;
-		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating sample time: " << get_Ts() << std::endl;
-		std::cout << "[OutPort] " << get_owner_block_name() << ".connect(): port '" << get_name() << "' propagating frame size:  " << get_frame_size() << std::endl;
-#endif
+		PB_DEBUG_MESSAGE("   " << get_owner_block_name() << ".connect(): port '" << get_name() <<
+			"' propagating signal type: " << get_type())
+		PB_DEBUG_MESSAGE("   " << get_owner_block_name() << ".connect(): port '" << get_name() <<
+			"' propagating sample time: " << get_Ts())
+		PB_DEBUG_MESSAGE("   " << get_owner_block_name() << ".connect(): port '" << get_name() <<
+			"' propagating frame size:  " << get_frame_size())
 
 		set_signal_buffer_id(signal_buffer_id);
 
@@ -95,3 +97,4 @@ namespace plugboard
 		set_signal_ptr(0);
 	}
 } // namespace plugboard
+

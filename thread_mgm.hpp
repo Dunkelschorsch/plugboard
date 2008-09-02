@@ -17,6 +17,7 @@ namespace plugboard
 	
 		void new_thread_from_path(const ExecutionStage::path_t&);
 	
+		void run();
 		void continue_all();
 		void sync_pre_process() const;
 		void sync_post_process() const;

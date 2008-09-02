@@ -36,8 +36,10 @@
 #include "constraint.hpp"
 
 #include <itpp/comm/pulse_shape.h>
+
 #ifndef NDEBUG
 #include <itpp/stat/misc_stat.h>
+#include <iostream>
 #endif
 
 using namespace plugboard;

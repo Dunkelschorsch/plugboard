@@ -32,6 +32,12 @@
 #include <cassert>
 #include <boost/iterator/iterator_facade.hpp>
 
+#define PB_DEBUG_MESSAGE_COLOUR \033[22;35m
+#define PB_DEBUG_MESSAGE_SOURCE VariableIterator
+
+#include "colour_debug.hpp"
+
+
 namespace plugboard
 {
 	template< typename T, class VarType=Variable >
@@ -74,10 +80,9 @@ namespace plugboard
 					return;
 				}
 				value_ = static_cast< T** >(var_.data())[pos_++];
-#ifndef NDEBUG
-				std::cout << "[Variable] size: " << var_.size() << std::endl;
-				std::cout << "[Variable] fetching value...'" << *value_ << "'" << std::endl;
-#endif
+
+				PB_DEBUG_MESSAGE("size: " << var_.size())
+				PB_DEBUG_MESSAGE("fetching value: '" << *value_ << "'")
 			}
 			else
 				value_ = &static_cast< T* >(var_.data())[pos_++];
@@ -98,5 +103,10 @@ namespace plugboard
 		size_t pos_;
 	};
 } // namespace plugboard
+
+#undef PB_DEBUG_MESSAGE_COLOUR
+#undef PB_DEBUG_MESSAGE_SOURCE
+#undef PB_DEBUG_MESSAGE
+#undef PB_DEBUG_MESSAGE_LOCKED
 
 #endif // VARIABLE_ITERATOR_HPP

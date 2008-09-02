@@ -37,6 +37,9 @@
 
 #include <itpp/comm/modulator.h>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 using namespace plugboard;
 

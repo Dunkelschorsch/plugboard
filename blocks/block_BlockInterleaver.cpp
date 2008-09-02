@@ -38,6 +38,9 @@
 
 #include <itpp/comm/interleave.h>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 using namespace plugboard;
 

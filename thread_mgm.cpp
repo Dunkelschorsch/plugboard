@@ -1,11 +1,12 @@
 #include "thread_mgm.hpp"
 #include <boost/bind.hpp>
-#ifndef NDEBUG
-#include <iostream>
-#endif
 
-// this one is declared in main.cpp
 extern boost::mutex pb_io_mutex;
+#define PB_DEBUG_MESSAGE_COLOUR \033[01;33m
+#define PB_DEBUG_MESSAGE_SOURCE ThreadMgm
+
+#include "colour_debug.hpp"
+
 
 namespace plugboard
 {
@@ -17,47 +18,31 @@ namespace plugboard
 
 	Boss::Boss(boost::thread_group& tt, ExecutionStage* stage) : tt_(&tt), stage_(stage), shutdown_(false)
 	{
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "creating rendezvous points for " << stage_->get_paths().size() << " threads." << std::endl;
-		}
-#endif
+		PB_DEBUG_MESSAGE("creating rendezvous points for " << stage_->get_paths().size() << " threads.")
 
 		before_process = new boost::barrier(1 + stage_->get_paths().size());
 		after_process = new boost::barrier(1 + stage_->get_paths().size());
 
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "creating manager object." << std::endl;
-		}
-#endif
+		PB_DEBUG_MESSAGE("constructed manager object.")
 	}
 
 
 	void Boss::new_thread_from_path(const ExecutionStage::path_t &path)
 	{
+		PB_DEBUG_MESSAGE("adding path to threads" << std::endl << *stage_)
 		tt_->create_thread(Worker(boost::bind(&ExecutionStage::exec_path, stage_, path), *this, id++));
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "adding path to threads" << std::endl;
-		}
-		std::cout << *stage_ << std::endl;
-#endif
 	}
 
+	void plugboard::Boss::run( )
+	{
+		continue_all();
+		sync_post_process();
+	}
 
 	void Boss::continue_all()
 	{
 		assert(tt_ != NULL);
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "Manager wakes up all worker threads!" << std::endl;
-		}
-#endif
+
 		sync_pre_process();
 	}
 
@@ -78,12 +63,9 @@ namespace plugboard
 	{
 		shutdown_ = true;
 		sync_pre_process();
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "waiting for all threads to terminate." << std::endl;
-		}
-#endif
+
+		PB_DEBUG_MESSAGE_LOCKED("waiting for all threads to terminate.")
+
 		tt_->join_all();
 
 		delete before_process;
@@ -105,47 +87,20 @@ namespace plugboard
 
 	void Worker::operator()() const
 	{
-#ifndef NDEBUG
-		{
-			const boost::mutex::scoped_lock lock(pb_io_mutex);
-			std::cout << "Worker " << id_ << " started!" << std::endl;
-		}
-#endif
+		PB_DEBUG_MESSAGE_LOCKED("Worker " << id_ << " started!")
 
 		while(1)
 		{
-#ifndef NDEBUG
-			{
-				const boost::mutex::scoped_lock lock(pb_io_mutex);
-				std::cout << "Worker " << id_ << " waiting at pre-process barrier!" << std::endl;
-			}
-#endif
 			boss_.sync_pre_process();
 
 			if(boss_.must_shutdown())
 			{
-#ifndef NDEBUG
-				{
-					const boost::mutex::scoped_lock lock(pb_io_mutex);
-					std::cout << "Worker " << id_ << " exiting!" << std::endl;
-				}
-#endif
+				PB_DEBUG_MESSAGE_LOCKED("Worker " << id_ << " exiting!")
 				return;
 			}
 
-#ifndef NDEBUG
-			{
-				const boost::mutex::scoped_lock lock(pb_io_mutex);
-				std::cout << "Worker " << id_ << " working..." << std::endl;
-			}
-#endif
 			f_();
-#ifndef NDEBUG
-			{
-				const boost::mutex::scoped_lock lock(pb_io_mutex);
-				std::cout << "Worker " << id_ << " waiting at post-process barrier!" << std::endl;
-			}
-#endif
+
 			boss_.sync_post_process();
 		}
 	}
