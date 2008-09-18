@@ -22,6 +22,8 @@
 
 PROJECT(PLUGBOARD)
 
+cmake_minimum_required(VERSION 2.3)
+
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules )
 
 SET(CMAKE_CC_FLAGS "-Wall -pipe -fvisibility=hidden" CACHE STRING "This is appended to the C++ flags of each mode.")
