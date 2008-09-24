@@ -57,12 +57,30 @@ struct Scrambler
 		return c_n_imag_;
 	}
 
+	const itpp::Vec< complex_t > get_scrambling_sequence(uint32_t samples)
+	{
+		if(start_output_ + samples > seq_len_)
+		{
+			itpp::Vec< complex_t > z(Z_(start_output_, -1));
+			uint32_t samples_left = samples - (seq_len_ - start_output_ + 1);
+			start_output_ = 0;
+			return itpp::concat(z, this->get_scrambling_sequence(samples_left));
+		}
+		else
+		{
+			itpp::Vec< complex_t > z(Z_(start_output_, start_output_ + samples-1));
+			start_output_ += samples;
+			return z;
+		}
+	}
+
 protected:
-	Scrambler() : seq_num_(0), seq_len_(0) { }
+	Scrambler() : seq_num_(0), seq_len_(0), start_output_(0) { }
 
 	Scrambler(uint32_t seq_len, uint32_t seq_num) :
 		seq_num_(seq_num),
 		seq_len_(seq_len),
+		start_output_(0),
 		c_n_real_(itpp::Vec< int8_t >(seq_len_)),
 		c_n_imag_(itpp::Vec< int8_t >(seq_len_)),
 		c_1_n_(itpp::Vec< int8_t >(seq_len_)),
@@ -81,7 +99,7 @@ protected:
 		return p & ((2 << (n - 1)) - 1);
 	}
 
-	uint32_t seq_num_, seq_len_;
+	uint32_t seq_num_, seq_len_, start_output_;
 
 	itpp::Vec< int8_t > c_n_real_;
 	itpp::Vec< int8_t > c_n_imag_;

@@ -58,7 +58,7 @@ private:
 	int32_vec_t framesize_;
 	real_vec_t Ts_;
 
-	int32_vec_t sequence_length_, sequence_number_, offset_;
+	int32_vec_t sequence_number_, offset_;
 
 	itpp::cvec Z;
 
@@ -70,7 +70,7 @@ private:
 
 PlugBoardBlock::PlugBoardBlock()
 {
-	set_name("UMTS Long Uplink Scrambler");
+	set_name("UMTSLongUplinkScrambler");
 	set_description("Creates Long UMTS Uplink Scrambling sequences");
 }
 
@@ -82,10 +82,6 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< GreaterThanConstraint >(0)
-		->add_constraint(SizeConstraint(1));
-
-	add_parameter(&sequence_length_, "Scrambling sequence length")
 		->add_constraint< GreaterThanConstraint >(0)
 		->add_constraint(SizeConstraint(1));
 
@@ -116,7 +112,7 @@ void PlugBoardBlock::initialize()
 
 void PlugBoardBlock::process()
 {
-	*c_vector_ = s.get_scrambling_sequence();
+	*c_vector_ = s.get_scrambling_sequence(framesize_[0]);
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " generated: " << *c_vector_ << std::endl;
