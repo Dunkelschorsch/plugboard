@@ -35,6 +35,7 @@ foreach(
 	ConvolutionalDecoder
 	ConvolutionalEncoder
 	Fork
+	ITWrite
 	MPSKDemodulator
 	MPSKModulator
 	RaisedCosineReceive
