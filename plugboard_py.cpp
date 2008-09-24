@@ -24,7 +24,7 @@ boost::mutex pb_io_mutex;
 
 void load_blocks(const std::string& path)
 {
-	pb::BlockLoader::instance().load_dir(path);
+	pb::BlockLoader::instance().load_dir(path, true);
 }
 
 
