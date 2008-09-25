@@ -37,8 +37,9 @@
 
 #include <itpp/itbase.h>
 
+#ifndef NDEBUG
 #include <iostream>
-#include <cstdio>
+#endif
 
 using namespace plugboard;
 
