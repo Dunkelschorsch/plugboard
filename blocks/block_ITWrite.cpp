@@ -55,6 +55,7 @@ private:
 	void setup_input_ports();
 
 	void initialize();
+	void finalize();
 
 	// signals
 	const InPort *sig_in1_;
@@ -62,7 +63,7 @@ private:
 
 	type_t input_type_;
 
-	std::vector< std::string > filename_;
+	std::vector< std::string > filename_, var_name_;
 	itpp::it_file file_;
 };
 
@@ -77,6 +78,9 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 void PlugBoardBlock::configure_parameters( )
 {
 	add_parameter(&filename_, "Filename to save")
+		->add_constraint(SizeConstraint(1));
+
+	add_parameter(&var_name_, "Name of variable to save")
 		->add_constraint(SizeConstraint(1));
 }
 
@@ -110,17 +114,16 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
 #endif
-	using itpp::Name;
-	file_ << Name("data", "Data") << *static_cast< const itpp::Vec<T>* >(v_in_);
+	file_ << itpp::Name(var_name_[0], "Data") << *static_cast< const itpp::Vec<T>* >(v_in_);
 }
 
 
 template< typename T >
-void PlugBoardBlock::dynamic_delete()
+void PlugBoardBlock::dynamic_delete() { }
+
+
+void PlugBoardBlock::finalize()
 {
-#ifndef NDEBUG
-	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
-#endif
 	file_.flush();
 	file_.close();
 }
