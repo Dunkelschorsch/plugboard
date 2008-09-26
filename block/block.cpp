@@ -104,7 +104,6 @@ BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 #undef BOOST_PP_DEF
 }
 
-
 template< class TargetT >
 class CheckValueConstraintAction
 {
@@ -118,7 +117,7 @@ public:
 
 		if(c)
 		{
-			PB_DEBUG_MESSAGE("checking constraint...");
+			PB_DEBUG_MESSAGE("checking value constraint...");
 
 			bool passed = c->check(e_);
 			if(c->is_negative())
@@ -151,9 +150,10 @@ public:
 	{
 		const VariableConstraint* c =
 			boost::dynamic_pointer_cast< const VariableConstraint >(cb).get();
+
 		if(c)
 		{
-			PB_DEBUG_MESSAGE("checking constraint...");
+			PB_DEBUG_MESSAGE("checking variable constraint...");
 
 			bool passed = c->check(var_);
 			if(c->is_negative())
@@ -161,7 +161,14 @@ public:
 
 			if(not passed)
 			{
+				PB_DEBUG_MESSAGE("... aww!")
+
+				// TODO come up with proper exceptions here
 				cb->throw_exception();
+			}
+			else
+			{
+				PB_DEBUG_MESSAGE("... yay!")
 			}
 		}
 	}

@@ -20,6 +20,10 @@
 #
 # ----------------------------------------------------------------------------
 
+from sys import setdlopenflags;
+import dl;
+
+setdlopenflags(dl.RTLD_GLOBAL)
 
 import libplugboard
 import numpy
@@ -27,7 +31,6 @@ import numpy
 libplugboard.load_blocks("blocks")
 
 def add_block(block_type, block_name, *block_arguments):
-	
 	arguments = list()
 	for i in block_arguments:
 		arguments.append(numpy.atleast_1d(i))

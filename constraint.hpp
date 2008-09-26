@@ -58,7 +58,7 @@ namespace plugboard
 	{
 	public:
 		virtual ~ConstraintBase() { }
-		inline void throw_exception() const { return do_throw_exception(); }
+		void throw_exception() const { return do_throw_exception(); }
 
 	private:
 		virtual void do_throw_exception() const = 0;
@@ -76,7 +76,7 @@ namespace plugboard
 		explicit ValueConstraint(bool negative=false) : negative_(negative) { }
 		virtual ~ValueConstraint() { }
 
-		inline result_type check(argument_type arg) const { return do_check(arg); }
+		result_type check(argument_type arg) const { return do_check(arg); }
 		bool is_negative() const { return negative_; }
 
 		bool negative_;
@@ -94,7 +94,7 @@ namespace plugboard
 		explicit VariableConstraint(bool negative=false) : negative_(negative) { }
 		virtual ~VariableConstraint() { }
 
-		inline result_type check(const Variable& var) const { return do_check(var); }
+		result_type check(const Variable& var) const { return do_check(var); }
 		bool is_negative() const { return negative_; }
 
 	private:
@@ -118,7 +118,7 @@ namespace plugboard
 	private:	
 		void do_throw_exception() const
 		{
-			throw ConstraintTestException("blah!");
+			throw ConstraintTestException("SizeConstraint");
 		}
 
 		result_type do_check(const Variable& var) const
@@ -145,7 +145,7 @@ namespace plugboard
 
 		void do_throw_exception() const
 		{
-			throw ConstraintTestException("blah!");
+			throw ConstraintTestException("NullConstraint");
 		}
 	};
 
@@ -166,7 +166,7 @@ namespace plugboard
 	private:
 		void do_throw_exception() const
 		{
-			throw ConstraintTestException("blah!");
+			throw ConstraintTestException("LessThanConstraint");
 		}
 
 		result_type do_check(argument_type arg) const
@@ -194,7 +194,7 @@ namespace plugboard
 	private:
 		void do_throw_exception() const
 		{
-			throw ConstraintTestException("blah!");
+			throw ConstraintTestException("GreaterThanConstraint");
 		}
 
 		result_type do_check(argument_type arg) const
@@ -222,7 +222,7 @@ namespace plugboard
 	private:
 		void do_throw_exception() const
 		{
-			throw ConstraintTestException("blah!");
+			throw ConstraintTestException("ModuloConstraint");
 		}
 
 		result_type do_check(argument_type arg) const
