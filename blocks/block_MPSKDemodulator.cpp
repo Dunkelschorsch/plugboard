@@ -69,6 +69,7 @@ private:
 
 	int32_vec_t M_;
 	int32_vec_t soft_demod_;
+	real_vec_t N_0_;
 
 	itpp::PSK mod;
 };
@@ -94,6 +95,9 @@ void PlugBoardBlock::configure_parameters()
 
 	add_parameter(&M_, "M")
 		->add_constraint< GreaterThanConstraint >(0)
+		->add_constraint(SizeConstraint(1));
+
+	add_parameter(&N_0_, "N_0")
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&soft_demod_, "Soft Demodulation")
@@ -139,9 +143,8 @@ void PlugBoardBlock::process()
 #endif
 	if(soft_demod_[0] == 1)
 	{
-		mod.demodulate_soft_bits(*symbol_vector_, 1, *static_cast< itpp::Vec< real_t >* >(bits_v_));
+		mod.demodulate_soft_bits(*symbol_vector_, N_0_[0], *static_cast< itpp::Vec< real_t >* >(bits_v_));
 #ifndef NDEBUG
-
 		std::cout << static_cast< itpp::Vec< real_t >* >(bits_v_)->size() << "): " <<
 			*static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;
 #endif
@@ -149,7 +152,6 @@ void PlugBoardBlock::process()
 	else {
 		*static_cast< itpp::Vec< int32_t >* >(bits_v_) = to_ivec(mod.demodulate_bits(*symbol_vector_));
 #ifndef NDEBUG
-
 		std::cout << static_cast< itpp::Vec< int32_t >* >(bits_v_)->size() << "): " <<
 			*static_cast< itpp::Vec< int32_t >* >(bits_v_) << std::endl;
 #endif
