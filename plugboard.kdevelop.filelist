@@ -135,3 +135,5 @@ plugboard.py
 colour_debug.hpp
 colour_debug.hpp
 blocks/block_ITWrite.cpp
+blocks/block_TurboEncoder.cpp
+blocks/block_TurboDecoder.cpp

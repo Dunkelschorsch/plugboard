@@ -42,6 +42,8 @@ foreach(
 	RaisedCosineTransmit
 	RandomUniformBitGenerator
 	StdoutSink
+	TurboDecoder
+	TurboEncoder
 )
 	add_library (block_${blockname} SHARED block_${blockname}.cpp)
 	target_link_libraries (block_${blockname} block_common ${ITPP})
