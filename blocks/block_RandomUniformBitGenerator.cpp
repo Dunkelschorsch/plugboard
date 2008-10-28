@@ -39,6 +39,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <itpp/itbase.h>
+#include <algorithm>
 
 using namespace plugboard;
 
@@ -120,12 +121,12 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 #endif
-	uint32_t s = framesize_[0];
-	for(uint32_t i=0; i < s; i++)
-	{
-		i_array_[i] = (*make_bit)();
-	}
-
+	std::generate
+	(
+		i_array_,
+		i_array_ + framesize_[0],
+		*make_bit
+	);
 #ifndef NDEBUG
 	print_vector_with_length("generated", i_vector_);
 #endif
