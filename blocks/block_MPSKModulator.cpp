@@ -68,7 +68,11 @@ private:
 	real_vec_t Ts_;
 
 	int32_vec_t M_;
+
 	itpp::PSK mod;
+
+	uint8_t pad_bits_;
+	itpp::ivec pad_vec_;
 };
 
 
@@ -103,8 +107,17 @@ void PlugBoardBlock::setup_input_ports()
 
 void PlugBoardBlock::setup_output_ports()
 {
+	uint8_t bits_per_symbol = static_cast< unsigned int >(log2(M_[0]));
+	pad_bits_ = (bits_per_symbol - (bits_in_->get_frame_size() % bits_per_symbol)) % bits_per_symbol;
+
+	for(uint8_t i=0; i<pad_bits_; i++)
+	{
+		pad_vec_ = concat(pad_vec_, 0);
+	}
+
 	symbols_out_ = add_port(new OutPort("symbols", complex, bits_in_->get_Ts(),
-		bits_in_->get_frame_size()/static_cast< unsigned int >(log2(M_[0]))));
+		(bits_in_->get_frame_size()+pad_bits_)/bits_per_symbol));
+
 }
 
 
@@ -120,15 +133,19 @@ void PlugBoardBlock::initialize()
 void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " bits(" << bit_vector_->size() << "): ";
-	std::cout << *bit_vector_ << std::endl;
+	std::cout << get_name_sys() << std::endl;
+	print_vector_with_length("bits", bit_vector_);
 #endif
-
-	mod.modulate_bits(to_bvec(*bit_vector_), *symbol_vector_);
-
+	if(pad_bits_ != 0)
+	{
+		mod.modulate_bits(to_bvec(concat(*bit_vector_, pad_vec_)), *symbol_vector_);
+	}
+	else
+	{
+		mod.modulate_bits(to_bvec(*bit_vector_), *symbol_vector_);
+	}
 #ifndef NDEBUG
-	std::cout << " symobls(" << symbol_vector_->size() << "): ";
-	std::cout << *symbol_vector_ << std::endl;
+	print_vector_with_length("symobls", symbol_vector_);
 #endif
 }
 
