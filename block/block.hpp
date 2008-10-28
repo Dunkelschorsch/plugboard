@@ -37,6 +37,10 @@
 #include "types/base.hpp"
 #include "block/block_ptr.hpp"
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
+
 /** \brief The Block class
  *
  *  A more elaborate description.
@@ -112,6 +116,14 @@ namespace plugboard
 		int add_ref();
 		int release();
 	};
+
+#ifndef NDEBUG
+	template< class T >
+	void print_vector_with_length(const std::string& name, const T* vec)
+	{
+		std::cout << " " << name << "(" << vec->length() << "): " << *vec << std::endl;
+	}
+#endif
 } // namespace plugboard
 
 #endif // BLOCK_HPP

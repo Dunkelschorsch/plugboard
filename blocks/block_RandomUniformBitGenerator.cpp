@@ -127,7 +127,7 @@ void PlugBoardBlock::process()
 	}
 
 #ifndef NDEBUG
-	std::cout << " generated: " << *i_vector_ << std::endl;
+	print_vector_with_length("generated", i_vector_);
 #endif
 }
 

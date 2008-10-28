@@ -152,13 +152,15 @@ void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
-	std::cout << " input(" << in_vector_->length() << "): " << *in_vector_ << std::endl;
+	print_vector_with_length("input", in_vector_);
 #endif
+
 	itpp::bvec out_tmp;
 	code.decode(*in_vector_, out_tmp);
 	*out_vector_ = to_ivec(out_tmp);
+
 #ifndef NDEBUG
-	std::cout << " decoded(" << out_vector_->length() << "): " << *out_vector_ << std::endl;
+	print_vector_with_length("decoded", out_vector_);
 #endif
 }
 

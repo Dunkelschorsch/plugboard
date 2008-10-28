@@ -106,8 +106,8 @@ void PlugBoardBlock::process()
 #ifndef NDEBUG
 	std::cout << get_name_sys() << std::endl;
 
-	std::cout << " rx: " << *rx_vec << std::endl;
-	std::cout << " tx: " << *tx_vec << std::endl;
+	print_vector_with_length("rx", rx_vec);
+	print_vector_with_length("tx", tx_vec);
 #endif
 	berc.count(to_bvec(*tx_vec), to_bvec(*rx_vec));
 }

@@ -121,15 +121,14 @@ void PlugBoardBlock::initialize()
 void PlugBoardBlock::process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " symbols in: " ;
-	std::cout << *in_vector_ << std::endl;
+	std::cout << get_name_sys() << std::endl;
+	print_vector_with_length("symbols in", in_vector_);
 #endif
 
 	*out_vector_ = awgn(*in_vector_);
 
 #ifndef NDEBUG
-	std::cout << " symbols out: " ;
-	std::cout << *out_vector_ << std::endl;
+	print_vector_with_length("symbols out", out_vector_);
 #endif
 }
 
