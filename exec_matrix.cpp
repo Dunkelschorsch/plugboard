@@ -124,7 +124,9 @@ struct FindStartBlock
 	{
 #ifndef NDEBUG
 		if(boost::dynamic_pointer_cast< const Source >(b.second))
-		PB_DEBUG_MESSAGE("Adding " << b.second->get_name_sys() << " to start blocks.")
+		{
+			PB_DEBUG_MESSAGE("Adding " << b.second->get_name_sys() << " to start blocks.")
+		}
 #endif
 		return boost::dynamic_pointer_cast< const Source >(b.second) ?  false : true;
 	}
