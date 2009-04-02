@@ -117,25 +117,22 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 	uint32_t block_count = 0;
 	implementation const& impl = **this;
 
-	fs::path block_path(fs::initial_path());
-	block_path = fs::system_complete(fs::path(dir, fs::native));
-
-	const fs::directory_iterator last_lib_file;
-	fs::directory_iterator block_iter(block_path);
-
 	bool verbose_plugin_load = boost::any_cast< bool >(Environment::instance().get("verbose_plugin_load"));
+
+	fs::directory_iterator block_iter(fs::system_complete(fs::path(dir, fs::native)));
+	const fs::directory_iterator last_lib_file;
 
 	for(/*no init*/; block_iter != last_lib_file; ++block_iter)
 	{
-		if (fs::is_directory(*block_iter))
+		if (fs::is_directory(block_iter->status()))
 		{
 			if (recursive)
-				block_count += load_dir((block_path/block_iter->leaf()).native_directory_string());
+				block_count += load_dir((block_iter->path()).directory_string());
 			else
 				continue;
 		}
 
-		std::string block_file_curr = (block_path/block_iter->leaf()).native_directory_string();
+		std::string block_file_curr = (block_iter->path()).directory_string();
 
 		if (block_file_curr.rfind(impl.plugin_ext) == std::string::npos)
 			continue;
