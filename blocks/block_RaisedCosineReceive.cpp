@@ -62,7 +62,7 @@ public:
 
 	T1 filter(T1 const sample)
 	{
-		T1 output = 0;
+		output = 0;
 		mem(inptr) = sample;
 
 		int L = mem.length() - inptr;
@@ -98,9 +98,24 @@ public:
 		return output;
 	}
 
+	void filter(itpp::Vec<T1> const& v, itpp::Vec<T1>& output)
+	{
+// 		itpp::Vec<T1> output(v.size()/downsample_factor);
+		for(unsigned int i=0; i<v.size()/downsample_factor; i++)
+		{
+			   output(i) = filter(v(i*downsample_factor));
+
+			   for(unsigned int j=1; j<downsample_factor; j++)
+			   {
+					put_sample(v(i*downsample_factor + j));
+			   }
+		}
+	}
+
 private:
 	const itpp::Vec<T2> coeffs;
 	itpp::Vec<T1> mem;
+	T1 output;
 
 	const unsigned int downsample_factor;
 	int inptr;
@@ -217,7 +232,7 @@ void PlugBoardBlock::process()
 	std::cout << *in_vector_ << std::endl;
 #endif
 
-	*out_vector_ = (*mf)(*in_vector_);
+	mf->filter(*in_vector_, *out_vector_);
 
 #ifndef NDEBUG
 	std::cout << " samples out(" << out_vector_->size() << "): " ;

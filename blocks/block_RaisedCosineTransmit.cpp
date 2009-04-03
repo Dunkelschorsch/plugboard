@@ -140,7 +140,7 @@ void PlugBoardBlock::process()
 	std::cout << *in_vector_ << std::endl;
 #endif
 
-	*out_vector_ = rc.shape_symbols(*in_vector_);
+	rc.shape_symbols(*in_vector_, *out_vector_);
 
 #ifndef NDEBUG
 	std::cout << " samples out(" << out_vector_->size() << "): " ;

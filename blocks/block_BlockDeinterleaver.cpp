@@ -139,7 +139,10 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << *static_cast< const itpp::Vec<T>* >(symbol_vector_in) << std::endl;
 #endif
 
-	*static_cast< itpp::Vec<T>* >(symbol_vector_out) = static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->deinterleave(*static_cast< const itpp::Vec<T>* >(symbol_vector_in));
+	static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->deinterleave(
+		*static_cast< const itpp::Vec<T>* >(symbol_vector_in),
+		*static_cast< itpp::Vec<T>* >(symbol_vector_out)
+	);
 
 #ifndef NDEBUG
 	std::cout << " symbols_out(" << static_cast< itpp::Vec<T>* >(symbol_vector_out)->size() << "): ";

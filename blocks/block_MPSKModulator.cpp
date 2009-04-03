@@ -73,6 +73,8 @@ private:
 
 	uint8_t pad_bits_;
 	itpp::ivec pad_vec_;
+
+	itpp::bvec bits_to_modulate;
 };
 
 
@@ -110,6 +112,9 @@ void PlugBoardBlock::setup_output_ports()
 	uint8_t bits_per_symbol = static_cast< unsigned int >(log2(M_[0]));
 	pad_bits_ = (bits_per_symbol - (bits_in_->get_frame_size() % bits_per_symbol)) % bits_per_symbol;
 
+	bits_to_modulate.set_size(bits_in_->get_frame_size() + pad_bits_);
+	bits_to_modulate.zeros();
+
 	for(uint8_t i=0; i<pad_bits_; i++)
 	{
 		pad_vec_ = concat(pad_vec_, 0);
@@ -136,14 +141,14 @@ void PlugBoardBlock::process()
 	std::cout << get_name_sys() << std::endl;
 	print_vector_with_length("bits", bit_vector_);
 #endif
-	if(pad_bits_ != 0)
+
+	for(int i=0; i<bit_vector_->size(); i++)
 	{
-		mod.modulate_bits(to_bvec(concat(*bit_vector_, pad_vec_)), *symbol_vector_);
+		bits_to_modulate(i)=(*bit_vector_)(i);
 	}
-	else
-	{
-		mod.modulate_bits(to_bvec(*bit_vector_), *symbol_vector_);
-	}
+
+	mod.modulate_bits(bits_to_modulate, *symbol_vector_);
+
 #ifndef NDEBUG
 	print_vector_with_length("symobls", symbol_vector_);
 #endif
