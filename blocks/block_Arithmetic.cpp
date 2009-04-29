@@ -25,6 +25,9 @@
  *
  * ----------------------------------------------------------------------------
  */
+#include <Eigen/Core>
+#include <Eigen/Array>
+
 
 #include "block/dynamic.hpp"
 #include "block/block.hpp"
@@ -38,6 +41,8 @@
 
 #include <iostream>
 #include <cstdio>
+
+
 
 using namespace plugboard;
 
@@ -154,27 +159,36 @@ void PlugBoardBlock::dynamic_init()
 template< typename T >
 void PlugBoardBlock::do_add()
 {
+	typedef Eigen::Map< Eigen::Matrix< T, Eigen::Dynamic, 1 > > ei_vec;
+	ei_vec m_out = ei_vec(static_cast< itpp::Vec<T>* >(v_out_)->_data(), static_cast< itpp::Vec<T>* >(v_out_)->length(), 1);
+
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
 #endif
-		*static_cast< itpp::Vec<T>* >(v_out_) +=
-			*static_cast< const itpp::Vec<T>* >(v_in_[i]);
+ 		const ei_vec m_in = ei_vec(static_cast< const itpp::Vec<T>* >(v_in_[i])->_data(), static_cast< const itpp::Vec<T>* >(v_in_[i])->length(), 1);
+
+		m_out += m_in;
 	}
+
 }
 
 
 template< typename T >
 void PlugBoardBlock::do_sub()
 {
+	typedef Eigen::Map< Eigen::Matrix< T, Eigen::Dynamic, 1 > > ei_vec;
+	ei_vec m_out = ei_vec(static_cast< itpp::Vec<T>* >(v_out_)->_data(), static_cast< itpp::Vec<T>* >(v_out_)->length(), 1);
+
 	for(int32_t i=1; i<num_inputs_[0]; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
 #endif
-		*static_cast< itpp::Vec<T>* >(v_out_) -=
-			*static_cast< const itpp::Vec<T>* >(v_in_[i]);
+ 		const ei_vec m_in = ei_vec(static_cast< const itpp::Vec<T>* >(v_in_[i])->_data(), static_cast< const itpp::Vec<T>* >(v_in_[i])->length(), 1);
+
+		m_out -= m_in;
 	}
 }
 

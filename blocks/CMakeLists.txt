@@ -21,8 +21,6 @@
 # ----------------------------------------------------------------------------
 
 
-# FIND_LIBRARY(ITPP NAME itpp PATHS ~/stuff64/lib)
-
 foreach(
 	blockname
 	Arithmetic
@@ -49,5 +47,7 @@ foreach(
 	target_link_libraries (block_${blockname} block_common ${ITPP})
 
 endforeach (blockname)
+
+INCLUDE_DIRECTORIES(/usr/include/eigen2/)
 
 add_subdirectory(scrambler)
