@@ -59,14 +59,16 @@
 #define SIGNAL_TYPE2	(5, (uint8_t,		uint8,		UByteSignal,	boost::uint8_t,		itpp::Vec< boost::uint8_t >))
 #define SIGNAL_TYPE3	(5, (uint16_t,		uint16,		UWordSignal,	boost::uint16_t,	itpp::Vec< boost::uint16_t >))
 #define SIGNAL_TYPE4	(5, (uint32_t,		uint32,		UQuadSignal,	boost::uint32_t,	itpp::Vec< boost::uint32_t >))
-#define SIGNAL_TYPE5	(5, (int8_t,		int8,		ByteSignal,	boost::int8_t,		itpp::Vec< boost::int8_t >))
-#define SIGNAL_TYPE6	(5, (int16_t,		int16,		WordSignal,	boost::int16_t,		itpp::Vec< boost::int16_t >))
-#define SIGNAL_TYPE7	(5, (int32_t,		int32,		QuadSignal,	boost::int32_t,		itpp::Vec< boost::int32_t >))
-#define SIGNAL_TYPE8	(5, (real_t,		real,		RealSignal,	double,			itpp::Vec< double >))
-#define SIGNAL_TYPE9	(5, (complex_t,		complex,	ComplexSignal,	std::complex< double >,	itpp::Vec< std::complex< double > >))
-#define SIGNAL_TYPE10	(5, (string_t,		string,		StringSignal,	std::string,		itpp::Vec< std::string >))
+#define SIGNAL_TYPE5	(5, (uint64_t,		uint64,		ULongSignal,	boost::uint64_t,	itpp::Vec< boost::uint64_t >))
+#define SIGNAL_TYPE6	(5, (int8_t,		int8,		ByteSignal,	boost::int8_t,		itpp::Vec< boost::int8_t >))
+#define SIGNAL_TYPE7	(5, (int16_t,		int16,		WordSignal,	boost::int16_t,		itpp::Vec< boost::int16_t >))
+#define SIGNAL_TYPE8	(5, (int32_t,		int32,		QuadSignal,	boost::int32_t,		itpp::Vec< boost::int32_t >))
+#define SIGNAL_TYPE9	(5, (int64_t,		int64,		LongSignal,	boost::int64_t,		itpp::Vec< boost::int64_t >))
+#define SIGNAL_TYPE10	(5, (real_t,		real,		RealSignal,	double,			itpp::Vec< double >))
+#define SIGNAL_TYPE11	(5, (complex_t,		complex,	ComplexSignal,	std::complex< double >,	itpp::Vec< std::complex< double > >))
+#define SIGNAL_TYPE12	(5, (string_t,		string,		StringSignal,	std::string,		itpp::Vec< std::string >))
 
-#define SIGNAL_TYPE_CNT 11
+#define SIGNAL_TYPE_CNT 13
 
 namespace plugboard
 {
