@@ -115,7 +115,7 @@ BlockLoader::BlockLoader() : base() { }
 uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 {
 	uint32_t block_count = 0;
-	implementation const& impl = **this;
+	implementation& impl = **this;
 
 	bool verbose_plugin_load = boost::any_cast< bool >(Environment::instance().get("verbose_plugin_load"));
 
@@ -156,7 +156,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 			if (create)
 			{
-				if (!(*this)->f.Register(block_id, create))
+				if (!impl.f.Register(block_id, create))
 				{
 					if(verbose_plugin_load)
 					{
@@ -171,7 +171,7 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 				}
 
 				++block_count;
-				(*this)->available_blocks.push_back(block_id);
+				impl.available_blocks.push_back(block_id);
 			}
 		} else
 		{
@@ -188,7 +188,8 @@ uint32_t BlockLoader::load_dir(const std::string& dir, const bool recursive)
 
 Block* BlockLoader::new_block(const std::string& name)
 {
-	return (*this)->f.CreateObject(name);
+	implementation& impl = **this;
+	return impl.f.CreateObject(name);
 }
 
 
