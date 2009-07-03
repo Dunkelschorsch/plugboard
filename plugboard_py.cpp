@@ -103,18 +103,12 @@ void add_block(const std::string& block_type, const std::string& block_name, py:
 
 		switch(typecode)
 		{
-			case 'l':
-				fill_variable_from_array< int32_t >(param_curr, a);
-				break;
-			case 'd':
-				fill_variable_from_array< real_t >(param_curr, a);
-				break;
-			case 'D':
-				fill_variable_from_array< complex_t >(param_curr, a);
-				break;
-			case 'S':
-				fill_variable_from_array< string_t >(param_curr, a);
-				break;
+		#define BOOST_PP_DEF(z, I, _)						\
+			case NUMPY_TYPE(I):						\
+				fill_variable_from_array< CPP_TYPE(I) >(param_curr, a);	\
+				break;							
+			BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
+		#undef BOOST_PP_DEF
 			default:
 				assert(0);
 		}
