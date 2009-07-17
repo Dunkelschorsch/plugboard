@@ -39,7 +39,7 @@ namespace plugboard
 	class ConstraintBase;
 	typedef boost::shared_ptr< ConstraintBase > constraint_ptr;
 
-	class DSOEXPORT ConstraintTestException : public Exception< std::string >
+	class ConstraintTestException : public Exception< std::string >
 	{
 	public:
 		ConstraintTestException(const std::string& unknownId)
@@ -54,7 +54,7 @@ namespace plugboard
 	};
 
 
-	class DSOEXPORT ConstraintBase
+	class ConstraintBase
 	{
 	public:
 		virtual ~ConstraintBase() { }
@@ -67,7 +67,7 @@ namespace plugboard
 
 
 	template< class T >
-	class DSOEXPORT ValueConstraint
+	class ValueConstraint
 	{
 	public:
 		typedef const T argument_type;
@@ -86,7 +86,7 @@ namespace plugboard
 
 
 
-	class DSOEXPORT VariableConstraint
+	class VariableConstraint
 	{
 	public:
 		typedef bool result_type;
