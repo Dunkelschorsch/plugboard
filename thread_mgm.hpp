@@ -4,7 +4,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include "exec_stage.hpp"
 
 namespace plugboard
@@ -36,11 +36,11 @@ namespace plugboard
 	class Worker
 	{
 	public:
-		Worker(const boost::function< void() >, const Boss&, uint32_t);
+		Worker(const std::tr1::function< void() >, const Boss&, uint32_t);
 		void operator()() const;
 	
 	private:
-		const boost::function< void() > f_;
+		const std::tr1::function< void() > f_;
 		const Boss& boss_;
 		uint32_t id_;
 	};

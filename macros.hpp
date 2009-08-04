@@ -29,17 +29,17 @@
 #ifndef MACROS_HPP
 #define MACROS_HPP
 
-#include <boost/shared_ptr.hpp>
+#include <tr1/memory>
 
 #define PB_D(CLASS) typeof(d_func()) d = d_func();
 
 #define PB_DECLARE_PRIVATE(CLASS)\
 friend class CLASS##Impl;\
-inline const boost::shared_ptr< CLASS##Impl > d_func() { return d_ptr; }\
-inline const boost::shared_ptr< const CLASS##Impl > d_func() const { return d_ptr; }
+inline const std::tr1::shared_ptr< CLASS##Impl > d_func() { return d_ptr; }\
+inline const std::tr1::shared_ptr< const CLASS##Impl > d_func() const { return d_ptr; }
 
 #define PB_DECLARE_PROTECTED(CLASS)\
-const boost::shared_ptr< CLASS##Impl >  d_ptr;\
+const std::tr1::shared_ptr< CLASS##Impl >  d_ptr;\
 CLASS(CLASS##Impl &dd);
 
 #endif // MACROS_HPP

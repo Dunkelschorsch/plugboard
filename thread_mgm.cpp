@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 #include "thread_mgm.hpp"
-#include <boost/bind.hpp>
+#include <tr1/functional>
 
 extern boost::mutex pb_io_mutex;
 #define PB_DEBUG_MESSAGE_COLOUR \033[01;33m
@@ -30,7 +32,7 @@ namespace plugboard
 	void Boss::new_thread_from_path(const ExecutionStage::path_t &path)
 	{
 		PB_DEBUG_MESSAGE("adding path to threads" << std::endl << *stage_)
-		tt_->create_thread(Worker(boost::bind(&ExecutionStage::exec_path, stage_, path), *this, id++));
+		tt_->create_thread(Worker(std::tr1::bind(&ExecutionStage::exec_path, stage_, path), *this, id++));
 	}
 
 	void plugboard::Boss::run( )
@@ -79,7 +81,7 @@ namespace plugboard
 	}
 
 
-	Worker::Worker(const boost::function< void() > f, const Boss& boss, uint32_t id) : f_(f), boss_(boss), id_(id)
+	Worker::Worker(const std::tr1::function< void() > f, const Boss& boss, uint32_t id) : f_(f), boss_(boss), id_(id)
 	{
 
 	}
