@@ -32,6 +32,7 @@ foreach(
 	ConjugateComplex
 	ConvolutionalDecoder
 	ConvolutionalEncoder
+	FadingChannel
 	Fork
 	ITWrite
 	MPSKDemodulator
