@@ -63,7 +63,7 @@ private:
 
 	type_t input_type_;
 
-	std::vector< std::string > filename_, var_name_;
+	string_vec_t filename_, var_name_;
 	itpp::it_file file_;
 };
 
@@ -95,7 +95,7 @@ void PlugBoardBlock::setup_input_ports()
 void PlugBoardBlock::initialize()
 {
 	Dynamic< PlugBoardBlock >::initialize(sig_in1_);
-	file_.open(filename_[0]);
+	file_.open(std::string(filename_));
 }
 
 
@@ -103,7 +103,6 @@ template< typename T >
 void PlugBoardBlock::dynamic_init()
 {
 	v_in_ = get_signal< T >(sig_in1_);
-	
 }
 
 
@@ -114,7 +113,7 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
 #endif
-	file_ << itpp::Name(var_name_[0], "Data") << *static_cast< const itpp::Vec<T>* >(v_in_);
+	file_ << itpp::Name(std::string(var_name_), "Data") << *static_cast< const itpp::Vec<T>* >(v_in_);
 }
 
 

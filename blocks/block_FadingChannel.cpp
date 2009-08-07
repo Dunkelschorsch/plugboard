@@ -38,6 +38,7 @@
 
 
 #include <itpp/comm/channel.h>
+#include <itpp/itbase.h>
 
 #include <cstring>
 #include <tr1/functional>
@@ -109,7 +110,11 @@ private:
 	))
 	
 	typedef std::map< std::string, itpp::Channel_Specification > channel_spec_map_t;
-	channel_spec_map_t string_to_channel_spec;
+	channel_spec_map_t string_to_channel_spec_;
+	
+	uint32_t tail_length_;
+	itpp::cvec tail_;
+	itpp::cvec output_tmp_;
 };
 
 
@@ -119,7 +124,7 @@ PlugBoardBlock::PlugBoardBlock()
 	set_description("Some fading channel...");
 	
 #define BOOST_PP_DEF(z, I, _) \
-	string_to_channel_spec.insert(std::make_pair(BOOST_PP_STRINGIZE(BOOST_PP_ARRAY_ELEM(I, PROFILES)), \
+	string_to_channel_spec_.insert(std::make_pair(BOOST_PP_STRINGIZE(BOOST_PP_ARRAY_ELEM(I, PROFILES)), \
 		itpp::BOOST_PP_ARRAY_ELEM(I, PROFILES)));
 	BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
 #undef BOOST_PP_DEF
@@ -163,20 +168,23 @@ void PlugBoardBlock::setup_output_ports()
 
 void PlugBoardBlock::initialize()
 {
-	using namespace std::tr1::placeholders;
-	using std::tr1::bind;
+	channel_spec_map_t::const_iterator pc = string_to_channel_spec_.find(channel_profile_);
 
-	channel_spec_map_t::const_iterator pc = string_to_channel_spec.find(channel_profile_);
-
-	if(pc == string_to_channel_spec.end())
+	if(pc == string_to_channel_spec_.end())
 	{
-		throw ConstraintTestException("No such channel profile: '" + std::string(channel_profile_) + "'");
+		std::string err_msg("No such channel profile: '" + std::string(channel_profile_) + "'");
+		throw ConstraintTestException(err_msg);
 	}
 	
 	channel_spec_ = itpp::Channel_Specification(pc->second);
 	channel_ = itpp::TDL_Channel(channel_spec_, channel_profile_sampling_frequency_);
 	channel_.set_norm_doppler(normalized_doppler_frequency_);
-	
+
+	channel_.filter(itpp::zeros_c(0), tail_);
+	channel_.init();
+
+	tail_length_ = tail_.size();
+
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
 }
@@ -189,10 +197,15 @@ void PlugBoardBlock::process()
 	print_vector_with_length("symbols in", in_vector_);
 #endif
 
-	*out_vector_ = channel_(*in_vector_);
+	channel_.filter(*in_vector_, output_tmp_);
 
+	*out_vector_ = output_tmp_(0, out_vector_->size()-1);
+	out_vector_->set_subvector(0, tail_length_-1, (*out_vector_)(0, tail_length_-1) + tail_);
+
+	tail_ = output_tmp_(out_vector_->size(), -1);
 #ifndef NDEBUG
 	print_vector_with_length("symbols out", out_vector_);
+	print_vector_with_length("tail", &tail_);
 #endif
 }
 

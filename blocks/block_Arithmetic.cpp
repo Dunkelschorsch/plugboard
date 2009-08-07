@@ -28,7 +28,6 @@
 #include <Eigen/Core>
 #include <Eigen/Array>
 
-
 #include "block/dynamic.hpp"
 #include "block/block.hpp"
 #include "block/buffer_access.hpp"
@@ -118,7 +117,7 @@ void PlugBoardBlock::initialize( )
 	else if(op_[0] == "/")
 		operation_ = DIV;
 
-	v_in_ = new const void* [num_inputs_[0]];
+	v_in_ = new const void* [num_inputs_];
 
 	Dynamic< PlugBoardBlock >::initialize(sig_in_[0]);
 }
@@ -127,10 +126,10 @@ void PlugBoardBlock::initialize( )
 void PlugBoardBlock::setup_input_ports()
 {
 	// only reserve that memory once
-	if(get_num_input_ports() != num_inputs_[0])
-		sig_in_ = new const InPort* [num_inputs_[0]];
+	if(get_num_input_ports() != num_inputs_)
+		sig_in_ = new const InPort* [num_inputs_];
 
-	for(int32_t i=0; i<num_inputs_[0]; ++i)
+	for(int32_t i=0; i<num_inputs_; ++i)
 	{
 		char portname[5];
 		std::sprintf(portname, "in%d", i+1);
@@ -151,7 +150,7 @@ void PlugBoardBlock::dynamic_init()
 {
 	v_out_ = get_signal< T >(sig_out_);
 
-	for(int32_t i=0; i<num_inputs_[0]; ++i)
+	for(int32_t i=0; i<num_inputs_; ++i)
 		v_in_[i] = get_signal< T >(sig_in_[i]);
 }
 
@@ -162,7 +161,7 @@ void PlugBoardBlock::do_add()
 	typedef Eigen::Map< Eigen::Matrix< T, Eigen::Dynamic, 1 > > ei_vec;
 	ei_vec m_out = ei_vec(static_cast< itpp::Vec<T>* >(v_out_)->_data(), static_cast< itpp::Vec<T>* >(v_out_)->length(), 1);
 
-	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	for(int32_t i=1; i<num_inputs_; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
@@ -171,7 +170,6 @@ void PlugBoardBlock::do_add()
 
 		m_out += m_in;
 	}
-
 }
 
 
@@ -181,7 +179,7 @@ void PlugBoardBlock::do_sub()
 	typedef Eigen::Map< Eigen::Matrix< T, Eigen::Dynamic, 1 > > ei_vec;
 	ei_vec m_out = ei_vec(static_cast< itpp::Vec<T>* >(v_out_)->_data(), static_cast< itpp::Vec<T>* >(v_out_)->length(), 1);
 
-	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	for(int32_t i=1; i<num_inputs_; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
@@ -196,7 +194,7 @@ void PlugBoardBlock::do_sub()
 template< typename T >
 void PlugBoardBlock::do_mult()
 {
-	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	for(int32_t i=1; i<num_inputs_; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;
@@ -210,7 +208,7 @@ void PlugBoardBlock::do_mult()
 template< typename T >
 void PlugBoardBlock::do_div()
 {
-	for(int32_t i=1; i<num_inputs_[0]; ++i)
+	for(int32_t i=1; i<num_inputs_; ++i)
 	{
 #ifndef NDEBUG
 		std::cout << " in" << i+1 << ": " << *static_cast< const itpp::Vec<T>* >(v_in_[i]) << std::endl;

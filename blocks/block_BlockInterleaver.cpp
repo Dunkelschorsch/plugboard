@@ -83,11 +83,11 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&rows_, "Rows")
@@ -102,7 +102,7 @@ void PlugBoardBlock::configure_parameters()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
+	symbols_in_ = add_port(new InPort("in", empty, Ts_, framesize_));
 }
 
 
@@ -125,7 +125,7 @@ void PlugBoardBlock::dynamic_init()
 	symbol_vector_in = get_signal< T >(symbols_in_);
 	symbol_vector_out = get_signal< T >(symbols_out_);
 
-	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
+	interleaver_ = new itpp::Block_Interleaver< T >(rows_, cols_);
 }
 
 

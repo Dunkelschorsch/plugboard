@@ -86,14 +86,14 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&sequence_number_, "Scrambling sequence number")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	scr_out_ = add_port(new OutPort("out", complex, Ts_[0], framesize_[0]));
+	scr_out_ = add_port(new OutPort("out", complex, Ts_, framesize_));
 }
 
 
@@ -101,14 +101,14 @@ void PlugBoardBlock::initialize()
 {
 	c_vector_ = get_signal< complex_t >(scr_out_);
 
-	s = scrambler_t(sequence_number_[0]);
+	s = scrambler_t(sequence_number_);
 	s.generate();
 }
 
 
 void PlugBoardBlock::process()
 {
-	*c_vector_ = s.get_scrambling_sequence(framesize_[0]);
+	*c_vector_ = s.get_scrambling_sequence(framesize_);
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " generated: " << *c_vector_ << std::endl;

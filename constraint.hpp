@@ -36,6 +36,11 @@
 
 namespace plugboard
 {
+	struct Constraint
+	{
+	      static const bool reverse = true;
+	};
+
 	class ConstraintBase;
 	typedef boost::shared_ptr< ConstraintBase > constraint_ptr;
 

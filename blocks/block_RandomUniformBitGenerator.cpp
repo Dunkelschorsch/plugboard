@@ -90,24 +90,24 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&lo_, "Minimum value")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&hi_, "Maximum value")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	bits_out_ = add_port(new OutPort("bits", int32, Ts_[0], framesize_[0]));
+	bits_out_ = add_port(new OutPort("bits", int32, Ts_, framesize_));
 }
 
 
 void PlugBoardBlock::initialize()
 {
-	uni_dist = boost::uniform_int< >(lo_[0], hi_[0]);
+	uni_dist = boost::uniform_int< >(lo_, hi_);
 
 	make_bit.reset(new boost::variate_generator< boost::mt19937&, boost::uniform_int< > >(generator, uni_dist));
 
@@ -124,7 +124,7 @@ void PlugBoardBlock::process()
 	std::generate
 	(
 		i_array_,
-		i_array_ + framesize_[0],
+		i_array_ + framesize_,
 		*make_bit
 	);
 #ifndef NDEBUG

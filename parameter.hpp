@@ -83,7 +83,7 @@ namespace plugboard
 			pp_->add_constraint(constraint_ptr(new ConstraintT< T >(val, reverse)));
 			return this;
 		}
-
+		
 		template< class ConstraintT >
 		ParameterTypedProxy< T >* add_constraint(const ConstraintT& vc)
 		{

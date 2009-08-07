@@ -86,11 +86,11 @@ PlugBoardBlock::PlugBoardBlock()
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&M_, "M")
@@ -101,36 +101,36 @@ void PlugBoardBlock::configure_parameters()
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&soft_demod_, "Soft Demodulation")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 }
 
 
 void PlugBoardBlock::setup_input_ports()
 {
-	symbols_in_ = add_port(new InPort("symbols", complex, Ts_[0], framesize_[0]));
+	symbols_in_ = add_port(new InPort("symbols", complex, Ts_, framesize_));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	if(soft_demod_[0] == 1)
-		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
+	if(soft_demod_ == 1)
+		bits_out_ = add_port(new OutPort("bits", real, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_))*symbols_in_->get_frame_size()));
 	else
-		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_[0]))*symbols_in_->get_frame_size()));
+		bits_out_ = add_port(new OutPort("bits", int32, symbols_in_->get_Ts(), static_cast< unsigned int >(log2(M_))*symbols_in_->get_frame_size()));
 }
 
 
 void PlugBoardBlock::initialize()
 {
-	if(soft_demod_[0] == 1)
+	if(soft_demod_ == 1)
 		bits_v_ = get_signal< real_t >(bits_out_);
 	else
 		bits_v_ = get_signal< int32_t >(bits_out_);
 
 	symbol_vector_ = get_signal< complex_t >(symbols_in_);
 
-	mod = itpp::PSK(M_[0]);
+	mod = itpp::PSK(M_);
 }
 
 
@@ -141,9 +141,9 @@ void PlugBoardBlock::process()
 	std::cout << " input(" << symbol_vector_->size() << "): " << *symbol_vector_ << std::endl;
 	std::cout << " output(";
 #endif
-	if(soft_demod_[0] == 1)
+	if(soft_demod_ == 1)
 	{
-		mod.demodulate_soft_bits(*symbol_vector_, N_0_[0], *static_cast< itpp::Vec< real_t >* >(bits_v_));
+		mod.demodulate_soft_bits(*symbol_vector_, N_0_, *static_cast< itpp::Vec< real_t >* >(bits_v_));
 #ifndef NDEBUG
 		std::cout << static_cast< itpp::Vec< real_t >* >(bits_v_)->size() << "): " <<
 			*static_cast< itpp::Vec< real_t >* >(bits_v_) << std::endl;

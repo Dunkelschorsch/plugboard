@@ -92,10 +92,10 @@ void PlugBoardBlock::setup_input_ports()
 void PlugBoardBlock::setup_output_ports()
 {
 	// only reserve that memory once
-	if(get_num_output_ports() != num_outputs_[0])
-		sig_out_ = new OutPort* [num_outputs_[0]];
+	if(get_num_output_ports() != num_outputs_)
+		sig_out_ = new OutPort* [num_outputs_];
 
-	for(int32_t i=0; i<num_outputs_[0]; ++i)
+	for(int32_t i=0; i<num_outputs_; ++i)
 	{
 		char portname[6];
 		std::sprintf(portname, "out%d", i+1);
@@ -115,11 +115,11 @@ void PlugBoardBlock::initialize()
 template< typename T >
 void PlugBoardBlock::dynamic_init()
 {
-	v_out_ = new void* [num_outputs_[0]];
+	v_out_ = new void* [num_outputs_];
 
 	v_in_ = get_signal< T >(sig_in1_);
 
-	for(int32_t i=0; i<num_outputs_[0]; ++i)
+	for(int32_t i=0; i<num_outputs_; ++i)
 		v_out_[i] = get_signal< T >(sig_out_[i]);
 }
 
@@ -131,7 +131,7 @@ void PlugBoardBlock::dynamic_process()
 	std::cout << this->get_name_sys() << std::endl;
 	std::cout << " in:   " << *static_cast< const itpp::Vec<T>* >(v_in_) << std::endl;
 #endif
-	for(int32_t i=0; i<num_outputs_[0]; ++i)
+	for(int32_t i=0; i<num_outputs_; ++i)
 	{
 		*static_cast< itpp::Vec<T>* >(v_out_[i]) =
 			*static_cast< const itpp::Vec<T>* >(v_in_);
@@ -147,9 +147,6 @@ void PlugBoardBlock::dynamic_process()
 template< typename T >
 void PlugBoardBlock::dynamic_delete()
 {
-#ifndef NDEBUG
-	std::cout << "Bye from Block_" << get_name() << "!" << std::endl;
-#endif
 	delete[] v_out_;
 	delete[] sig_out_;
 }

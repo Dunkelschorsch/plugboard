@@ -34,7 +34,9 @@
 #include <list>
 #include <algorithm>
 
-
+#define assert_vector_sizes(V1, V2) \
+  assert( static_cast<uint32_t>(V1->size()) == V2->get_frame_size() );
+  
 namespace plugboard
 {
 	template< class DerivedPortT >

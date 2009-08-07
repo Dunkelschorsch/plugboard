@@ -59,7 +59,7 @@ private:
 
 	itpp::BERC berc;
 
-	std::vector< std::string > filename_;
+	string_vec_t filename_;
 	int32_vec_t delay_;
 
 	itpp::it_file report_file;
@@ -92,12 +92,12 @@ void PlugBoardBlock::setup_input_ports()
 
 void PlugBoardBlock::initialize()
 {
-	report_file.open(filename_[0]);
+	report_file.open(std::string(filename_));
 
 	tx_vec = get_signal< int32_t >(tx_in_);
 	rx_vec = get_signal< int32_t >(rx_in_);
 
-	berc = itpp::BERC(delay_[0]);
+	berc = itpp::BERC(delay_);
 }
 
 
@@ -116,7 +116,7 @@ void PlugBoardBlock::process()
 void PlugBoardBlock::finalize()
 {
 #ifndef NDEBUG
-	std::cout << "Writing BER report to file '" << filename_[0] << "'" << std::endl;
+	std::cout << "Writing BER report to file '" << std::string(filename_) << "'" << std::endl;
 #endif
 	using itpp::Name;
 	report_file

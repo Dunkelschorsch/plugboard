@@ -88,11 +88,11 @@ PlugBoardBlock::PlugBoardBlock()
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0.0, true)
+		->add_constraint< LessThanConstraint >(0.0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&M_, "M")
@@ -103,13 +103,13 @@ void PlugBoardBlock::configure_parameters()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	bits_in_ = add_port(new InPort("bits", int32, Ts_[0], framesize_[0]));
+	bits_in_ = add_port(new InPort("bits", int32, Ts_, framesize_));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	uint8_t bits_per_symbol = static_cast< unsigned int >(log2(M_[0]));
+	uint8_t bits_per_symbol = static_cast< unsigned int >(log2(M_));
 	pad_bits_ = (bits_per_symbol - (bits_in_->get_frame_size() % bits_per_symbol)) % bits_per_symbol;
 
 	bits_to_modulate.set_size(bits_in_->get_frame_size() + pad_bits_);
@@ -131,7 +131,7 @@ void PlugBoardBlock::initialize()
 	bit_vector_ = get_signal< int32_t >(bits_in_);
 	symbol_vector_ = get_signal< complex_t >(symbols_out_);
 
-	mod = itpp::PSK(M_[0]);
+	mod = itpp::PSK(M_);
 }
 
 
@@ -151,6 +151,7 @@ void PlugBoardBlock::process()
 
 #ifndef NDEBUG
 	print_vector_with_length("symobls", symbol_vector_);
+	assert_vector_sizes(symbol_vector_, symbols_out_);
 #endif
 }
 

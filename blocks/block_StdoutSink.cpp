@@ -59,9 +59,6 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 {
 	set_name("StdoutSink");
 	set_description("Display input signal on standard output.");
-#ifndef NDEBUG
-	std::cout << "Contructed Block_" << get_name() << "!" << std::endl;
-#endif
 }
 
 

@@ -176,15 +176,15 @@ PlugBoardBlock::PlugBoardBlock()
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_,"Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&alpha_, "Roll-off factor")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&filter_length_, "Filter length")
@@ -199,15 +199,15 @@ void PlugBoardBlock::configure_parameters()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	sig_in_ = add_port(new InPort("in", complex, Ts_[0], framesize_[0]));
+	sig_in_ = add_port(new InPort("in", complex, Ts_, framesize_));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
 	sig_out_ = add_port(new OutPort("out", complex,
-		sig_in_->get_Ts() * downsampling_factor_[0],
-		sig_in_->get_frame_size() / downsampling_factor_[0])
+		sig_in_->get_Ts() * downsampling_factor_,
+		sig_in_->get_frame_size() / downsampling_factor_)
 	);
 }
 
@@ -217,10 +217,10 @@ void PlugBoardBlock::initialize()
 	in_vector_ = get_signal< complex_t >(sig_in_);
 	out_vector_ = get_signal< complex_t >(sig_out_);
 
-	framesize_[0] = sig_in_->get_frame_size();
+// 	framesize_[0] = sig_in_->get_frame_size();
 
-	itpp::Root_Raised_Cosine< complex_t > rc(alpha_[0], filter_length_[0], downsampling_factor_[0]);
-	mf.reset(new Matched_Filter< complex_t, double >(rc.get_pulse_shape(), downsampling_factor_[0]));
+	itpp::Root_Raised_Cosine< complex_t > rc(alpha_, filter_length_, downsampling_factor_);
+	mf.reset(new Matched_Filter< complex_t, double >(rc.get_pulse_shape(), downsampling_factor_));
 }
 
 

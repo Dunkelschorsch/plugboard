@@ -91,11 +91,11 @@ PlugBoardBlock::PlugBoardBlock()
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&gen1_, "Generator Polynomials for first constituent encoder")
@@ -114,14 +114,14 @@ void PlugBoardBlock::configure_parameters()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	sig_in_ = add_port(new InPort("in", real, Ts_[0], framesize_[0]));
+	sig_in_ = add_port(new InPort("in", real, Ts_, framesize_));
 }
 
 
 void PlugBoardBlock::setup_output_ports()
 {
-	inv_rate_ = itpp::ivec(gen1_[0]).length() + (itpp::ivec(gen2_[0]).length()) - 1;
-	output_len_ = (sig_in_->get_frame_size() - (constraint_length_[0]-1) * (inv_rate_+1)) / inv_rate_;
+	inv_rate_ = itpp::ivec(gen1_).length() + (itpp::ivec(gen2_).length()) - 1;
+	output_len_ = (sig_in_->get_frame_size() - (constraint_length_-1) * (inv_rate_+1)) / inv_rate_;
 
 	sig_out_ = add_port(new OutPort("out", int32, sig_in_->get_Ts(), output_len_));
 }
@@ -132,16 +132,16 @@ void PlugBoardBlock::initialize()
 	in_vector_ = get_signal< real_t >(sig_in_);
 	out_vector_ = get_signal< int32_t >(sig_out_);
 
-	itpp::ivec gen1 = gen1_[0];
-	itpp::ivec gen2 = gen2_[0];
+	itpp::ivec gen1 = std::string(gen1_);
+	itpp::ivec gen2 = std::string(gen2_);
 	itpp::ivec interleaver = itpp::wcdma_turbo_interleaver_sequence(sig_out_->get_frame_size());
-	code.set_parameters(gen1, gen2, constraint_length_[0], interleaver);
+	code.set_parameters(gen1, gen2, constraint_length_, interleaver);
 
 #ifndef NDEBUG
 	std::cout << this->get_name_sys() << " parameters: " << std::endl;
 	std::cout << "first generator polynomial: " << gen1 << std::endl;
 	std::cout << "second generator polynomial: " << gen2 << std::endl;
-	std::cout << "constraint length: " << constraint_length_[0] << std::endl;
+	std::cout << "constraint length: " << constraint_length_ << std::endl;
 	std::cout << "rate: " << 1.0/inv_rate_ << std::endl;
 	std::cout << "output_length: " << output_len_ << std::endl;
 #endif

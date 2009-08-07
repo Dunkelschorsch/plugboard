@@ -84,11 +84,11 @@ PlugBoardBlock::PlugBoardBlock() : Dynamic< PlugBoardBlock >(this)
 void PlugBoardBlock::configure_parameters()
 {
 	add_parameter(&Ts_, "Sample Time")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&framesize_, "Frame Size")
-		->add_constraint< LessThanConstraint >(0, true)
+		->add_constraint< LessThanConstraint >(0, Constraint::reverse)
 		->add_constraint(SizeConstraint(1));
 
 	add_parameter(&rows_,"Rows")
@@ -103,7 +103,7 @@ void PlugBoardBlock::configure_parameters()
 
 void PlugBoardBlock::setup_input_ports()
 {
-	symbols_in_ = add_port(new InPort("in", empty, Ts_[0], framesize_[0]));
+	symbols_in_ = add_port(new InPort("in", empty, Ts_, framesize_));
 }
 
 
@@ -126,7 +126,7 @@ void PlugBoardBlock::dynamic_init()
 	symbol_vector_in = get_signal< T >(symbols_in_);
 	symbol_vector_out = get_signal< T >(symbols_out_);
 
-	interleaver_ = new itpp::Block_Interleaver< T >(rows_[0], cols_[0]);
+	interleaver_ = new itpp::Block_Interleaver< T >(rows_, cols_);
 	static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->interleave(itpp::Vec<T>(symbols_in_->get_frame_size()));
 }
 
@@ -135,8 +135,8 @@ template< typename T >
 void PlugBoardBlock::dynamic_process()
 {
 #ifndef NDEBUG
-	std::cout << get_name_sys() << std::endl << " symbols_in(" << static_cast< const itpp::Vec<T>* >(symbol_vector_in)->size() << "): ";
-	std::cout << *static_cast< const itpp::Vec<T>* >(symbol_vector_in) << std::endl;
+	std::cout << get_name_sys() << std::endl;
+	print_vector_with_length("symbols_in", static_cast< const itpp::Vec<T>* >(symbol_vector_in));
 #endif
 
 	static_cast< itpp::Block_Interleaver< T >* >(interleaver_)->deinterleave(
@@ -145,8 +145,7 @@ void PlugBoardBlock::dynamic_process()
 	);
 
 #ifndef NDEBUG
-	std::cout << " symbols_out(" << static_cast< itpp::Vec<T>* >(symbol_vector_out)->size() << "): ";
-	std::cout << *static_cast< itpp::Vec<T>* >(symbol_vector_out) << std::endl;
+	print_vector_with_length("symbols_out", static_cast< const itpp::Vec<T>* >(symbol_vector_out));
 #endif
 }
 
