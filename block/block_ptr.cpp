@@ -33,7 +33,7 @@ int plugboard::intrusive_ptr_release(plugboard::Block* b)
 	int num_refs = b->release();
 	if(num_refs == 0)
 	{
-		delete b;
+		boost::checked_delete(b);
 	}
 	return num_refs;
 }

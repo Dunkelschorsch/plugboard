@@ -245,14 +245,14 @@ void PlugBoardBlock::dynamic_process()
 template< typename T >
 void PlugBoardBlock::dynamic_delete()
 {
-	delete[] v_in_;
+	boost::checked_array_delete(v_in_);
 }
 
 
 PlugBoardBlock::~PlugBoardBlock()
 {
 	if(is_configured())
-		delete[] sig_in_;
+		boost::checked_array_delete(sig_in_);
 }
 
 

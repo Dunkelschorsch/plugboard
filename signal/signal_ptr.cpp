@@ -1,4 +1,5 @@
 #include "signal/signal.hpp"
+#include <boost/checked_delete.hpp>
 
 namespace plugboard
 {
@@ -7,7 +8,7 @@ namespace plugboard
 		int num_ref = s->release();
 		if(num_ref == 0)
 		{
-			delete s;
+			boost::checked_delete(s);
 		}
 		return num_ref;
 	}

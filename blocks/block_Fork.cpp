@@ -147,8 +147,8 @@ void PlugBoardBlock::dynamic_process()
 template< typename T >
 void PlugBoardBlock::dynamic_delete()
 {
-	delete[] v_out_;
-	delete[] sig_out_;
+	boost::checked_array_delete(v_out_);
+	boost::checked_array_delete(sig_out_);
 }
 
 

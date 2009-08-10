@@ -173,12 +173,12 @@ pimpl< Variable >::implementation::~implementation()
 	if(type == string)
 	{
 		for(size_t i=0; i<numel; ++i)
-			delete static_cast< string_t** >(data)[i];
+			boost::checked_delete(static_cast< string_t** >(data)[i]);
 	}
 	if(type == complex)
 	{
 		for(size_t i=0; i<numel; ++i)
-			delete static_cast< complex_t** >(data)[i];
+			boost::checked_delete(static_cast< complex_t** >(data)[i]);
 	}
 	free(data);
 }

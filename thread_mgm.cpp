@@ -70,8 +70,8 @@ namespace plugboard
 
 		tt_->join_all();
 
-		delete before_process;
-		delete after_process;
+		boost::checked_delete(before_process);
+		boost::checked_delete(after_process);
 	}
 
 

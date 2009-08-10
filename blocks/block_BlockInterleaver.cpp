@@ -150,7 +150,7 @@ void PlugBoardBlock::dynamic_process()
 template< typename T >
 void PlugBoardBlock::dynamic_delete()
 {
-	delete static_cast< itpp::Block_Interleaver< T >* >(interleaver_);
+	boost::checked_delete(static_cast< itpp::Block_Interleaver< T >* >(interleaver_));
 }
 
 
