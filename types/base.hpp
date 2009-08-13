@@ -55,19 +55,45 @@
 #define NUMPY_TYPE(I) BOOST_PP_ARRAY_ELEM(5, SIGNAL_TYPE(I))
 
 //			name of C++ type	name in type_t	signal name	typedef'ed from		type used as signal			numpy.array dtypecode
-#define SIGNAL_TYPE0	(6, (empty_t,		empty,		EmptySignal,	void*, 			itpp::Vec< void* >,			'V'))
-#define SIGNAL_TYPE1	(6, (logical_t,		logical,	BitSignal,	itpp::bin,		itpp::Vec< itpp::bin >,			'?'))
-#define SIGNAL_TYPE2	(6, (uint8_t,		uint8,		UByteSignal,	boost::uint8_t,		itpp::Vec< boost::uint8_t >,		'B'))
-#define SIGNAL_TYPE3	(6, (uint16_t,		uint16,		UWordSignal,	boost::uint16_t,	itpp::Vec< boost::uint16_t >,		'H'))
-#define SIGNAL_TYPE4	(6, (uint32_t,		uint32,		UQuadSignal,	boost::uint32_t,	itpp::Vec< boost::uint32_t >,		'I'))
-#define SIGNAL_TYPE5	(6, (uint64_t,		uint64,		ULongSignal,	boost::uint64_t,	itpp::Vec< boost::uint64_t >,		'L'))
-#define SIGNAL_TYPE6	(6, (int8_t,		int8,		ByteSignal,	boost::int8_t,		itpp::Vec< boost::int8_t >,		'b'))
-#define SIGNAL_TYPE7	(6, (int16_t,		int16,		WordSignal,	boost::int16_t,		itpp::Vec< boost::int16_t >,		'h'))
-#define SIGNAL_TYPE8	(6, (int32_t,		int32,		QuadSignal,	boost::int32_t,		itpp::Vec< boost::int32_t >,		'i'))
-#define SIGNAL_TYPE9	(6, (int64_t,		int64,		LongSignal,	boost::int64_t,		itpp::Vec< boost::int64_t >,		'l'))
-#define SIGNAL_TYPE10	(6, (real_t,		real,		RealSignal,	double,			itpp::Vec< double >,			'd'))
-#define SIGNAL_TYPE11	(6, (complex_t,		complex,	ComplexSignal,	std::complex< double >,	itpp::Vec< std::complex< double > >,	'D'))
-#define SIGNAL_TYPE12	(6, (string_t,		string,		StringSignal,	std::string,		itpp::Vec< std::string >,		'S'))
+#define SIGNAL_TYPE0	(6, (empty_t,		empty,		EmptySignal,	void*, 			itpp::Vec< void* >,			NPY_VOID))
+#define SIGNAL_TYPE1	(6, (logical_t,		logical,	BitSignal,	itpp::bin,		itpp::Vec< itpp::bin >,			NPY_BOOL))
+#define SIGNAL_TYPE2	(6, (uint8_t,		uint8,		UByteSignal,	boost::uint8_t,		itpp::Vec< boost::uint8_t >,		NPY_UBYTE))
+#define SIGNAL_TYPE3	(6, (uint16_t,		uint16,		UWordSignal,	boost::uint16_t,	itpp::Vec< boost::uint16_t >,		NPY_USHORT))
+#define SIGNAL_TYPE4	(6, (uint32_t,		uint32,		UQuadSignal,	boost::uint32_t,	itpp::Vec< boost::uint32_t >,		NPY_UINT))
+#define SIGNAL_TYPE5	(6, (uint64_t,		uint64,		ULongSignal,	boost::uint64_t,	itpp::Vec< boost::uint64_t >,		NPY_ULONG))
+#define SIGNAL_TYPE6	(6, (int8_t,		int8,		ByteSignal,	boost::int8_t,		itpp::Vec< boost::int8_t >,		NPY_BYTE))
+#define SIGNAL_TYPE7	(6, (int16_t,		int16,		WordSignal,	boost::int16_t,		itpp::Vec< boost::int16_t >,		NPY_SHORT))
+#define SIGNAL_TYPE8	(6, (int32_t,		int32,		QuadSignal,	boost::int32_t,		itpp::Vec< boost::int32_t >,		NPY_INT))
+#define SIGNAL_TYPE9	(6, (int64_t,		int64,		LongSignal,	boost::int64_t,		itpp::Vec< boost::int64_t >,		NPY_LONG))
+#define SIGNAL_TYPE10	(6, (real_t,		real,		RealSignal,	double,			itpp::Vec< double >,			NPY_DOUBLE))
+#define SIGNAL_TYPE11	(6, (complex_t,		complex,	ComplexSignal,	std::complex< double >,	itpp::Vec< std::complex< double > >,	NPY_CDOUBLE))
+#define SIGNAL_TYPE12	(6, (string_t,		string,		StringSignal,	std::string,		itpp::Vec< std::string >,		NPY_STRING))
+
+// %#define           PyArray_BOOL
+// %#define           PyArray_BYTE
+// %#define          PyArray_UBYTE
+// %#define          PyArray_SHORT
+// %#define         PyArray_USHORT
+// %#define            PyArray_INT
+// %#define           PyArray_UINT
+// %#define           PyArray_LONG
+// %#define          PyArray_ULONG
+// %#define NPY_LONGLONG      PyArray_LONGLONG
+// %#define NPY_ULONGLONG     PyArray_ULONGLONG
+// %#define NPY_FLOAT         PyArray_FLOAT
+// %#define         PyArray_DOUBLE
+// %#define NPY_LONGDOUBLE    PyArray_LONGDOUBLE
+// %#define NPY_CFLOAT        PyArray_CFLOAT
+// %#define NPY_CDOUBLE       PyArray_CDOUBLE
+// %#define NPY_CLONGDOUBLE   PyArray_CLONGDOUBLE
+// %#define NPY_OBJECT        PyArray_OBJECT
+// %#define NPY_STRING        PyArray_STRING
+// %#define NPY_UNICODE       PyArray_UNICODE
+// %#define           PyArray_VOID
+// %#define NPY_NTYPES        PyArray_NTYPES
+// %#define NPY_NOTYPE        PyArray_NOTYPE
+// %#define NPY_CHAR          PyArray_CHAR
+// %#define NPY_USERDEF       PyArray_USERDEF
 
 #define SIGNAL_TYPE_CNT 13
 

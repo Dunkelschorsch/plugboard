@@ -87,23 +87,29 @@ ELSE(NOT BOOST_PROGRAM_OPTIONS)
 ENDIF(NOT BOOST_PROGRAM_OPTIONS)
 
 
-# only build python module if a suitable python installation is found
+# only build python module if a suitable python and swig installation is found
 SET(BUILD_PB_PYTHON FALSE)
+
 
 FIND_PACKAGE(PythonLibs)
 IF(PYTHON_INCLUDE_PATH)
 	# look for the python config header
 	FIND_FILE(PYCONFIG_H pyconfig.h ${PYTHON_INCLUDE_PATH})
 	IF(PYCONFIG_H)
-
 		FIND_FILE(PYTHON_H Python.h ${PYTHON_INCLUDE_PATH})
 		IF(PYTHON_H)
-			# look for the boost_python library
-			FIND_LIBRARY(BOOST_PYTHON boost_python)
-			IF(BOOST_PYTHON)
-				MESSAGE(STATUS "Boost python library: ${BOOST_PYTHON}")
+			# look for swig
+			FIND_PACKAGE(SWIG)
+			IF(SWIG_FOUND)
+				MESSAGE(STATUS "Building plugboard Python module:")
+				MESSAGE(STATUS " SWIG version: ${SWIG_VERSION}")
+				MESSAGE(STATUS " SWIG directory: ${SWIG_DIR}")
+				MESSAGE(STATUS " SWIG executable: ${SWIG_EXECUTABLE}")
+				INCLUDE(${SWIG_USE_FILE})
 				SET(BUILD_PB_PYTHON TRUE)
-			ENDIF(BOOST_PYTHON)
+			ELSE(SWIG_FOUND)
+				MESSAGE(STATUS "Could not find SWIG.")
+			ENDIF(SWIG_FOUND)
 		ELSE(PYTHON_H)
 			MESSAGE(STATUS "Could not find ${PYTHON_INCLUDE_PATH}/Python.h")
 		ENDIF(PYTHON_H)
@@ -111,12 +117,14 @@ IF(PYTHON_INCLUDE_PATH)
 		MESSAGE(STATUS "Could not find ${PYTHON_INCLUDE_PATH}/pyconfig.h")
 	ENDIF(PYCONFIG_H)
 ELSE(PYTHON_INCLUDE_PATH)
-	MESSAGE(STATUS "Could not find the Python include directory. The plugboard Python module will NOT be built.")
+	MESSAGE(STATUS "Could not find the Python include directory.")
 ENDIF(PYTHON_INCLUDE_PATH)
 
-IF(BUILD_PB_PYTHON)
-	MESSAGE(STATUS "Building plugboard Python module.")
-ENDIF(BUILD_PB_PYTHON)
+
+IF(NOT BUILD_PB_PYTHON)
+	MESSAGE(STATUS "The plugboard Python module will NOT be built.")
+ENDIF(NOT BUILD_PB_PYTHON)
+
 
 SET(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIRS})
 
@@ -167,11 +175,13 @@ TARGET_LINK_LIBRARIES(pb
 
 # build plugboard python library
 IF(BUILD_PB_PYTHON)
-	INCLUDE_DIRECTORIES(${INCLUDE_DIRECTORIES} ${PYTHON_INCLUDE_PATH})
+	INCLUDE_DIRECTORIES(${INCLUDE_DIRECTORIES} ${PYTHON_INCLUDE_PATH} /usr/lib64/python2.6/site-packages/numpy/core/include)
+ 	SET_SOURCE_FILES_PROPERTIES(plugboard.i PROPERTIES CPLUSPLUS ON)
+# 	SET_SOURCE_FILES_PROPERTIES(plugboard.i PROPERTIES SWIG_FLAGS "-includeall")
 
-	ADD_LIBRARY(plugboard SHARED
-		plugboard_py.cpp
-		environment.cpp
+	SWIG_ADD_MODULE(plugboard python plugboard.i
+		plugboard.cpp
+ 		environment.cpp
 		symtab.cpp
 		variable/variable.cpp
 		signal/signal_ptr.cpp
@@ -184,15 +194,14 @@ IF(BUILD_PB_PYTHON)
 		exception/exceptions.cpp
 		block_loader.cpp
 	)
-
-	TARGET_LINK_LIBRARIES(plugboard
+ 
+	SWIG_LINK_LIBRARIES(plugboard
 		${BOOST_FILESYSTEM}
 		${BOOST_THREAD}
-		${BOOST_PYTHON}
 		${ITPP}
 		${LTDL}
 		block_common
-	)
+ 	)
 ENDIF(BUILD_PB_PYTHON)
 
 ADD_SUBDIRECTORY(blocks)

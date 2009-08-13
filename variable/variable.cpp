@@ -31,6 +31,7 @@
 #include <cassert>
 #include <algorithm>
 #include <tr1/type_traits>
+#include <limits>
 
 #include "variable/variable.hpp"
 
@@ -184,12 +185,35 @@ pimpl< Variable >::implementation::~implementation()
 }
 
 
+template< class oldT, class newT >
+struct conversion_traits
+{
+  inline static bool overflow_or_underflow(oldT v)
+  {
+    return ((v < std::numeric_limits< newT >::min()) || (v > std::numeric_limits< newT >::max()));
+  }
+};
+
+template< class oldT >
+struct conversion_traits< oldT, complex_t >
+{
+  inline static bool overflow_or_underflow(oldT v)
+  {
+    return false;
+  }
+};
+
+
 template< typename oldT, typename newT >
 void pimpl< Variable >::implementation::cast()
 {
 	void* new_data = malloc(typeinfo< newT >::size * numel);
 	for(size_t i=0; i<numel; ++i)
 	{
+		if(conversion_traits< oldT, newT >::overflow_or_underflow(static_cast< oldT* >(data)[i]))
+		{
+		  throw std::exception(); //TODO come up with a proper exception here
+		}
 		static_cast< newT* >(new_data)[i] =
 			static_cast< newT >(static_cast< oldT* >(data)[i]);
 	}
@@ -209,6 +233,8 @@ void pimpl< Variable >::implementation::push_back(const T& value, const std::tr1
 {
 	if(type == empty)
 		type = typeinfo< T >::value;
+
+	PB_DEBUG_MESSAGE("reallocating...")
 
 	data = realloc(data, typeinfo< T >::size * (numel+1));
 	static_cast< T const ** const >(data)[numel++] = new T(value);

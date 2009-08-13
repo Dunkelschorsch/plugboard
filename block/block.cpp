@@ -376,6 +376,7 @@ namespace plugboard
 				fill_block_parameter_with_values_from_variable = impl.parameter_factory_[var_tmp.get_type()];
 
 			fill_block_parameter_with_values_from_variable(var_tmp, impl.params_[impl.param_curr_]);
+			PB_DEBUG_MESSAGE("Parameter passed successfully.")
 
 			// if this was the last parameter the block is completely configured
 			if (impl.params_.size() == impl.param_curr_)

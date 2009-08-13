@@ -57,7 +57,20 @@ namespace plugboard
 
 	bool Parameter::is_convertible_to(const Variable & v) const
 	{
-		return this->get_type() >= v.get_type();
+	  type_t target_type, given_type;
+	  target_type = this->get_type();
+	  given_type = v.get_type();
+
+	  if(target_type == given_type)
+	  {
+	    return true;
+	  }
+
+	  if(given_type == complex || given_type == string)
+	  {
+	    return false;
+	  }
+	  return true;
 	}
 
 
