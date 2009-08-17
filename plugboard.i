@@ -38,11 +38,6 @@
 #define PB_DEBUG_MESSAGE_COLOUR \033[01;32m
 #define PB_DEBUG_MESSAGE_SOURCE configuration
 #include "colour_debug.hpp"
-
-#define BOOST_PP_FILL_VAR(z, I, _)	\
-  case NUMPY_TYPE(I):			\
-  fill_variable_from_array< CPP_TYPE(I) >(ptr_to_1[i], PyTuple_GetItem(ptr_to_input, i)); \
-  break;
 %}
 
 
@@ -69,14 +64,16 @@
 %inline %{
 
   template< class T >
-  void fill_variable_from_array(plugboard::Variable &v, PyObject *o)
+  void fill_variable_from_array(plugboard::Variable &v, PyObject * const o)
   {
     int num_dims = array_numdims(o);
     unsigned long numel = 0;
     void *data = array_data(o);
 
     for(int i=0; i<num_dims; ++i) {
-      numel += ((PyArrayObject*)o)->dimensions[i];
+      unsigned long num_elements_curr_dim = reinterpret_cast< PyArrayObject* >(o)->dimensions[i];
+      v.add_dimension(num_elements_curr_dim);
+      numel += num_elements_curr_dim;
     }
 
     for(unsigned long i=0; i<numel; ++i)
@@ -86,7 +83,7 @@
   };
 
   template< >
-  void fill_variable_from_array<std::string>(plugboard::Variable &v, PyObject *o)
+  void fill_variable_from_array<std::string>(plugboard::Variable &v, PyObject * const o)
   {
     unsigned long numel = 1;
     int num_dims = array_numdims(o);
@@ -94,14 +91,14 @@
     int new_obj = 0;
     PyArrayObject *new_array = NULL;
 
-    new_array = obj_to_array_contiguous_allow_conversion((PyObject*)o, NPY_STRING, &new_obj);
+    new_array = obj_to_array_contiguous_allow_conversion(o, NPY_STRING, &new_obj);
 
     char* next_str_start = new_array->data;
     std::string string_curr;
 
     for(unsigned long i=0; i<numel; ++i)
     {
-      /* string are NOT null-terminated and their length is quite well hidden */
+      /* strings are NOT null-terminated and their length is quite well hidden */
       int next_str_len = new_array->dimensions[num_dims];
       string_curr = std::string(next_str_start, next_str_start + next_str_len);
       next_str_start += next_str_len;
@@ -140,6 +137,11 @@
 
     switch(array_type(PyTuple_GetItem(ptr_to_input, i)))
     {
+      %#define BOOST_PP_FILL_VAR(z, I, _)	\
+	case NUMPY_TYPE(I):			\
+	fill_variable_from_array< CPP_TYPE(I) >(ptr_to_1[i], PyTuple_GetItem(ptr_to_input, i)); \
+	break;
+
       BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_FILL_VAR, _)
       #undef BOOST_PP_FILL_VAR
       default:

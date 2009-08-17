@@ -146,7 +146,6 @@ pimpl< Variable >::implementation::implementation(const T value, const std::tr1:
 	static_cast< T* >(data)[0] = value;
 
 	dims.push_back(1);
-	dims.push_back(1);
 }
 
 
@@ -164,7 +163,6 @@ pimpl< Variable >::implementation::implementation(const T& value, const std::tr1
 
 	static_cast< T** >(data)[0] = new T(value);
 
-	dims.push_back(1);
 	dims.push_back(1);
 }
 
