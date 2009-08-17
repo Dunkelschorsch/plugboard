@@ -36,6 +36,7 @@
 
 namespace plugboard
 {
+#pragma GCC visibility push(default)
 	struct Constraint
 	{
 	      static const bool reverse = true;
@@ -176,7 +177,7 @@ namespace plugboard
 
 		result_type do_check(argument_type arg) const
 		{
-			return arg < compare_ ? true : false;
+			return arg < compare_;
 		}
 
 		argument_type compare_;
@@ -204,7 +205,7 @@ namespace plugboard
 
 		result_type do_check(argument_type arg) const
 		{
-			return arg > compare_ ? true : false;
+			return arg > compare_;
 		}
 
 		argument_type compare_;
@@ -237,6 +238,7 @@ namespace plugboard
 
 		argument_type modulus_;
 	};
+#pragma GCC visibility pop
 } // namespace plugboard
 
 #endif // CONSTRAINT_HPP
