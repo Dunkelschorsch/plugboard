@@ -43,7 +43,7 @@
 
 %include "exception.i"
 %include "std_string.i"
-%include "numpy.i"
+%include "swig/numpy.i"
 %fragment("NumPy_Fragments");
 
 /* the C++ exceptions can directly be used to generate nice python error messages */
