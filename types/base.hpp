@@ -54,7 +54,7 @@
 #define VEC_TYPE(I)   BOOST_PP_ARRAY_ELEM(4, SIGNAL_TYPE(I))
 #define NUMPY_TYPE(I) BOOST_PP_ARRAY_ELEM(5, SIGNAL_TYPE(I))
 
-//			name of C++ type	name in type_t	signal name	typedef'ed from		type used as signal			numpy.array dtypecode
+//			name of C++ type	name in type_t	signal name	typedef'ed from		type used as signal			name from numpy.i
 #define SIGNAL_TYPE0	(6, (empty_t,		empty,		EmptySignal,	void*, 			itpp::Vec< void* >,			NPY_VOID))
 #define SIGNAL_TYPE1	(6, (logical_t,		logical,	BitSignal,	itpp::bin,		itpp::Vec< itpp::bin >,			NPY_BOOL))
 #define SIGNAL_TYPE2	(6, (uint8_t,		uint8,		UByteSignal,	boost::uint8_t,		itpp::Vec< boost::uint8_t >,		NPY_UBYTE))
@@ -69,31 +69,6 @@
 #define SIGNAL_TYPE11	(6, (complex_t,		complex,	ComplexSignal,	std::complex< double >,	itpp::Vec< std::complex< double > >,	NPY_CDOUBLE))
 #define SIGNAL_TYPE12	(6, (string_t,		string,		StringSignal,	std::string,		itpp::Vec< std::string >,		NPY_STRING))
 
-// %#define           PyArray_BOOL
-// %#define           PyArray_BYTE
-// %#define          PyArray_UBYTE
-// %#define          PyArray_SHORT
-// %#define         PyArray_USHORT
-// %#define            PyArray_INT
-// %#define           PyArray_UINT
-// %#define           PyArray_LONG
-// %#define          PyArray_ULONG
-// %#define NPY_LONGLONG      PyArray_LONGLONG
-// %#define NPY_ULONGLONG     PyArray_ULONGLONG
-// %#define NPY_FLOAT         PyArray_FLOAT
-// %#define         PyArray_DOUBLE
-// %#define NPY_LONGDOUBLE    PyArray_LONGDOUBLE
-// %#define NPY_CFLOAT        PyArray_CFLOAT
-// %#define NPY_CDOUBLE       PyArray_CDOUBLE
-// %#define NPY_CLONGDOUBLE   PyArray_CLONGDOUBLE
-// %#define NPY_OBJECT        PyArray_OBJECT
-// %#define NPY_STRING        PyArray_STRING
-// %#define NPY_UNICODE       PyArray_UNICODE
-// %#define           PyArray_VOID
-// %#define NPY_NTYPES        PyArray_NTYPES
-// %#define NPY_NOTYPE        PyArray_NOTYPE
-// %#define NPY_CHAR          PyArray_CHAR
-// %#define NPY_USERDEF       PyArray_USERDEF
 
 #define SIGNAL_TYPE_CNT 13
 

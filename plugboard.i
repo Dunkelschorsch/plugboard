@@ -63,27 +63,31 @@
 
 %inline %{
 
-  template< class T >
+  template< class T, int NUMPYTYPE >
   void fill_variable_from_array(plugboard::Variable &v, PyObject * const o)
   {
-    int num_dims = array_numdims(o);
     unsigned long numel = 0;
-    void *data = array_data(o);
+    int num_dims = array_numdims(o);
+
+    int new_obj = 0;
+    PyArrayObject *new_array = NULL;
+
+    new_array = obj_to_array_contiguous_allow_conversion(o, NUMPYTYPE, &new_obj);
 
     for(int i=0; i<num_dims; ++i) {
-      unsigned long num_elements_curr_dim = reinterpret_cast< PyArrayObject* >(o)->dimensions[i];
+      unsigned long num_elements_curr_dim = new_array->dimensions[i];
       v.add_dimension(num_elements_curr_dim);
       numel += num_elements_curr_dim;
     }
 
     for(unsigned long i=0; i<numel; ++i)
     {
-      v.push_back<T>(static_cast< T* >(data)[i]);
+      v.push_back<T>(static_cast< T* >(static_cast<void*>(new_array->data))[i]);
     }
   };
 
   template< >
-  void fill_variable_from_array<std::string>(plugboard::Variable &v, PyObject * const o)
+  void fill_variable_from_array< std::string, NPY_STRING> (plugboard::Variable &v, PyObject * const o)
   {
     unsigned long numel = 1;
     int num_dims = array_numdims(o);
@@ -109,7 +113,6 @@
         v.push_back(string_curr);
     }
   };
-
 %}
 
 
@@ -139,7 +142,7 @@
     {
       %#define BOOST_PP_FILL_VAR(z, I, _)	\
 	case NUMPY_TYPE(I):			\
-	fill_variable_from_array< CPP_TYPE(I) >(ptr_to_1[i], PyTuple_GetItem(ptr_to_input, i)); \
+	fill_variable_from_array< CPP_TYPE(I), NUMPY_TYPE(I) >(ptr_to_1[i], PyTuple_GetItem(ptr_to_input, i)); \
 	break;
 
       BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_FILL_VAR, _)
@@ -157,11 +160,6 @@
   delete[] $1;
 }
 
-
-%feature("shadow") __add_block(const std::string& block_type, const std::string& block_name, plugboard::Variable* block_args, int n) %{
-def __add_block(*args):
-    $action
-%}
 
 %pythoncode %{
 import numpy
