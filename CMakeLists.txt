@@ -162,8 +162,6 @@ ADD_EXECUTABLE(pb
 	variable/variable.cpp
 	signal/signal_ptr.cpp
 	system.cpp
-	systems.cpp
-	subsystem.cpp
 	thread_mgm.cpp
 	exec_matrix.cpp
 	exec_stage.cpp
@@ -196,8 +194,6 @@ IF(BUILD_PB_PYTHON)
 		variable/variable.cpp
 		signal/signal_ptr.cpp
 		system.cpp
-		systems.cpp
-		subsystem.cpp
 		thread_mgm.cpp
 		exec_matrix.cpp
 		exec_stage.cpp

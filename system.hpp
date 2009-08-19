@@ -32,6 +32,7 @@
 #include "block/block_ptr.hpp"
 #include <string>
 #include "macros.hpp"
+#include <boost/pool/detail/singleton.hpp>
 
 namespace plugboard
 {
@@ -40,10 +41,11 @@ namespace plugboard
 
 	class System
 	{
+		typedef boost::details::pool::singleton_default< System > singleton;
+		friend class boost::details::pool::singleton_default< System >;
 	public:
-		System();
 		virtual ~System();
-
+		
 		void add_block(block_ptr const, const std::string&);
 
 		void add_variable(const std::string&, const Variable&);
@@ -59,10 +61,13 @@ namespace plugboard
 
 		void finalize();
 
+		static System& instance();
+
 	protected:
 		PB_DECLARE_PROTECTED(System)
 
 	private:
+	  	System();
 		PB_DECLARE_PRIVATE(System)
 	};
 } // namespace plugboard

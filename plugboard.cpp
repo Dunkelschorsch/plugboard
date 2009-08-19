@@ -31,7 +31,7 @@
 #include "block/block.hpp"
 #include "block/block_ptr.hpp"
 #include "variable/variable.hpp"
-#include "systems.hpp"
+#include "system.hpp"
 
 #define PB_DEBUG_MESSAGE_COLOUR \033[01;32m
 #define PB_DEBUG_MESSAGE_SOURCE configuration
@@ -57,7 +57,7 @@ void __connect_ports(const std::string& source_block_name,
 	PB_DEBUG_MESSAGE("connecting blocks " << source_block_name << ":" << source_port_name << "->" 
 		<< sink_block_name << ":" << sink_port_name)
 
-	pb::Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
+	pb::System::instance().connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
 }
 
 
@@ -66,15 +66,15 @@ void __run(unsigned long times)
 	PB_DEBUG_MESSAGE("running system " << times << " times")
 	PB_DEBUG_MESSAGE("initializing...")
 
-	pb::Systems::instance().get_root()->initialize();
+	pb::System::instance().initialize();
 
 	PB_DEBUG_MESSAGE("starting system...")
 
-	pb::Systems::instance().get_root()->wakeup_sys(times);
+	pb::System::instance().wakeup_sys(times);
 
 	PB_DEBUG_MESSAGE("finalizing system...")
 
-	pb::Systems::instance().get_root()->finalize();
+	pb::System::instance().finalize();
 }
 
 
@@ -105,6 +105,6 @@ void __add_block(const std::string& block_type, const std::string& block_name, p
 
 	assert(b->is_configured());
 
-	plugboard::Systems::instance().get_root()->add_block(b, block_name);
+	plugboard::System::instance().add_block(b, block_name);
 }
 

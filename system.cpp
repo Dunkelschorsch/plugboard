@@ -92,7 +92,12 @@ namespace plugboard
 	System::~System()
 	{
 	}
-
+	
+	System& System::instance( )
+	{
+		System & s = singleton::instance();
+		return s;
+	}
 
 	template< class SignalT >
 	inline void* get_sig(Signal *s)

@@ -55,9 +55,6 @@ namespace plugboard
 
 	class DSOEXPORT Block : public pimpl< Block >::pointer_semantics
 	{
-	// the subsystem plays some funny games with ports
-	friend class SubsystemImpl;
-
 	// function for intrusive pointer reference counting and destruction
 	friend int plugboard::intrusive_ptr_add_ref(Block*);
 	friend int plugboard::intrusive_ptr_release(Block*);

@@ -36,7 +36,7 @@
 #include "variable/variable.hpp"
 #include "variable/variable_iterator.hpp"
 #include "block_loader.hpp"
-#include "systems.hpp"
+#include "system.hpp"
 
 #define PB_DEBUG_MESSAGE_COLOUR \033[01;32m
 #define PB_DEBUG_MESSAGE_SOURCE Parser
@@ -91,7 +91,7 @@ namespace plugboard
 	{
 		PB_DEBUG_MESSAGE("looking up type of " << var_name)
 
-		return Systems::instance().get_root()->get_variable(var_name).get_type();
+		return System::instance().get_variable(var_name).get_type();
 	}
 
 
@@ -134,7 +134,7 @@ namespace plugboard
 		if(i->value.id() == parserID::identifier)
 		{
 			assert(i->children.size() == 0);
-			v = Systems::instance().get_root()->get_variable(make_scalar< std::string >(i));
+			v = System::instance().get_variable(make_scalar< std::string >(i));
 			return;
 		}
 		else
@@ -348,7 +348,7 @@ namespace plugboard
 
 		Variable var;
 		eval_expression(i->children.begin()+1, var);
-		Systems::instance().get_root()->add_variable(var_name, var);
+		System::instance().add_variable(var_name, var);
 	}
 
 
@@ -393,7 +393,7 @@ namespace plugboard
 
 		assert(b->is_configured());
 
-		Systems::instance().get_root()->add_block(b, block_name);
+		System::instance().add_block(b, block_name);
 	}
 
 
@@ -413,7 +413,7 @@ namespace plugboard
 		PB_DEBUG_MESSAGE("... " << source_block_name << ":" << source_port_name << "->"
 			<< sink_block_name << ":" << sink_port_name)
 
-		Systems::instance().get_root()->connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
+		System::instance().connect_ports(source_block_name, source_port_name, sink_block_name, sink_port_name);
 	}
 
 
@@ -436,15 +436,15 @@ namespace plugboard
 		PB_DEBUG_MESSAGE("running system " << times << " times")
 		PB_DEBUG_MESSAGE("initializing...")
 
-		Systems::instance().get_root()->initialize();
+		System::instance().initialize();
 
 		PB_DEBUG_MESSAGE("starting system...")
 
-		Systems::instance().get_root()->wakeup_sys(times);
+		System::instance().wakeup_sys(times);
 
 		PB_DEBUG_MESSAGE("finalizing system...")
 
-		Systems::instance().get_root()->finalize();
+		System::instance().finalize();
 	}
 
 
