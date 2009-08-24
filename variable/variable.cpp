@@ -188,7 +188,7 @@ struct conversion_traits
 {
   inline static bool overflow_or_underflow(oldT v)
   {
-    return ((v < std::numeric_limits< newT >::min()) || (v > std::numeric_limits< newT >::max()));
+    return (v < -std::numeric_limits< newT >::max()) || (v > std::numeric_limits< newT >::max());
   }
 };
 
@@ -197,7 +197,7 @@ struct conversion_traits< oldT, complex_t >
 {
   inline static bool overflow_or_underflow(oldT v)
   {
-    return false;
+    return (v < -std::numeric_limits< complex_t::value_type >::max()) || (v > std::numeric_limits< complex_t::value_type >::max());
   }
 };
 
@@ -212,8 +212,7 @@ void pimpl< Variable >::implementation::cast()
 		{
 		  throw std::exception(); //TODO come up with a proper exception here
 		}
-		static_cast< newT* >(new_data)[i] =
-			static_cast< newT >(static_cast< oldT* >(data)[i]);
+		static_cast< newT* >(new_data)[i] = static_cast< newT >(static_cast< oldT* >(data)[i]);
 	}
 	free(data);
 
