@@ -30,6 +30,10 @@
 #include <map>
 #include <tr1/functional>
 
+#ifndef NDEBUG
+#include <cxxabi.h>
+#endif
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -55,14 +59,14 @@ template< >
 struct pimpl< Block >::implementation
 {
 	implementation() :
-		param_curr_(0),
-		parameter_factory_(),
-		params_(),
-		configured_(true),
-		initialized_(false),
-		name_sys_(),
-		name_(),
-		description_(),
+		param_curr(0),
+		parameter_factory(),
+		params(),
+		configured(true),
+		initialized(false),
+		name_sys(),
+		name(),
+		description(),
 		ref_count(0)
 	{
 		register_parameter_types();
@@ -72,15 +76,15 @@ struct pimpl< Block >::implementation
 	typedef std::tr1::function< void(const Variable&, Block::param_ptr const) > parameter_factory_func_t;
 	typedef std::map< type_t, parameter_factory_func_t > parameter_factory_t;
 
-	uint16_t param_curr_;
-	parameter_factory_t parameter_factory_;
-	std::vector< Block::param_ptr > params_;
-	bool configured_;
-	bool initialized_;
+	uint16_t param_curr;
+	parameter_factory_t parameter_factory;
+	std::vector< Block::param_ptr > params;
+	bool configured;
+	bool initialized;
 
-	std::string name_sys_;
-	std::string name_;
-	std::string description_;
+	std::string name_sys;
+	std::string name;
+	std::string description;
 
 	int ref_count;
 
@@ -96,7 +100,7 @@ void pimpl< Block >::implementation::register_parameter_types()
 {
 // this macro creates mapping between types and parameters
 #define BOOST_PP_DEF(z, I, _) \
-	parameter_factory_.insert(std::make_pair(TYPE_VALUE(I),	\
+	parameter_factory.insert(std::make_pair(TYPE_VALUE(I),	\
 	boost::bind(&implementation::copy_parameter< CPP_TYPE(I) >, this, _1, _2)));
 
 BOOST_PP_REPEAT(SIGNAL_TYPE_CNT, BOOST_PP_DEF, _)
@@ -115,6 +119,11 @@ public:
 		const ValueConstraint< TargetT >* c
 			= boost::dynamic_pointer_cast< const ValueConstraint< TargetT > >(cb).get();
 
+#ifndef NDEBUG
+		char *type_name = abi::__cxa_demangle(typeid(c).name(), 0, 0, NULL);
+		PB_DEBUG_MESSAGE(type_name)
+		free(type_name);
+#endif
 		if(c)
 		{
 			PB_DEBUG_MESSAGE("checking value constraint...");
@@ -207,8 +216,8 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, const B
 	PB_DEBUG_MESSAGE("Parameter name: " << param->get_description())
 	PB_DEBUG_MESSAGE("no. of constraints: " << param->get_constraints().size())
 
-	variable_const_iterator begin(var);
-	variable_const_iterator end = begin.make_end();
+	variable_const_iterator var_begin(var);
+	variable_const_iterator var_end = var_begin.make_end();
 
 	// check all constraints regarding parameters of the variable
 	std::for_each
@@ -221,12 +230,10 @@ void pimpl< Block >::implementation::copy_parameter(const Variable& var, const B
 	// check all constraints regarding values of the variable
 	std::for_each
 	(
-		begin,
-		end,
+		var_begin,
+		var_end,
 		CopyAction< VariableElementT >(param)
 	);
-
-	param_curr_++;
 }
 
 
@@ -273,55 +280,55 @@ namespace plugboard
 
 	const std::string& Block::get_name() const
 	{
-		return (*this)->name_;
+		return (*this)->name;
 	}
 
 
 	void Block::set_name( const std::string & name )
 	{
-		(*this)->name_ = name;
+		(*this)->name = name;
 	}
 
 
 	const std::string& Block::get_name_sys() const
 	{
-		return (*this)->name_sys_;
+		return (*this)->name_sys;
 	}
 
 
 	void Block::set_name_sys(const std::string & name_sys)
 	{
-		(*this)->name_sys_ = name_sys;
+		(*this)->name_sys = name_sys;
 	}
 
 
 	const std::string& Block::get_description() const
 	{
-		return (*this)->description_;
+		return (*this)->description;
 	}
 
 
 	void Block::set_description(const std::string& description)
 	{
-		(*this)->description_ = description;
+		(*this)->description = description;
 	}
 
 
 	bool Block::is_configured() const
 	{
-		return (*this)->configured_;
+		return (*this)->configured;
 	}
 
 
 	bool Block::is_initialized() const
 	{
-		return (*this)->initialized_;
+		return (*this)->initialized;
 	}
 
 
 	void Block::set_initialized()
 	{
-		(*this)->initialized_ = true;
+		(*this)->initialized = true;
 	}
 
 
@@ -329,11 +336,11 @@ namespace plugboard
 	ParameterTypedProxy< T > * Block::add_parameter(std::vector< T > *v, const std::string & description)
 	{
 		param_ptr p(new Parameter(v, plugboard::typeinfo< T >::value, description));
-		(*this)->configured_ = false;
-		(*this)->params_.push_back(p);
+		(*this)->configured = false;
+		(*this)->params.push_back(p);
 
 		p->proxy = std::malloc(sizeof(ParameterTypedProxy< T >));
-		p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params_.back().get());
+		p->proxy = new (p->proxy) ParameterTypedProxy< T >((*this)->params.back().get());
 
 		return static_cast< ParameterTypedProxy< T >* >(p->proxy);
 	}
@@ -360,28 +367,30 @@ namespace plugboard
 		}
 
 		// check if type is safely convertible
-		if (impl.params_[impl.param_curr_]->is_convertible_to(p))
+		if (impl.params[impl.param_curr]->is_convertible_to(p))
 		{
 			// we do not want to typecast the original variable
 			Variable var_tmp(p);
 
-			if(not impl.params_[impl.param_curr_]->is_of_same_type_as(p))
+			if(not impl.params[impl.param_curr]->is_of_same_type_as(p))
 			{
 				PB_DEBUG_MESSAGE("changing type of variable.")
 
-				var_tmp.save_type_change(impl.params_[impl.param_curr_]->get_type());
+				var_tmp.save_type_change(impl.params[impl.param_curr]->get_type());
 			}
 
 			implementation::parameter_factory_func_t
-				fill_block_parameter_with_values_from_variable = impl.parameter_factory_[var_tmp.get_type()];
+				fill_block_parameter_with_values_from_variable = impl.parameter_factory[var_tmp.get_type()];
 
-			fill_block_parameter_with_values_from_variable(var_tmp, impl.params_[impl.param_curr_]);
+			fill_block_parameter_with_values_from_variable(var_tmp, impl.params[impl.param_curr]);
+			impl.param_curr++;
+
 			PB_DEBUG_MESSAGE("Parameter passed successfully.")
 
 			// if this was the last parameter the block is completely configured
-			if (impl.params_.size() == impl.param_curr_)
+			if (impl.params.size() == impl.param_curr)
 			{
-				impl.configured_ = true;
+				impl.configured = true;
 			}
 		} else
 		{
@@ -393,19 +402,19 @@ namespace plugboard
 
 	const std::string& Block::get_parameter_description() const
 	{
-		return (*this)->params_[(*this)->param_curr_]->get_description();
+		return (*this)->params[(*this)->param_curr]->get_description();
 	}
 
 
 	type_t Block::get_parameter_type() const
 	{
-		return (*this)->params_[(*this)->param_curr_]->get_type();
+		return (*this)->params[(*this)->param_curr]->get_type();
 	}
 
 
 	const std::vector< Block::param_ptr >& Block::get_params() const
 	{
-		return (*this)->params_;
+		return (*this)->params;
 	}
 
 
