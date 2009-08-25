@@ -42,7 +42,6 @@ namespace plugboard
 	template< class DerivedPortT >
 	class BasePort
 	{
-	friend class SystemImpl;
 
 	public:
 		typedef std::list< DerivedPortT > store_t;

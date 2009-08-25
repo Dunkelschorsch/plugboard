@@ -30,22 +30,20 @@
 #define SYSTEM_HPP
 
 #include "block/block_ptr.hpp"
+#include "pimpl/pimpl.h"
 #include <string>
-#include "macros.hpp"
 #include <boost/pool/detail/singleton.hpp>
+
 
 namespace plugboard
 {
 	class Variable;
-	struct SystemImpl;
 
-	class System
+	class System : public pimpl< System >::pointer_semantics
 	{
 		typedef boost::details::pool::singleton_default< System > singleton;
 		friend class boost::details::pool::singleton_default< System >;
 	public:
-		virtual ~System();
-		
 		void add_block(block_ptr const, const std::string&);
 
 		void add_variable(const std::string&, const Variable&);
@@ -62,13 +60,8 @@ namespace plugboard
 		void finalize();
 
 		static System& instance();
-
-	protected:
-		PB_DECLARE_PROTECTED(System)
-
 	private:
-	  	System();
-		PB_DECLARE_PRIVATE(System)
+		System();
 	};
 } // namespace plugboard
 
